@@ -1,0 +1,48 @@
+/*
+ * Satlin Official Red Styles.
+ *
+ */
+
+.motto-refmark-manifesto {
+	display : inline;
+	font-size : 50%;
+	vertical-align : top;
+}
+.motto-title-manifesto {
+	font : bold 20px "Times New Roman";
+	color : rgb(154,174,174);
+	text-align : center;
+	margin-top : 5%;
+	margin-bottom : 10%;
+}
+.motto-text-manifesto {
+	font : italic 16px "Times New Roman";
+	color : rgb(154,174,174);
+	position : center;
+	text-align : center;
+}
+.motto-author-manifesto {
+	font : italic 18px "Times New Roman";
+	color : rgb(154,174,174);
+	text-align : right;
+}
+hr.motto-hr-manifesto {
+	color : rgb(154,174,174);
+	border-style : solid;
+	border-width : 0.5px;
+	margin-top : 1em;
+	margin-bottom : 1em;
+	width : 50%;
+}
+.motto-note-manifesto {
+	font : italic 13px "Times New Roman";
+	color : rgb(154,174,174);
+	text-align : left;
+	margin-left : 1px;
+}
+.manifesto {
+	width : 30em;
+	padding-left : 10em;
+	padding-right : 10em;
+	position : center;
+}

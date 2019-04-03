@@ -1,0 +1,20 @@
+[
+	["tarball", "qmail-1.03.tar.gz", "QMAIL source"], 
+	["tarball", "sage-8.1.tar.gz", "Sage source"], 
+	["pdf", "BLUEBOOK.PDF", "PostScript BLUE-BOOK"], 
+	["pdf", "GREENBK.PDF", "PostScript GREEN-BOOK"], 
+	["pdf", "PLRM3.PDF", "PostScript Reference Manual"],
+	["pdf", "varta-litterae/shi-vl-2015-11.pdf", "Newsletter 2015.11"],
+	["pdf", "varta-litterae/shi-vl-2017-9.pdf", "Newsletter 2017.9"],
+	["pdf", "varta-litterae/shi-vl-2017-10.pdf", "Newsletter 2017.10"],
+	["pdf", "varta-litterae/shi-vl-2017-11.pdf", "Newsletter 2017.11"],
+	["pdf", "varta-litterae/shi-vl-2018-2.pdf", "Newsletter 2018.2"],
+	["pdf", "varta-litterae/shi-vl-2018-3.pdf", "Newsletter 2018.3"],
+	["pdf", "varta-litterae/shi-vl-2018-4.pdf", "Newsletter 2018.4"],
+	["pdf", "XiangGuang-FoXueHue-CiLiao.pdf", "香港本願寺佛学会資料"],
+	["odt", "XiangGuang-FoXueHue-CiLiao.odt", "香港本願寺佛学会資料"],
+	["pdf", "JST2005-11a.pdf", "Adobe-Japan1-6とUnicode -- 異字体処理と文字コードの現実"],
+	["pdf", "JST2005-11.pdf", "Adobe-Japan1-6とUnicode -- 異字体処理と文字コードの現実（下書き）"],
+	["tarball", "psdocs.tar.gz", "PostScript DSC documentation"], 
+	["zip", "小塚明朝体Pro-VI.zip", "小塚明朝体Pro-VIフォント"]
+]
