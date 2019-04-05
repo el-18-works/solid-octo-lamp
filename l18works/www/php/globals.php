@@ -1,7 +1,7 @@
 <?php
 $SITE =array();
-$SITE["PROTO"] ="http://";
-#$SITE["PROTO"] ="https://";
+#$SITE["PROTO"] ="http://";
+$SITE["PROTO"] ="https://";
 $SHELLMAIN =!isset($_SERVER["REMOTE_ADDR"]);
 if ($SHELLMAIN) {
 	$SITE["SIGNATURE"] =array("de" => "", "ad" => "");
