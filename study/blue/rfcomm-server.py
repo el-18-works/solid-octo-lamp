@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 from bluetooth import bluez
 
 my_addr ="48:D7:05:DF:C6:4C"
