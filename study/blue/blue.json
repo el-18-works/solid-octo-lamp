@@ -1,0 +1,5 @@
+{
+	"myair_addr" : "48:D7:05:DF:C6:4C",
+	"my_port" : 1,
+	"commands" : {"send":0, "chromiumurl":1}
+}
