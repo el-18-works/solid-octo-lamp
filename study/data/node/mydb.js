@@ -1,12 +1,12 @@
 #!/usr/loca/bin/node
 
-const http =require("http");
-const url =require("url");
-const querystring =require("querystring");
 
 /**
  */
 function data(q, c, cargar) {
+	const http =require("http");
+	const url =require("url");
+	const querystring =require("querystring");
 	this.callback =cargar,
 	this.post = function(q, c, callback) {
 		const postdata ={"q" : JSON.stringify(q)};
@@ -65,8 +65,6 @@ function myCargar(data) {
 	console.log("my cargado : "+data);
 };
 data("select * from event", {"user" : "luckxa", "pass" : "my", "db" : "menagerie"}, myCargar);
-//myBuscar({"test" : ["boomelang0"]}, {"user" : "luckxa", "pass" : "my", "db" : "menagerie"}, myCargar);
-//myBuscar({"test" : ["boomelang0"]}, {"user" : "luckxa", "pass" : "my", "db" : "menagerie"}, myCargar);
 
 /*
 http.get("http://localhost/index.php", function(res) {
@@ -84,5 +82,27 @@ http.get("http://localhost/index.php", function(res) {
 /**
  */
 function modulatio() {
+	const fs = require('fs');
+	const readline = require('readline');
+
+	async function processLineByLine() {
+	  const fileStream = fs.createReadStream('input.txt');
+
+	  const rl = readline.createInterface({
+		input: fileStream,
+		crlfDelay: Infinity
+	  });
+	  // Note: we use the crlfDelay option to recognize all instances of CR LF
+	  // ('\r\n') in input.txt as a single line break.
+
+	  for await (const line of rl) {
+		// Each line in input.txt will be successively available here as `line`.
+		console.log(`Line from file: ${line}`);
+	  }
+	}
+
+	processLineByLine();
+
 }
+
 
