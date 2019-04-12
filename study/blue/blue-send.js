@@ -15,11 +15,12 @@ const fpath =process.argv[2];
 const fn =path.basename(fpath);
 fs =require("fs");
 fs.stat(fpath, (err,stats) => {
+	console.log("%s :", fpath);
 	if (err) return console.log(err);
-	console.log("stats", stats.size);
+	console.log("stats.size : %d bytes", stats.size);
 	const fsz =stats.size;
 	if (fsz < 0 ) {
-		console.log("stats failed on %s...", fn);
+		console.log("stat failed on %s...", fn);
 		return;
 	}
 	const fcnt =Buffer.allocUnsafe(fsz);
@@ -28,7 +29,7 @@ fs.stat(fpath, (err,stats) => {
 		fs.read(fd,fcnt,0,fsz,0,(err,bytesRead,buffer) => {
 			if (err) return console.log(err);
 			buffer.copy(fcnt,0,0,bytesRead);
-			console.log("read %d/%d", bytesRead,fsz);
+			console.log("file read : %d/%d bytes", bytesRead,fsz);
 		});
 	});
 	const bfn =Buffer.from(fn);
