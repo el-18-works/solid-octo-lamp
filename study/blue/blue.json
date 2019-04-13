@@ -2,5 +2,5 @@
 	"mybodhi_addr" : "00-1b-dc-05-b8-af",
 	"myair_addr" : "48:D7:05:DF:C6:4C",
 	"my_port" : 1,
-	"commands" : {"send":0, "chromiumurl":1, "clipboard":2}
+	"commands" : {"send":0, "chromiumurl":1, "clipboard":2, "shell":3}
 }

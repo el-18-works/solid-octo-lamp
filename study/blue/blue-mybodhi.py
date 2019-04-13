@@ -3,7 +3,7 @@ from bluetooth import bluez
 from os.path import expanduser, basename
 from sys import stdout, stderr
 from subprocess import call, Popen
-from sys import argv, stdin, stdout
+from sys import argv, stdin, stdout, stderr
 from json import loads, dumps
 
 rc =loads(open('/usr/local/share/l18/blue.json').read())
@@ -25,6 +25,18 @@ def copy_clipboard(fn) :
     sp.communicate()
     cmd =['xdotool', 'key', 'ctrl+v']
     call(cmd)
+
+def pipe_shell(fn, sock) :
+    out =open("/tmp/myserver-p-out", 'rw')
+    sp =Popen(['/bin/sh'], stdin=open(fn), stdout=out, stderr=stderr)
+    sp.communicate()
+    pdata =out.read()
+    size =len(pdata)
+    pos =0
+    while pos < size :
+        sock.send(pdata[0:]);
+        pos =sock.recv(1024)
+        stderr.write( "sent size (%d/%d)\r" % (pos,size))
 
 def myserver() :
     #my_addr ="48:D7:05:DF:C6:4C"
@@ -62,12 +74,17 @@ def myserver() :
         print ""
         fd.close()
 
-        client_sock.send("ok");
-        client_sock.close()
         if cmd_recv == cmd['chromiumurl'] :
             chromium_open(fn) 
         elif cmd_recv == cmd['clipboard'] :
             copy_clipboard(fn) 
+        elif cmd_recv == cmd['shell'] :
+            client_sock.send("re:");
+            pipe_shell(fn, client_sock) 
+
+        client_sock.send("ok");
+        client_sock.close()
+
 
     server_sock.close()
 
