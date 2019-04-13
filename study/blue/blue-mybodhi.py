@@ -6,7 +6,7 @@ from subprocess import call, Popen
 from sys import argv, stdin, stdout
 from json import loads, dumps
 
-rc =loads(open('blue.json').read())
+rc =loads(open('/usr/local/share/l18/blue.json').read())
 my_addr =rc['myair_addr']
 my_port =rc['my_port']
 cmd =rc['commands']
@@ -15,7 +15,15 @@ def chromium_open(fn) :
     sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
     sp.communicate()
     cmd =['xdotool', 'mousemove', '100', '10', 'click', '1', 'key']
-    cmd +=['ctrl+t', 'ctrl+l', 'ctrl+v', 'Return']
+    cmd +=['ctrl+t', 'ctrl+l', 'ctrl+v', 'Return', 'Return']
+    call(cmd)
+    cmd =['xdotool', 'key', 'Return']
+    call(cmd)
+
+def copy_clipboard(fn) :
+    sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
+    sp.communicate()
+    cmd =['xdotool', 'key', 'ctrl+v']
     call(cmd)
 
 def myserver() :
@@ -32,7 +40,7 @@ def myserver() :
         except KeyboardInterrupt as e :
             break
         print "accepted connection from ", address
-        c =int(client_sock.recv(12))
+        cmd_recv =int(client_sock.recv(1))
         size =[int(client_sock.recv(1024)) for i in range(2)]
         print "received size size %s" % size
         fn =""
@@ -56,8 +64,10 @@ def myserver() :
 
         client_sock.send("ok");
         client_sock.close()
-        if c == cmd['chromiumurl'] :
+        if cmd_recv == cmd['chromiumurl'] :
             chromium_open(fn) 
+        elif cmd_recv == cmd['clipboard'] :
+            copy_clipboard(fn) 
 
     server_sock.close()
 
