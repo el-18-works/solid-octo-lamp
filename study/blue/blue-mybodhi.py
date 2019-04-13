@@ -27,16 +27,19 @@ def copy_clipboard(fn) :
     call(cmd)
 
 def pipe_shell(fn, sock) :
-    out =open("/tmp/myserver-p-out", 'rw')
-    sp =Popen(['/bin/sh'], stdin=open(fn), stdout=out, stderr=stderr)
+    out =open("/tmp/myserver-p-out", 'w')
+    print "sh "+fn
+    sp =Popen(['/bin/sh', fn], stdout=out, stderr=stderr)
     sp.communicate()
+    out.flush(); out =open("/tmp/myserver-p-out", 'r')
     pdata =out.read()
     size =len(pdata)
     pos =0
     while pos < size :
-        sock.send(pdata[0:]);
-        pos =sock.recv(1024)
-        stderr.write( "sent size (%d/%d)\r" % (pos,size))
+        stderr.write( "sending (%d/%d)\r" % (pos,size))
+        sock.send(pdata[pos:pos+1000]);
+        pos +=int(sock.recv(1024))
+    stderr.write( "sending (%d/%d)\r\n" % (pos,size))
 
 def myserver() :
     #my_addr ="48:D7:05:DF:C6:4C"
