@@ -13,6 +13,8 @@ require('./settings.js').rc((rc) =>{
 		rc['cmd'] =0;
 	if ( cmds == "url" || cmds == 'chromiumurl' )
 		rc['cmd'] =1;
+	if ( cmds == "clip" || cmds == 'clipboard' )
+		rc['cmd'] =2;
 	rc['fpath'] =process.argv[3];
 	mycon(rc);
 });
