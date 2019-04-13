@@ -1,5 +1,7 @@
 #!/usr/local/bin/node
 
+const path = require("path");
+
 require('./settings.js').rc((rc) =>{
 	if (process.argv.length != 4) {
 		console.log("Usage : %s cmd in-file", path.basename(process.argv[1]));
@@ -17,7 +19,6 @@ require('./settings.js').rc((rc) =>{
 
 function mycon(rc) {
 	const util = require("util");
-	const path = require("path");
 	const fs = require('fs');
 	const bluetooth = require("node-bluetooth");
 	const device =new bluetooth.DeviceINQ();
