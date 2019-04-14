@@ -1,0 +1,51 @@
+
+au BufWinLeave *.* mkview
+au BufWinEnter *.* silent loadview
+:syntax enable
+:set tabstop=4
+:set shiftwidth=4
+:set encoding=utf-8
+
+" E124 E125 E853 E884
+fun! QA_make(count, ...)
+	:wa
+	:if a:count == 0
+	:	exe "!make $(cat ~/.vim/run/qa_make-target)"
+	:else
+	:	let s =join(a:000, " ")
+	:	exe "!echo ".s." > ~/.vim/run/qa_make-target && make ".s
+	:endif
+endfun
+:com! -nargs=* ZQAmake call QA_make(<count>, <f-args>)
+:map zq :call QA_make("")<CR>
+
+fun! QA_runBuffer(count, ...)
+	:wa
+	":!chmod +x %<CR>
+	:let e =expand("%:e")
+	:if e == "cc" || e == "c"
+	:	let p =expand("%:p:r")
+	:	let p ="make ".p." && ".p
+	:else
+	:	let p =expand("%:p")
+	:endif
+	:if a:count == 0
+	:	exe "!".p." $(cat ~/.vim/run/qa_run-args)"
+	:	return
+	:elseif a:count > 1 && a:000[0] == "debug"
+	:	let s =join(a:000[1], " ")
+	:	if e == "py"
+	:		let p ="python3 -m pdb ".p
+	:	elseif e == "js"
+	:		let p ="node inspect ".p
+	":	else 
+	:	endif
+	:else
+	:	let s =join(a:000, " ")
+	:endif
+	:exe "!echo ".s." > ~/.vim/run/qa_run-args && ".p." ".s
+endfun
+:com! -nargs=* ZRunBufferQA call QA_runBuffer(<count>, <f-args>)
+:map zr :call QA_runBuffer(0)<CR>
+:map zd :call QA_runBuffer(2, "debug", "")<CR>
+
