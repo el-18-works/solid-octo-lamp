@@ -59,16 +59,14 @@ function mycon(rc) {
 
 		bluetooth.connect(address, channel, function(err, connection) {
 			if (err) return log(err);
-
 			var rei =false;
-			var cnt=0;
 			connection.on('data', (buffer) => {
 				//log(util.format('Recieved (connect) : \n', buffer.toString()));
-				if (buffer.toString() == "ok") {
-					//log("")
+				if (buffer.toString() == "ok.") {
+					log("\n")
 					process.exit(0);
 				} else if (buffer.toString() == "re:") {
-					log("")
+					log("\n")
 					rei =true;
 				} else if (rei) {
 					process.stdout.write(buffer.toString());
