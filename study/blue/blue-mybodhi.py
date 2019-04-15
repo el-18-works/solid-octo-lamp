@@ -85,9 +85,8 @@ def myserver() :
             client_sock.send("re:");
             pipe_shell(fn, client_sock) 
 
-        client_sock.send("ok");
+        client_sock.send("ok.");
         client_sock.close()
-
 
     server_sock.close()
 

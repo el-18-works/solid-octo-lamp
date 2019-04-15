@@ -19,9 +19,11 @@ endfun
 :com! -nargs=* ZQAmake call QA_make(<count>, <f-args>)
 :map zq :call QA_make("")<CR>
 
-fun! QA_runBuffer(count, ...)
+fun! QA_runBuffer(...)
 	:wa
 	":!chmod +x %<CR>
+	:let l:count = len(a:000)
+	:let pipe =""
 	:let e =expand("%:e")
 	:if e == "cc" || e == "c"
 	:	let p =expand("%:p:r")
@@ -29,23 +31,27 @@ fun! QA_runBuffer(count, ...)
 	:else
 	:	let p =expand("%:p")
 	:endif
-	:if a:count == 0
+	:if l:count == 0
 	:	exe "!".p." $(cat ~/.vim/run/qa_run-args)"
 	:	return
-	:elseif a:count > 1 && a:000[0] == "debug"
-	:	let s =join(a:000[1], " ")
+	:elseif l:count > 0 && a:1 == "debug"
+	:	let s =join(a:000[1:-1], " ")
 	:	if e == "py"
 	:		let p ="python3 -m pdb ".p
 	:	elseif e == "js"
 	:		let p ="node inspect ".p
 	":	else 
 	:	endif
+	:elseif l:count > 0 && a:1 == "less"
+	:	let s =join(a:000[1:-1], " ")
+	:	let pipe =" | less"
 	:else
 	:	let s =join(a:000, " ")
 	:endif
-	:exe "!echo ".s." > ~/.vim/run/qa_run-args && ".p." ".s
+	:exe "!echo ".s." > ~/.vim/run/qa_run-args && ".p." ".s.pipe
 endfun
-:com! -nargs=* ZRunBufferQA call QA_runBuffer(<count>, <f-args>)
-:map zr :call QA_runBuffer(0)<CR>
-:map zd :call QA_runBuffer(2, "debug", "")<CR>
+:com! -nargs=* ZRunBufferQA call QA_runBuffer(<f-args>)
+:map zr :call QA_runBuffer()<CR>
+:map zd :call QA_runBuffer("debug")<CR>
+:map zl :call QA_runBuffer("less")<CR>
 
