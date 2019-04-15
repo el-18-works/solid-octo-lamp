@@ -1,19 +1,18 @@
-#!/usr/loca/bin/node
-
+#!/usr/local/my/bin/node
 
 /**
  */
-function data(q, c, cargar) {
-	const http =require("http");
+function data(q, cargar, c=null) {
+	const http =require("https");
 	const url =require("url");
 	const querystring =require("querystring");
 	this.callback =cargar,
 	this.post = function(q, c, callback) {
 		const postdata ={"q" : JSON.stringify(q)};
-		if (c != null) 
-			postdata.c =c;
+		if (c) 
+			postdata.c =JSON.stringify(c);
 		const post =querystring.stringify(postdata);
-		const link =url.parse("http://localhost/ens/mydb/");
+		const link =url.parse("https://ens.l18.work/my/sql/");
 		link.method ='POST';
 		link.headers = {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -45,7 +44,7 @@ function data(q, c, cargar) {
 		req.end();
 	},
 	this.f =function(data, statusCode) {
-		switch( statusCode) {
+		switch(statusCode) {
 		case 500 :
 			//console.log("error");
 			this.post(q, c, this.f);
@@ -64,7 +63,10 @@ function data(q, c, cargar) {
 function myCargar(data) {
 	console.log("my cargado : "+data);
 };
-data("select * from event", {"user" : "luckxa", "pass" : "my", "db" : "menagerie"}, myCargar);
+data("select * from user_summary", myCargar, {"user" : "luckxa", "pass" : "my", "schema" : "sys"});
+data("select * from user_summary", myCargar);
+//data("select * from user_summary", {"user" : "luckxa", "pass" : "my", "schema" : "sys"}, myCargar);
+//data("select * from event", {"user" : "luckxa", "pass" : "my", "db" : "menagerie"}, myCargar);
 
 /*
 http.get("http://localhost/index.php", function(res) {
@@ -82,6 +84,7 @@ http.get("http://localhost/index.php", function(res) {
 /**
  */
 function modulatio() {
+/*
 	const fs = require('fs');
 	const readline = require('readline');
 
@@ -102,7 +105,7 @@ function modulatio() {
 	}
 
 	processLineByLine();
-
+*/
 }
 
 
