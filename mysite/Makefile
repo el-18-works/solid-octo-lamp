@@ -21,6 +21,7 @@ cache/myenv.flg : myenv.sh
 
 cache/vimrc.flg : vimrc
 	test -f $(HOME)/.vimrc || \
-		ln -s $(PWD)/vmrc $(HOME)/.vimrc
+		ln -s $(PWD)/vimrc $(HOME)/.vimrc
+	mkdir -p $(HOME)/.vim/run
 	touch $@
 
