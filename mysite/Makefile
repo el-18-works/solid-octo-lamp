@@ -1,7 +1,7 @@
 
 SITEBIN=/usr/local/my/bin
 
-BINFILES=node
+BINFILES=node myunison
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
 FILES=myenv vimrc
 FLGS=$(foreach f,$(FILES),cache/$(f).flg)
@@ -11,6 +11,7 @@ all :  $(BINFLGS) $(FLGS)
 	rm -f cache/*.flg
 
 cache/%.bin.flg : %
+	chmod +x $(PWD)/$(<)
 	sudo ln -s $(PWD)/$(<) $(SITEBIN)/$(<) || true
 	touch $@
 
