@@ -23,6 +23,8 @@ require('./settings.js').rc((rc) =>{
 	if ( cmds == "pipe" || cmds == 'shell' )
 		rc['cmd'] =3;
 	rc['fpath'] =process.argv[3];
+	//XXX port por opcion.
+	//rc['my_port'] =2;
 	mycon(rc);
 });
 
