@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from bluetooth import bluez
 from os.path import expanduser, basename
+from os import getenv, getpid
 from sys import stdout, stderr
 from subprocess import call, Popen
 from sys import argv, stdin, stdout, stderr
@@ -10,6 +11,8 @@ rc =loads(open('/usr/local/share/l18/blue.json').read())
 my_addr =rc['myair_addr']
 my_port =rc['my_port']
 cmd =rc['commands']
+
+pout ="/tmp/myserver-p-out%d"%getpid()
 
 def chromium_open(fn) :
     sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
@@ -21,17 +24,33 @@ def chromium_open(fn) :
     call(cmd)
 
 def copy_clipboard(fn) :
-    sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
-    sp.communicate()
-    cmd =['xdotool', 'key', 'ctrl+v']
-    call(cmd)
+	sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
+	sp.communicate()
+	cmd =['xdotool', 'getwindowname',  getenv("WINDOWID")]
+	out =open(pout, 'w')
+	print (" ".join(cmd).strip())
+	sp =Popen(cmd, stdout=out, stderr=stderr)
+	sp.communicate()
+	out.flush(); out =open(pout, 'r')
+	pdata =out.read()
+	print (pdata.strip())
+	a =pdata.strip().split(" ")
+	if "Yakuake" in a :
+		print "terminal..."
+		if "vi" in a :
+			cmd =['xdotool', 'key', 'Escape', 'i', 'ctrl+shift+v']
+		else :
+			cmd =['xdotool', 'key', 'ctrl+shift+v']
+	else :
+		cmd =['xdotool', 'key', 'ctrl+v']
+	call(cmd)
 
 def pipe_shell(fn, sock) :
-    out =open("/tmp/myserver-p-out", 'w')
+    out =open(pout, 'w')
     print "sh "+fn
     sp =Popen(['/bin/sh', fn], stdout=out, stderr=stderr)
     sp.communicate()
-    out.flush(); out =open("/tmp/myserver-p-out", 'r')
+    out.flush(); out =open(pout, 'r')
     pdata =out.read()
     size =len(pdata)
     pos =0
@@ -43,7 +62,6 @@ def pipe_shell(fn, sock) :
 
 def myserver() :
     #my_addr ="48:D7:05:DF:C6:4C"
-    #my_port =1
 
     server_sock =bluez.BluetoothSocket( bluez.RFCOMM )
 
@@ -91,5 +109,9 @@ def myserver() :
     server_sock.close()
 
 
+if __name__ == '__main__' and len(argv) > 1 :
+	port =argv[1]
+	my_port =int(port)
+	print("port:%d"%my_port)
 myserver()
 

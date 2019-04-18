@@ -1,0 +1,5 @@
+#!/bin/bash
+
+unison -links false /var/www/html ~/sol/l18works/www && \
+	cd ~/sol/l18works && git add www
+
