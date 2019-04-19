@@ -11,9 +11,9 @@ function my_data_servatio() {
 	 * descifrar el json interrogante
 	 */
 	// argumento de interrogación
-	$q = json_decode($_REQUEST["q"], false /*=> object, true => array*/);
+	$q = json_decode(urldecode($_REQUEST["q"]), false /*=> object, true => array*/);
 	// marcadores y parámetros
-	$p = isset($_REQUEST["p"]) ? json_decode($_REQUEST["p"], false /*=> object, true => array*/) : null;
+	$p = isset($_REQUEST["p"]) ? json_decode(urldecode($_REQUEST["p"]), false /*=> object, true => array*/) : null;
 	// argumento de conexión
 	$c = json_decode($_REQUEST["c"], false /*=> object, true => array*/);
 	// XXX cookie no efectuante.
@@ -25,6 +25,7 @@ function my_data_servatio() {
 	}
 
 	$mysqli =new mysqli("localhost", $c->user, $c->pass, $c->schema);
+	$mysqli->set_charset("utf8");
 	//$mysqli =new mysqli("localhost", "luckxa", "my", "sys");
 	$r =new resclass();
 	if ($p != null) { // preparando con parámetros.
@@ -49,7 +50,7 @@ function my_data_servatio() {
 		} 
 	} else { // sin preparar.
 		if (!($res = $mysqli->query($q))) {
-			$r->error =array( "querry-error" => array( "errno" => $mysqli->errno, "error" => $mysqli->error ) );
+			$r->error =array( "querry-error" => array( "errno" => $mysqli->errno, "error" => $mysqli->error, "sql" => $q ) );
 		} else {
 			while ($row = $res->fetch_object())
 				$r->res[] =$row;
