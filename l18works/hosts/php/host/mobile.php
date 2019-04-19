@@ -1,4 +1,17 @@
 <?php
+/*
+ * mobile check.
+ */
+function my_test_mobile() // : bool
+{
+	$proto= $_SERVER["HTTPS"] == "on" ? "https" : "http";
+	$dom =$_SERVER["SERVER_NAME"];
+	$path =$_SERVER["PHP_SELF"];
+	$base =basename($path);
+	$pdir =dirname($path);
+	$dir =basename($pdir);
+	return preg_match('/(android)|(mobile)/i', $_SERVER["HTTP_USER_AGENT"]) ;
+}
 //XXX @host/mobile.php
 function my_mobilenavi($mobile=true, $pc=true) {
 	$proto= $_SERVER["HTTPS"] == "on" ? "https" : "http";

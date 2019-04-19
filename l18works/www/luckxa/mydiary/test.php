@@ -37,6 +37,10 @@ if ($MOBILE) {
 	echo "padding : 50px;\n";
 }
 ?>
+/*
+	margin : 50px;
+	padding : 50px;
+*/
 	background-color : white;
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
 	line-height : 40px;
@@ -125,14 +129,31 @@ a:hover {
 </style>
 
 <script>
-/*
-*/
-<?php my_nowloading(1); ?>
+function my_nowloading_init(dur =1) {
+    let e =document.createElement("div");
+    e.id ="nowloading";
+    e.style.position ="fixed";
+    e.style.height ="100%";
+    e.style.width ="100%";
+    e.style.backgroundColor ="#000";
+    e.style.backgroundImage ="url(https://ens.l18.work/res/misc/nowloading.gif)";
+    e.style.backgroundRepeat ="no-repeat";
+    e.style.backgroundPosition ="center center";
+    e.style.backgroundAttachment ="fixed";
+    e.style.opacity ="0.8";
+    e.style.transitionDuration ="1s";
+    document.body.insertBefore(e, document.body.firstChild);
+}
+function my_nowloading_fini(dur =1) {
+    let e =document.getElementById("nowloading");
+    e.style.opacity ="0";
+    setTimeout( () => (document.body.removeChild(e)) , dur * 1000);
+}
 </script>
 </head> <body>
 
 <script>
-myNowloadingInit();
+my_nowloading_init();
 </script>
 <a id=startdash href="//luckxa.l18.work/start-dash-diary/#bot">麻衣ねぇがリーダー就任するまでの日記</a>
 
@@ -157,36 +178,28 @@ myNowloadingInit();
 <div style="height:50px; clear:both;">
 </div>
 
+
 <?php
-/*
-function txtclass($name, $title, $a) {
-	//$a =explode("\n", $s);
-	echo '<div class="txt">';
-	echo '<h4 class="tag"><a name="'.$name.'">'.$title.'</a></h4>';
+function txtclass($id, $h, $s) {
+	$a =explode("\n", $s);
+	echo '<div class="txt" id='.$id.'>';
+	echo '<h4 class="tag"><a name="'.$id.'">'.$title.'</a></h4>';
 	foreach ($a as $n => $p) {
 		echo " <p class=\"normal ${n}\" >　${p}</p>\n";
 	}
 	//echo "<p><a href=\"#\">目次</a></p>\n";
 	echo "</div>\n";
 }
-
+/*
 $data =file_get_contents('./xxxtmpdata/data.txt');
 $adata =explode("\n", $data);
 $hdata =explode(":", $adata[0]);
 $a =array_slice($adata, 1);
 txtclass($hdata[0], $hdata[1], $a);
 */
-?>
-<a name="bot"></a>
-<br/><br/>
-<script>
-myNowloadingFini(2);
 
-/*
- *
- * TxtClass.
- *
- */
+?>
+<script>
 function txtclass(id, h, s) {
 	a =s.split("\n");
 	let txt ="";
@@ -211,10 +224,6 @@ function txtclass(id, h, s) {
     document.body.appendChild(div);
 
 //XXX db.
-<?php
-echo "const mobile =" .($MOBILE ? "1" : "0").";";
-?>
-if (! mobile) {
 	let canvas =document.createElement("canvas");
 	let img =document.createElement("img");
 	img.setAttribute("src", "xxxtmpdata/m.svg");
@@ -223,7 +232,6 @@ if (! mobile) {
 	canvas.getContext("2d").drawImage(img,0,0);
 	var b64 =canvas.toDataURL();
 	document.querySelector("#imgtest").onclick =function(e) {myOpenPhoto(e,b64,500,500);};
-}
 }
 function myRecvData(q, c, callback) {
 	console.log(q);
@@ -253,33 +261,35 @@ function mySetTxt(a,m,d) {
 mySetTxt(2019, 4, 19);
 /*
 */
+</script>
+<a name="bot"></a>
+<br/><br/>
+<script>
+my_nowloading_fini(2);
 
-
-
-/*
- *
- * Visual.
- *
- */
+<?php
+if ($MOBILE) {
+	echo 'document.querySelector("#mypagetitle").onclick = () => {';
+} else {
+	echo 'document.querySelector("#mypagetitle").onmouseover = () => {';
+}
+?>
+//document.querySelector("#mypagetitle").onmouseover = () => {
+	document.querySelector(".titleicon").style.opacity = 1;
+	document.querySelector("h1").style.opacity = 0.1;
+	document.querySelector("#jumpsvg").style.height ="80px";
+	document.querySelector("#jumpsvg").style.opacity = 1;
+}
 document.querySelector("#mypagetitle").onmouseout = () => {
 	document.querySelector(".titleicon").style.opacity = 0.39;
 	document.querySelector("h1").style.opacity = 1;
 	document.querySelector("#jumpsvg").style.height ="10px";
 	document.querySelector("#jumpsvg").style.opacity = 0;
 }
-<?php
-if ($MOBILE) {
-	echo 'document.querySelector("#mypagetitle").onclick = () => {';
-} else {
-		echo 'document.querySelector("#mypagetitle").onmouseover = () => {';
-}
-		echo "document.querySelector('.titleicon').style.opacity = 1;";
-		echo "document.querySelector('h1').style.opacity = 0.1;";
-		echo "document.querySelector('#jumpsvg').style.height ='80px';";
-		echo "document.querySelector('#jumpsvg').style.opacity = 1;";
-	echo "}";
-?>
 
+
+/* Get the documentElement (<html>) to display the page in fullscreen */
+var elem = document.documentElement;
 
 /* View in fullscreen */
 function openFullscreen() {
@@ -296,10 +306,22 @@ function closeFullscreen() {
   }
 }
 
+function myMenuOver() {
+	document.getElementById("menu").style.opacity = 0.9;
+	//alert("my");
+}
+function myMenuOut() {
+	document.getElementById("menu").style.opacity = 0.1;
+	//alert("my");
+}
+
 function myClosePhoto(e) {
 	let tapis =document.getElementById("photo-tapis");
 	let img =document.getElementById("photo-img");
 	let info =document.getElementById("photo-info");
+	console.info("tapis "+tapis);
+	console.info("img "+img);
+	console.info("info "+info);
 	if (tapis.style.opacity != 0) {
 		info.style.transitionDuration ="1.5s";
 		info.style.backgroundColor ="black";
@@ -314,7 +336,7 @@ function myClosePhoto(e) {
 	}
 }
 function myOpenPhoto(e, data, width, height) {
-	var opacity =0.95;
+	var opacity =0.9;
 
 	let tapis =document.createElement("div"); tapis.id ="photo-tapis";
     document.body.insertBefore(tapis, document.body.firstChild);
@@ -339,9 +361,16 @@ function myOpenPhoto(e, data, width, height) {
 		openFullscreen();
 		let totalHeight =screen.availHeight;
 		let totalWidth =window.innerWidth;
+		//tapis.style.position ="fixed";
+		//info.style.position ="fixed";
+		//img.style.position ="fixed";
+		//tapis.style.margin ="0px";
+		//info.style.margin ="0px";
+		//img.style.margin ="0px";
 		tapis.style.backgroundImage ="linear-gradient(black, #113, #333, #311, black)";
 		tapis.style.opacity =info.style.opacity =opacity;
 		tapis.style.zIndex =img.style.zIndex =info.style.zIndex =5;
+		//img.style.zIndex =6;
 		let top =(totalHeight-height)/2-30;
 		let left =(totalWidth-width)/2-30;
 		info.style.top =top+"px";
@@ -356,43 +385,21 @@ function myOpenPhoto(e, data, width, height) {
 		img.setAttribute("src", "xxxtmpdata/m.svg");
 		img.setAttribute("class", "photoEnter");
 		photoHref.setAttribute("href", "xxxtmpdata/m.svg");
-		photoHref.setAttribute("target", "_blank");
-		//photoHref.setAttribute("download", "xxxtmpdata/m.svg");
-		let imglinkicon ='<img class="data_image" width="12" height="12" alt="star" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAA/klEQVQoU3WQMZIBYRCFX48Jtgi4gZHZmkhAihsQErnBrhvsDRxhCIwQJyA2gRGokuEGEmqr7GrdGPUPNRP98/73/a9fE4zv0w++LeBHpKyp6/mfUN+0ynN6vSiOlk6K//qiVy9AlwlhijFLBJzxMpc+nWdEWK3blc7jge0TcP2AX1MAHqjZHS46APVAyMUAjZaLncXsgXj6NBN5zNhLWj4G6I91QU0KfR3TdiFzOjcg5nsHeyKdQvE0bqV1pIh2/UVf5qsSyDE3o9vT8m+AmhQCY64J0UOq6zJ2zdIhlmCWN5NN/Qa8b+mumAmRh4qjoJYE/H7YoY4RS0gyJ+lXBviSDaxQWVkAAAAASUVORK5CYII=">';
-		photoHref.innerHTML ="元の画像"+imglinkicon;
+		photoHref.setAttribute("download", "xxxtmpdata/m.svg");
 /*
+		photoHref.innerHTML ="元の画像"+imgLinker;
 		siteHref.setAttribute("href", "xxxxxxtmpdata/m.svg");
 		siteHref.setAttribute("target", "_blank");
-		siteHref.innerHTML ="元のサイト"+imglinkicon;
+		siteHref.innerHTML ="元のサイト"+imgLinker;
 */
+		//legend.innerHTML ="My MyMelody My Mymelody Melody My Melody My Melody My Melody My Melody My Melody";
+		//tooltip.innerHTML ="My Melody My Melody My mymelody Melody My Melody My Melody My Melody foo<br>My Melody My Melody My Melody My Melody My Melody My Melody";
 		legend.innerHTML ="my diary";
-		tooltip.innerHTML ="my流華日記の<br>QRコード";
+		tooltip.innerHTML ="my流華日記";
 		tooltip.style.zIndex =7;
-		legend.onmouseover = () => {
-			tooltip.style.visibility ="visible";
-			tooltip.style.opacity =0.8;
-		}
-		legend.onmouseout = () => {
-			tooltip.style.visibility ="hidden";
-			tooltip.style.opacity =0;
-		}
-
-		setTimeout(()=>window.onresize =myClosePhoto, 1000);
+		setTimeout(function(){window.onresize =myClosePhoto;}, 1000);
 	}
 }
-
-<?php
-echo "if (!$MOBILE) {";
-	echo "let canvas =document.createElement(\"canvas\");";
-	echo "let img =document.createElement(\"img\");";
-	echo "img.setAttribute(\"src\", \"xxxtmpdata/m.svg\");";
-	echo "canvas.width =543;";
-	echo "canvas.height =597;";
-	echo "canvas.getContext(\"2d\").drawImage(img,0,0);";
-	echo "var b64 =canvas.toDataURL();";
-	echo "document.querySelector(\"#imgtest\").onclick =function(e) {myOpenPhoto(e,b64,500,500);};";
-echo "}";
-?>
 
 
 </script>
