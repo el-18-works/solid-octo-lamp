@@ -26,7 +26,8 @@ def chromium_open(fn) :
 def copy_clipboard(fn) :
 	sp =Popen(['/usr/bin/xclip', '-selection', 'clipboard'], stdin=open(fn))
 	sp.communicate()
-	cmd =['xdotool', 'getwindowname',  getenv("WINDOWID")]
+	cmd =['xdotool', 'getactivewindow', 'getwindowname']
+	#cmd =['xdotool', 'getwindowname',  getenv("WINDOWID")]
 	out =open(pout, 'w')
 	print (" ".join(cmd).strip())
 	sp =Popen(cmd, stdout=out, stderr=stderr)
