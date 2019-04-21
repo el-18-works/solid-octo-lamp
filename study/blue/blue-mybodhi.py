@@ -37,7 +37,7 @@ def copy_clipboard(fn) :
 	print (pdata.strip())
 	a =pdata.strip().split(" ")
 	if "Yakuake" in a :
-		print "terminal..."
+		print "paste in terminal"
 		if "vi" in a :
 			cmd =['xdotool', 'key', 'Escape', 'i', 'ctrl+shift+v']
 		else :
@@ -73,10 +73,15 @@ def myserver() :
             client_sock, address =server_sock.accept()
         except KeyboardInterrupt as e :
             break
-        print "accepted connection from ", address
-        cmd_recv =int(client_sock.recv(1))
-        size =[int(client_sock.recv(1024)) for i in range(2)]
-        print "received size size %s" % size
+        try :
+			print "accepted connection from ", address
+			cmd_recv =int(client_sock.recv(1))
+			size =[int(client_sock.recv(1024)) for i in range(2)]
+			print "received size size %s" % size
+        except ValueError as e :
+			client_sock.send("no!");
+			client_sock.close()
+			continue
         fn =""
         pos =0
         while pos < size[0] :
