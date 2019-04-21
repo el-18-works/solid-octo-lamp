@@ -65,6 +65,10 @@ function mycon(rc) {
 				if (buffer.toString() == "ok.") {
 					log("\n")
 					process.exit(0);
+				} else if (buffer.toString() == "no!") {
+					process.stderr.write(util.format('fail\n'));
+					log("\n")
+					process.exit(1);
 				} else if (buffer.toString() == "re:") {
 					log("\n")
 					rei =true;
