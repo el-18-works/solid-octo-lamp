@@ -3,13 +3,14 @@ WORKS=createtable-txt insert-init
 FLGS=$(foreach i,$(WORKS),cache/$(i).flg)
 
 .IMPORT : MYSHARE
+.PHONY : clean genko
 
 all : $(FLGS)
 
-.PHONY clean :
+clean :
 	rm -f $(FLGS)
 
-cache/createtable-txt.flg :
+cache/createtable-txt.flg : createtable-txt.sql
 	sudo MYSQL_PWD=@ mysql -u l18 -sB <createtable-txt.sql
 	touch $@
 
@@ -19,3 +20,7 @@ cache/insert-init.flg :
 	read x
 	sudo MYSQL_PWD=@ mysql -u l18 l18 -sB <cache/insert.sql
 	touch $@	
+
+genko :
+	cd genko && make
+

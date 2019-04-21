@@ -7,7 +7,7 @@ USE l18;
 -- a annus.
 -- m mensis.
 -- d dies.
-CREATE TABLE luckxa_mydiary_txt (
+CREATE TABLE IF NOT EXISTS luckxa_mydiary_txt (
 	id INT AUTO_INCREMENT NOT NULL,
 	a YEAR(4) NOT NULL,
 	m INT NOT NULL,
@@ -18,4 +18,10 @@ CREATE TABLE luckxa_mydiary_txt (
 	FULLTEXT(txt)	
 ) DEFAULT CHARSET="utf8";
 
+
+DROP TABLE luckxa_mydiary_txt_test;
+CREATE TABLE IF NOT EXISTS luckxa_mydiary_txt_test LIKE luckxa_mydiary_txt;
+INSERT luckxa_mydiary_txt_test SELECT * FROM luckxa_mydiary_txt;
+
+SHOW TABLES;
 

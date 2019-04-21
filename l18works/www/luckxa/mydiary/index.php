@@ -108,8 +108,8 @@ a:hover {
 	border-radius : 50%;
 	float : right;
 	position :relative;
-	top : 23px;
-	right : 85px;
+	top : 13px;
+	right : 125px;
 	opacity : 0.39;
 	z-index : 2;
 }
@@ -138,18 +138,34 @@ myNowloadingInit();
 
 <div id=mypagetitle>
 <img src=xxxtmpdata/miku_400x400.jpg height=40px id=mikuicon class="titleicon"> 
-<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon class="titleicon"> 
-<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon1 class="titleicon"> 
+<?php
+$localdate =localtime()[3];
+if ($localdate == 21)
+	echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
+else
+	echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
+?>
 <h1 class="titleicon">my<ruby>流華<rt>るか</rt></ruby>日記</h1>
 <!--
+<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon class="titleicon"> 
+<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon1 class="titleicon"> 
 -->
 <svg id=jumpsvg class=titleicon width=180px height=80px>
  <polygon points="50,3 40,20  60,20" style="fill:lightblue" />
  <rect width=180px height=60px x=0 y=20 rx=20 ry=20 style="fill:lightblue" />
- <a xlink:href="#bot" target="_self">
+<?php
+if ($localdate == 21)
+ 	echo '<a xlink:href="https://namu.wiki/w/%EA%B3%BC%ED%95%99%EC%9D%98%20%EB%82%A0" target="_self">';
+else
+	echo '<a xlink:href="https://ja.wikipedia.org/wiki/%E9%83%B5%E6%94%BF%E8%A8%98%E5%BF%B5%E6%97%A5" target="_self">';
+?>
 <text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)">
-  <tspan x=5px y=55px>一番下へ</tspan>
-  <tspan x=70px y=80px>ジャンプw</tspan>
+<?php
+if ($localdate == 21)
+	echo '<tspan x=5px y=55px>오늘은</tspan><tspan x=70px y=80px>과학의 날w</tspan>';
+else
+	echo '<tspan x=5px y=55px>今日は</tspan><tspan x=70px y=80px>郵政記念日</tspan>';
+?>
   </text>
  </a>
 </svg>
@@ -182,6 +198,26 @@ txtclass($hdata[0], $hdata[1], $a);
 <script>
 myNowloadingFini(2);
 
+<?php echo "const mobile =" .($MOBILE ? "1" : "0").";"; ?>
+console.log("mobile=%d", mobile);
+//xxx db.
+function xxximgtest() {
+	if (! mobile) {
+		let canvas =document.createElement("canvas");
+		let img =document.createElement("img");
+		img.setAttribute("src", "xxxtmpdata/m.svg");
+		canvas.width =543;
+		canvas.height =597;
+		canvas.getContext("2d").drawImage(img,0,0);
+		var b64 =canvas.toDataURL();
+		let imgtest =document.querySelector("#imgtest");
+		console.log("on pc, imgtest");
+		console.log(imgtest);
+		if (imgtest)
+			imgtest.onclick =function(e) {myOpenPhoto(e,b64,500,500);};
+	}
+}
+
 /*
  *
  * TxtClass.
@@ -191,39 +227,63 @@ function txtclass(id, h, s) {
 	a =s.split("\n");
 	let txt ="";
 	let div =document.createElement("div"); 
-	div.id =id;
+	div.id ="txt"+id;
 	div.setAttribute("class", "txt");
-	div.setAttribute("id", id);
 	let h4 =document.createElement("h4"); 
 	h4.setAttribute("class", "tag");
 	let aName =document.createElement("a"); 
+	aName.id ="txt-aname"+id;
 	aName.setAttribute("name", id);
 	aName.innerHTML =h;
     h4.appendChild(aName);
     div.appendChild(h4);
-	console.info(a);
-	for (i =0; i<a.length; ++i ) {
+	console.info(aName);
+	//console.info(a);
+	for (let i =0; i<a.length; ++i ) {
 		let p =document.createElement("p"); 
+		p.id ="txt-p"+id+"-"+i;
 		p.setAttribute("class", "normal");
 		p.innerHTML =a[i];
     	div.appendChild(p);
 	}
     document.body.appendChild(div);
-
-//XXX db.
-<?php
-echo "const mobile =" .($MOBILE ? "1" : "0").";";
-?>
-if (! mobile) {
-	let canvas =document.createElement("canvas");
-	let img =document.createElement("img");
-	img.setAttribute("src", "xxxtmpdata/m.svg");
-	canvas.width =543;
-	canvas.height =597;
-	canvas.getContext("2d").drawImage(img,0,0);
-	var b64 =canvas.toDataURL();
-	document.querySelector("#imgtest").onclick =function(e) {myOpenPhoto(e,b64,500,500);};
+	hodieALength =a.length;
 }
+
+var hodieId =-1;
+var hodieActitatum =-1;
+var hodieALength =-1;
+var actitatum =10000;
+function txtclassAct(id, h, s) {
+	a =s.split("\n");
+	//console.info("id :"+id);
+	//console.info("h :"+h);
+	//console.info("a :"+a.length);
+	let txt ="";
+	let div =document.getElementById("txt"+id); 
+	//console.info("div :"+div);
+	let aName =document.getElementById("txt-aname"+id); 
+	if (aName.innerHTML != h)
+		aName.innerHTML =h;
+	//console.info(aName);
+	for (let i =0; i<a.length; ++i ) {
+		let p =document.getElementById("txt-p"+id+"-"+i); 
+		if (! p) {
+			let p =document.createElement("p"); 
+			p.id ="txt-p"+id+"-"+i;
+			p.setAttribute("class", "normal");
+			p.innerHTML =a[i];
+			div.appendChild(p);
+		} else if (p.innerHTML != a[i]) {
+			p.innerHTML =a[i];
+		}
+	}
+	let al =hodieALength;
+	hodieALength =a.length;
+	for (let i=a.length; i< al; ++i) {
+		let p =document.getElementById("txt-p"+id+"-"+i); 
+		div.removeChild(p);
+	}
 }
 function myRecvData(q, c, callback) {
 	console.log(q);
@@ -240,21 +300,61 @@ function myRecvData(q, c, callback) {
 	http.send(encodeURI(postdata.join("&")));
 }
 
+
 function mySetTxt(a,m,d) {
-	myRecvData(`SELECT * FROM luckxa_mydiary_txt WHERE a=${a} && m=${m} && ABS(d-${d}) < 2 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	myRecvData(`SELECT * FROM luckxa_mydiary_txt_test WHERE a=${a} && m=${m} && ABS(d-${d}) < 7 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	//myRecvData(`SELECT * FROM luckxa_mydiary_txt WHERE a=${a} && m=${m} && ABS(d-${d}) < 2 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
 			data =JSON.parse(data);
 			//console.log(data["error"]);
-			var res =data["res"];
-			for ( i =0; i<res.length; ++i) {
+			let res =data["res"];
+			//console.log("fetched ".(res.length));
+			console.log("fetched ");
+			console.log(res.length);
+			let aid =[];
+			for (let i =0; i<res.length; ++i) {
 				txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
+				console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
+				aid.push(res[i]["id"]);
+			}
+			hodieId =aid[aid.length-1];
+			hodieActitatum =(new Date()).getTime();
+	});
+}
+(function initSetTxt() {
+	let dt =new Date();
+	let a =dt.getFullYear();
+	let m =dt.getMonth()+1;
+	let d =dt.getDate();
+	console.log("amd= %d,%d,%d",a,m,d);
+	mySetTxt(a, m, d);
+})();
+/*
+*/
+function myActTxt(id) {
+	myRecvData(`SELECT h,txt FROM luckxa_mydiary_txt_test WHERE id=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+			data =JSON.parse(data);
+			if (data["error"])
+				console.log(data["error"]);
+			let res =data["res"];
+			if (res.length == 1) {
+				txtclassAct(id, res[0]["h"], res[0]["txt"]);
+			} else {
+				console.log("myActTxt fetched ");
+				console.log(res.length);
 			}
 	});
 }
-mySetTxt(2019, 4, 19);
-/*
-*/
-
-
+document.body.onscroll =(e) => {
+	let body =document.body;
+	//console.log("Height"+(body.offsetHeight-body.clientHeight*1.2))
+	if ( body.scrollTop >= (body.offsetHeight-body.clientHeight*1.2)) {
+		if (hodieId > 0 && hodieActitatum < (new Date()).getTime() - actitatum) {
+			hodieActitatum = (new Date()).getTime();
+			//console.log("hodie id "+hodieId);
+			myActTxt(hodieId);
+		}
+	}
+}
 
 /*
  *
@@ -271,7 +371,7 @@ document.querySelector("#mypagetitle").onmouseout = () => {
 if ($MOBILE) {
 	echo 'document.querySelector("#mypagetitle").onclick = () => {';
 } else {
-		echo 'document.querySelector("#mypagetitle").onmouseover = () => {';
+	echo 'document.querySelector("#mypagetitle").onmouseover = () => {';
 }
 		echo "document.querySelector('.titleicon').style.opacity = 1;";
 		echo "document.querySelector('h1').style.opacity = 0.1;";
@@ -380,19 +480,6 @@ function myOpenPhoto(e, data, width, height) {
 		setTimeout(()=>window.onresize =myClosePhoto, 1000);
 	}
 }
-
-<?php
-echo "if (!$MOBILE) {";
-	echo "let canvas =document.createElement(\"canvas\");";
-	echo "let img =document.createElement(\"img\");";
-	echo "img.setAttribute(\"src\", \"xxxtmpdata/m.svg\");";
-	echo "canvas.width =543;";
-	echo "canvas.height =597;";
-	echo "canvas.getContext(\"2d\").drawImage(img,0,0);";
-	echo "var b64 =canvas.toDataURL();";
-	echo "document.querySelector(\"#imgtest\").onclick =function(e) {myOpenPhoto(e,b64,500,500);};";
-echo "}";
-?>
 
 
 </script>
