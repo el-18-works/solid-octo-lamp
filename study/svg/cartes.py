@@ -368,16 +368,24 @@ class Generate :
 
 
 white ="#fffdfa"
-red ="#fa0a0a"
-black ="#000000"
+red ="#da0a0a"
+black ="#010101"
 theme ="#210126"
 
 class Card :
 
-	def __init__(ipse, figure, freq, rratio=0.05) :
+	# backfig = {ohana|8r}
+	def __init__(ipse, figure, freq, rratio=0.05, gradient=0, backfig="ohana") :
 		ipse.figure =figure
 		ipse.freq =freq
 		ipse.rratio =rratio
+		ipse.gradient =gradient
+		if backfig == "ohana" :
+			ipse.back_path =etc_path[27] # ohana
+		elif backfig == "8r" :
+			ipse.back_path =etc_path[16] # 8r
+		else :
+			ipse.error("unknown backfig '%s'"%backfig)
 		if figure == "spade" :
 			ipse.path =element_path[1]
 			ipse.open_path =element_path[5]
@@ -410,11 +418,22 @@ class Card :
 # poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
 # bridge size 2.25 x 3.5 inches (57 x 89mm)
 		if num == 0 :
-			return ipse.back(width, prefix)
+			return ipse.back(width, ace_scale, prefix)
 		rsize =width*ipse.rratio
 		size =width, width/5*7
 		svg ='<svg width="%f" height="%f" id="%s%s%d">\n'%(size[0], size[1], prefix, ipse.figure, num)
-		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		if ipse.gradient :
+			gradradius =size[0]
+			svg +='<radialGradient id="'+prefix+'whitegradient" cx="'+str(size[0]/2)+'" cy="'+str(size[1]/2)+'" r="'+str(gradradius)+'" gradientTransform="matrix(1 0 0 1 0 -.25)" gradientUnits="userSpaceOnUse">\n'
+			svg +='<stop stop-color="#FDFAF4" offset=".15"/>\n'
+			svg +='<stop stop-color="#FDF9F2" offset=".35"/>\n'
+			svg +='<stop stop-color="#FCF7F1" offset=".5"/>\n'
+			svg +='<stop stop-color="#FDFDF8" offset=".75"/>\n'
+			svg +='<stop stop-color="#FFFDFA" offset="1"/>\n'
+			svg +='</radialGradient>\n'
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="url(#'+prefix+'whitegradient)" />\n';
+		else :
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
 		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
 
 		ge =Generate(ipse.path)
@@ -500,14 +519,28 @@ class Card :
 		svg +="</svg>\n"
 		return svg
 
-	def back(ipse, width, prefix="") :
+	def back(ipse, width, scale =5, prefix="") :
 # gr =1.618
 # poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
 # bridge size 2.25 x 3.5 inches (57 x 89mm)
 		rsize =width*ipse.rratio
 		size =width, width/5*7
+		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
 		svg ='<svg width="%f" height="%f" id="%sback">\n'%(size[0], size[1], prefix)
+		if ipse.gradient :
+			gradradius =size[0]
+
+			svg +='<radialGradient id="'+prefix+'backgradient" cx="'+str(size[0]/2)+'" cy="'+str(size[1]/2)+'" r="'+str(gradradius)+'" gradientTransform="matrix(1 0 0 1 0 -.25)" gradientUnits="userSpaceOnUse">\n'
+	#theme ="#210126"
+			svg +='<stop stop-color="#120110" offset=".15"/>'
+			svg +='<stop stop-color="#200120" offset=".35"/>'
+			svg +='<stop stop-color="#310530" offset=".5"/>'
+			svg +='<stop stop-color="#210120" offset=".75"/>'
+			svg +='<stop stop-color="#182110" offset="1"/>'
+			svg +='</radialGradient>'
+
 		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+
 		bratio =0.95
 		bsize =size[0]*bratio, size[1]*bratio
 		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
@@ -519,14 +552,15 @@ class Card :
 		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
 		bwidth =width*bratio
 		rsize =rsize/2
-		svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="'+theme+'" />\n';
-		#bpath =etc_path[27] # ohana
-		bpath =etc_path[16] # 8radii
-		gb =Generate(bpath)
-		xo,yo =size[0]/2, size[1]/2
-		scale =-0.5
-		m =scale,0,0,scale
-		svg +='<path d="'+gb((xo,yo), m)+'" fill="'+white+'" />\n'
+		if ipse.gradient :
+			svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="url(#'+prefix+'backgradient)" />\n';
+		else :
+			svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="'+theme+'" />\n';
+		gb =Generate(ipse.back_path)
+		o =size[0]/2, size[1]/2
+		bscale =(length[0]/gb.side)*scale
+		m =bscale,0,0,bscale
+		svg +='<path d="'+gb(o, m)+'" fill="'+white+'" />\n'
 		svg +="</svg>\n"
 		return svg
 

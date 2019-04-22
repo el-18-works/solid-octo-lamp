@@ -43,6 +43,15 @@ if __name__ == "__main__" and "wireframe" in sys.argv :
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 
 
+if __name__ == "__main__" and "suite-light" in sys.argv :
+	for p in ("spade", "heart", "diamond", "club") :
+		for n in range(13) :
+			c =Card(p, (2.5, 4.5), gradient=0)
+			svg =c(25, n+1, 0.5, 2, "card-light")
+			open("cache/card-light_%s_%d.svg"%(p,n), "w").write(svg)
+	svg =c(25, 0, 0.5, 2, "card-light")
+	open("cache/card-light_%d.svg"%(n), "w").write(svg)
+
 if __name__ == "__main__" and "test" in sys.argv :
 	g0 =Generate(fpath[0])
 	g1 =Generate(fpath[10])
@@ -53,7 +62,7 @@ if __name__ == "__main__" and "test" in sys.argv :
 	wf =g.wireframe()
 	wf.save(open("cache/test.jpg", "w"))
 
-	c =Card("heart", (2.5, 4.5))
-	svg =c(500, 0, 0.5, 2, "card")
+	c =Card("club", (2.5, 4.5), gradient=1)
+	svg =c(25, 0, 0.5, 2, "card")
 	open("cache/test.svg", "w").write(svg)
 

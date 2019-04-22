@@ -1,5 +1,5 @@
 
-JOBS=cartes_data.py wireframe.flg
+JOBS=cartes_data.py wireframe.flg suite-light.flg
 all : $(foreach i,$(JOBS),cache/$(i))
 
 .PHONY : clean test
@@ -26,6 +26,10 @@ cache/cartes_data.py : element.svg figure.svg etc.svg
 
 cache/wireframe.flg : cache/cartes_data.py makecartes.py cartes.py
 	./makecartes.py wireframe
+	touch $@
+
+cache/suite-light.flg : cache/cartes_data.py makecartes.py cartes.py
+	./makecartes.py suite-light
 	touch $@
 
 test :
