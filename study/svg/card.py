@@ -5,7 +5,7 @@ sys.path.append("cache")
 
 # spade, 0 heart, 0 diamond, club
 # 0 spade, heart, diamond, 0 club
-from cartes_data import element_path, figure_path, etc_path
+from card_data import element_path, figure_path, etc_path
 
 from PIL import Image
 from PIL.ImageDraw import ImageDraw
@@ -26,7 +26,8 @@ class Stack :
 
 class Tokenize (Stack) :
 
-	def error(ipse, message) :
+	@staticmethod
+	def error(message) :
 			print("Tokenize : %s"%message)
 			exit(1)
 	def __call__(ipse, buf) :
@@ -113,9 +114,11 @@ class Tokenize (Stack) :
 
 class Parse (Stack) :
 
-	def error(ipse, message) :
-			print("Parse : %s"%message)
-			exit(1)
+	@staticmethod
+	def error(message) :
+		print("Parse : %s"%message)
+		exit(1)
+
 	def __call__(ipse, buf) :
 # S 0
 # M 1 x 2 y <
@@ -226,7 +229,7 @@ class Parse (Stack) :
 				ipse.error("unknown token '%s'"%token)
 			token =la
 
-class Generate :
+class Graph :
 
 	def __init__(ipse, path) :
 		ipse.path =path
@@ -236,7 +239,6 @@ class Generate :
 
 	def upper(ipse) :
 		p =Parse()
-		cpy =""
 		xy0 =0,0
 		for code in p(ipse.path) : 
 			if code[0].islower() :
@@ -258,16 +260,45 @@ class Generate :
 			yield code
 			xy0 =xy
 
-	def error(ipse, message) :
-		print("Generate : %s"%message)
+	def lower(ipse) :
+		p =Parse()
+		xy0 =0,0
+		for code in p(ipse.path) : 
+			if code[0] == "M" :
+				xy0 =code[1:]
+			elif code[0].isupper():
+				if code[0] == "M" :
+					print("M==>",code,xy0)
+				b =[code[0].lower()]
+				if code[0] == "H" :
+					b.append(xy[0]-code[1])
+					xy =xy[1]-code[1],xy[1]
+				elif code[0] == "V" :
+					b.append(code[1]-xy[1])
+					xy =xy[0],xy[1]-code[1]
+				else :
+					for i in range(1,len(code),2) :
+						xy =code[i:i+2]
+						xy =xy[0]-xy0[0], xy[1]-xy0[1]
+						b +=xy
+				code =b
+				xy0 =xy[0]+xy0[0], xy[1]+xy0[1]
+			else : 
+				# lower
+				xy =code[-2:]
+				xy0 =xy[0]+xy0[0], xy[1]+xy0[1]
+			yield code
+
+	@staticmethod
+	def error(message) :
+		print("Graph : %s"%message)
 		exit(1)
 
-	def clone(ipse, mapping=lambda a : a) :
+	@staticmethod
+	def clone(iterable, mapping=lambda a : a) :
 		p =Parse()
 		cpy =""
-		for code in ipse.upper() : 
-			if code[0].islower() :
-				ipse.error(code[0])
+		for code in iterable() : 
 			cpy +=code[0]
 			def form6(n) :
 				if type(n) == int : return str(n)
@@ -282,7 +313,7 @@ class Generate :
 				cpy +=" ".join(form6(a) for a in mapping(code[1:]))
 		return cpy
 
-	def __call__(ipse, origin, mat2) :
+	def __call__(ipse, origin, mat2, upper=0) :
 		def f(a) :
 			b =tuple()
 			for i in range(0,len(a),2) :
@@ -290,10 +321,13 @@ class Generate :
 				xy =xy[0]-ipse.origin[0], xy[1]-ipse.origin[1]
 				xy =mat2[0]*xy[0]+mat2[1]*xy[1], mat2[2]*xy[0]+mat2[3]*xy[1]
 				xy =xy[0]+origin[0], xy[1]+origin[1]
-				xy =xy[0],xy[1]
 				b +=xy
 			return b
-		return ipse.clone(f)
+		if upper :
+			return ipse.clone(ipse.upper, f)
+		else :
+			g =Graph(ipse.clone(ipse.upper, f))
+			return g.clone(g.lower)
 
 	def bbox(ipse) :
 		p =Parse()
@@ -357,26 +391,32 @@ class Generate :
 					x,y =x+q[-2],y+q[-1]
 				else :
 					x,y =q[-2:]
-			#print((x,y,x0,y0))
 			draw.line((x+margin,y+margin,x0+margin,y0+margin), fill=(0,0,0))
-			#draw.line((x,y,x0,y0), fill=(0,0,0))
 		draw.ellipse(xy=(x-2+margin,y-2+margin,x+2+margin,y+2+margin), fill=(0,255,0))
 		x,y =ipse.origin
 		draw.ellipse(xy=(x-2+margin,y-2+margin,x+2+margin,y+2+margin), fill=(255,0,0))
-		#draw.ellipse(xy=(x-2,y-2,x+2,y+2), fill=(255,0,0))
 		return im
 
 
 white ="#fffdfa"
-red ="#fa0a0a"
-black ="#000000"
+red ="#da0a0a"
+black ="#010101"
+theme ="#210126"
 
 class Card :
 
-	def __init__(ipse, figure, freq, rratio=0.05) :
+	# backfig = {ohana|8r}
+	def __init__(ipse, figure, freq, rratio=0.05, gradient=0, backfig="ohana") :
 		ipse.figure =figure
 		ipse.freq =freq
 		ipse.rratio =rratio
+		ipse.gradient =gradient
+		if backfig == "ohana" :
+			ipse.back_path =etc_path[27] # ohana
+		elif backfig == "8r" :
+			ipse.back_path =etc_path[16] # 8r
+		else :
+			ipse.error("unknown backfig '%s'"%backfig)
 		if figure == "spade" :
 			ipse.path =element_path[1]
 			ipse.open_path =element_path[5]
@@ -408,13 +448,28 @@ class Card :
 # gr =1.618
 # poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
 # bridge size 2.25 x 3.5 inches (57 x 89mm)
+		if num == 0 :
+			return ipse.back(width, ace_scale, prefix)
 		rsize =width*ipse.rratio
 		size =width, width/5*7
 		svg ='<svg width="%f" height="%f" id="%s%s%d">\n'%(size[0], size[1], prefix, ipse.figure, num)
-		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		if ipse.gradient :
+			gradradius =size[0]
+			svg +='<radialGradient id="'+prefix+'whitegradient" cx="'+str(size[0]/2)+'" cy="'+str(size[1]/2)+'" r="'+str(gradradius)+'" gradientTransform="matrix(1 0 0 1 0 -.25)" gradientUnits="userSpaceOnUse">\n'
+			svg +='<stop stop-color="#FDFAF4" offset=".15"/>\n'
+			svg +='<stop stop-color="#FDF9F2" offset=".35"/>\n'
+			svg +='<stop stop-color="#FCF7F1" offset=".5"/>\n'
+			svg +='<stop stop-color="#FDFDF8" offset=".75"/>\n'
+			svg +='<stop stop-color="#FFFDFA" offset="1"/>\n'
+			svg +='</radialGradient>\n'
+			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="url(#'+prefix+'whitegradient)" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="url(#'+prefix+'whitegradient)" />\n';
+		else :
+			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
 		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
 
-		ge =Generate(ipse.path)
+		ge =Graph(ipse.path)
 		ppath =None
 		if num in (11,12,13) :
 			w =size[0]*0.6
@@ -461,7 +516,7 @@ class Card :
 		m =scale,0,0,scale
 		m1 =-scale,0,0,-scale
 		if ppath :
-			ga =Generate(ppath)
+			ga =Graph(ppath)
 			for i,xo,yo in offset :
 				svg +='<path d="'+ga((xo,yo), m if i%2 else m1)+'" fill="'+ipse.color+'" />\n'
 		else :
@@ -471,14 +526,14 @@ class Card :
 
 		figure_scale =element_scale*0.7
 		if num == 10 :
-			g0 =Generate(figure_path[0])
-			g1 =Generate(figure_path[10])
+			g0 =Graph(figure_path[0])
+			g1 =Graph(figure_path[10])
 			cx,cy =g1.origin
 			p =g1((cx-130,cy), (0.66666,0,0,1))
 			p +=g0((cx+130,cy), (0.66666,0,0,1))
-			gf =Generate(p)
+			gf =Graph(p)
 		else :
-			gf =Generate(figure_path[num])
+			gf =Graph(figure_path[num])
 		fscale =(length[0]/gf.side)*figure_scale
 		gscale =(length[0]/ge.side)*figure_scale*0.66666
 		xoffset =size[0]-length[0]/5,length[0]/5
@@ -494,6 +549,52 @@ class Card :
 					m =[fscale,0,0,fscale] if i%2 else [-fscale,0,0,-fscale]
 					svg +='<path d="'+gf((xo,yo), m)+'" fill="'+ipse.color+'" />\n'
 				#svg +='<circle cx="'+str(xo)+'" cy="'+str(yo)+'" r="2" fill="blue" />\n'
+		svg +="</svg>\n"
+		return svg
+
+	def back(ipse, width, scale =5, prefix="") :
+# gr =1.618
+# poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
+# bridge size 2.25 x 3.5 inches (57 x 89mm)
+		rsize =width*ipse.rratio
+		size =width, width/5*7
+		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
+		svg ='<svg width="%f" height="%f" id="%sback">\n'%(size[0], size[1], prefix)
+		if ipse.gradient :
+			gradradius =size[0]
+
+			svg +='<radialGradient id="'+prefix+'backgradient" cx="'+str(size[0]/2)+'" cy="'+str(size[1]/2)+'" r="'+str(gradradius)+'" gradientTransform="matrix(1 0 0 1 0 -.25)" gradientUnits="userSpaceOnUse">\n'
+	#theme ="#210126"
+			svg +='<stop stop-color="#120110" offset=".15"/>'
+			svg +='<stop stop-color="#200120" offset=".35"/>'
+			svg +='<stop stop-color="#310530" offset=".5"/>'
+			svg +='<stop stop-color="#210120" offset=".75"/>'
+			svg +='<stop stop-color="#182110" offset="1"/>'
+			svg +='</radialGradient>'
+
+		#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
+
+		bratio =0.95
+		bsize =size[0]*bratio, size[1]*bratio
+		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
+		bwidth =width*bratio
+		rsize =rsize/2
+		svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+theme+'" fill="'+theme+'" />\n';
+		bratio =0.85
+		bsize =size[0]*bratio, size[1]*bratio
+		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
+		bwidth =width*bratio
+		rsize =rsize/2
+		if ipse.gradient :
+			svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="url(#'+prefix+'backgradient)" />\n';
+		else :
+			svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="'+theme+'" />\n';
+		gb =Graph(ipse.back_path)
+		o =size[0]/2, size[1]/2
+		bscale =(length[0]/gb.side)*scale
+		m =bscale,0,0,bscale
+		svg +='<path d="'+gb(o, m)+'" fill="'+white+'" />\n'
 		svg +="</svg>\n"
 		return svg
 
