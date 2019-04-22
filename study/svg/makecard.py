@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from cartes import Generate, Card, element_path as epath, figure_path as fpath, etc_path as apath
+from card import Graph, Card, element_path as epath, figure_path as fpath, etc_path as apath
 import sys
 
 # spade, 0 heart, 0 diamond, club
@@ -12,7 +12,7 @@ import sys
 
 if __name__ == "__main__" and "wireframe" in sys.argv :
 	for i in epath :
-		g =Generate(epath[i])
+		g =Graph(epath[i])
 		wf =g.wireframe()
 		if i == 1 :
 			n ="spade"
@@ -32,12 +32,12 @@ if __name__ == "__main__" and "wireframe" in sys.argv :
 			n ="openclub"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 	for i,fp in enumerate(fpath) :
-		g =Generate(fp)
+		g =Graph(fp)
 		wf =g.wireframe()
 		n ="figure"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 	for i,fp in enumerate(apath) :
-		g =Generate(fp)
+		g =Graph(fp)
 		wf =g.wireframe()
 		n ="etc"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
@@ -53,12 +53,12 @@ if __name__ == "__main__" and "suite-light" in sys.argv :
 	open("cache/card-light_%d.svg"%(n), "w").write(svg)
 
 if __name__ == "__main__" and "test" in sys.argv :
-	g0 =Generate(fpath[0])
-	g1 =Generate(fpath[10])
+	g0 =Graph(fpath[0])
+	g1 =Graph(fpath[10])
 	cx,cy =g1.origin
 	p =g1((cx-130,cy), (0.66666,0,0,1))
 	p +=g0((cx+130,cy), (0.66666,0,0,1))
-	g =Generate(p)
+	g =Graph(p)
 	wf =g.wireframe()
 	wf.save(open("cache/test.jpg", "w"))
 
