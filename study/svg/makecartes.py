@@ -51,9 +51,9 @@ if __name__ == "__main__" and "test" in sys.argv :
 	p +=g0((cx+130,cy), (0.66666,0,0,1))
 	g =Generate(p)
 	wf =g.wireframe()
-	wf.save(open("test.jpg", "w"))
+	wf.save(open("cache/test.jpg", "w"))
 
 	c =Card("heart", (2.5, 4.5))
-	svg =c(500, 12, 0.5, 2, "card")
-	open("test.svg", "w").write(svg)
+	svg =c(500, 0, 0.5, 2, "card")
+	open("cache/test.svg", "w").write(svg)
 

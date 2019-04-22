@@ -31,6 +31,6 @@ cache/wireframe.flg : cache/cartes_data.py makecartes.py cartes.py
 test :
 	./makecartes.py test
 	#./cartes.py
-	#xdg-open test.jpg
-	xdg-open test.svg
+	#xdg-open cache/test.jpg
+	xdg-open cache/test.svg
 

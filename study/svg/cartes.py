@@ -370,6 +370,7 @@ class Generate :
 white ="#fffdfa"
 red ="#fa0a0a"
 black ="#000000"
+theme ="#210126"
 
 class Card :
 
@@ -408,6 +409,8 @@ class Card :
 # gr =1.618
 # poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
 # bridge size 2.25 x 3.5 inches (57 x 89mm)
+		if num == 0 :
+			return ipse.back(width, prefix)
 		rsize =width*ipse.rratio
 		size =width, width/5*7
 		svg ='<svg width="%f" height="%f" id="%s%s%d">\n'%(size[0], size[1], prefix, ipse.figure, num)
@@ -494,6 +497,36 @@ class Card :
 					m =[fscale,0,0,fscale] if i%2 else [-fscale,0,0,-fscale]
 					svg +='<path d="'+gf((xo,yo), m)+'" fill="'+ipse.color+'" />\n'
 				#svg +='<circle cx="'+str(xo)+'" cy="'+str(yo)+'" r="2" fill="blue" />\n'
+		svg +="</svg>\n"
+		return svg
+
+	def back(ipse, width, prefix="") :
+# gr =1.618
+# poker size 2.5 x 3.5 inches (64x89mm), aka B8 size.
+# bridge size 2.25 x 3.5 inches (57 x 89mm)
+		rsize =width*ipse.rratio
+		size =width, width/5*7
+		svg ='<svg width="%f" height="%f" id="%sback">\n'%(size[0], size[1], prefix)
+		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		bratio =0.95
+		bsize =size[0]*bratio, size[1]*bratio
+		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
+		bwidth =width*bratio
+		rsize =rsize/2
+		svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+theme+'" fill="'+theme+'" />\n';
+		bratio =0.85
+		bsize =size[0]*bratio, size[1]*bratio
+		xy =(size[0]-bsize[0])/2, (size[1]-bsize[1])/2
+		bwidth =width*bratio
+		rsize =rsize/2
+		svg +='<rect x="'+str(xy[0])+'" y="'+str(xy[1])+'" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(bsize[0])+'" height="'+str(bsize[1])+'" stroke="'+white+'" fill="'+theme+'" />\n';
+		#bpath =etc_path[27] # ohana
+		bpath =etc_path[16] # 8radii
+		gb =Generate(bpath)
+		xo,yo =size[0]/2, size[1]/2
+		scale =-0.5
+		m =scale,0,0,scale
+		svg +='<path d="'+gb((xo,yo), m)+'" fill="'+white+'" />\n'
 		svg +="</svg>\n"
 		return svg
 
