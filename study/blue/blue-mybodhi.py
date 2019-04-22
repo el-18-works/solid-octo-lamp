@@ -39,7 +39,7 @@ def copy_clipboard(fn) :
 	if "Yakuake" in a :
 		print "paste in terminal"
 		if "vi" in a :
-			cmd =['xdotool', 'key', 'Escape', 'i', 'ctrl+shift+v']
+			cmd =['xdotool', 'key', 'Escape', 'a', 'ctrl+shift+v']
 		else :
 			cmd =['xdotool', 'key', 'ctrl+shift+v']
 	else :
