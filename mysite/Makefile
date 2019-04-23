@@ -1,7 +1,7 @@
 
 SITEBIN=/usr/local/my/bin
 
-BINFILES=node myunison
+BINFILES=node myunison mypath
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
 FILES=myenv vimrc
 FLGS=$(foreach f,$(FILES),cache/$(f).flg)
