@@ -1,8 +1,8 @@
 
-JOBS=card_data.py wireframe.flg suite-light.flg
+JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg
 all : $(foreach i,$(JOBS),cache/$(i))
 
-.PHONY : clean test
+.PHONY : clean test install-suite
 
 clean :
 	rm -rf cache/*
@@ -31,6 +31,19 @@ cache/wireframe.flg : cache/card_data.py makecard.py card.py
 cache/suite-light.flg : cache/card_data.py makecard.py card.py
 	./makecard.py suite-light
 	touch $@
+
+cache/suite-real.flg : cache/card_data.py makecard.py card.py
+	./makecard.py suite-real
+	touch $@
+
+cache/suite-web.flg : cache/card_data.py makecard.py card.py
+	./makecard.py suite-web
+	touch $@
+
+SUITEDIR=/var/www/html/ens/res/misc/baraja
+install-suite : cache/suite-light.flg cache/suite-real.flg cache/suite-web.flg
+	mkdir -p $(SUITEDIR)
+	cp cache/card-*svg $(SUITEDIR)
 
 test :
 	./makecard.py test

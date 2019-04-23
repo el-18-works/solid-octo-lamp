@@ -48,9 +48,27 @@ if __name__ == "__main__" and "suite-light" in sys.argv :
 		for n in range(13) :
 			c =Card(p, (2.5, 4.5), gradient=0)
 			svg =c(25, n+1, 0.5, 2, "card-light")
-			open("cache/card-light_%s_%d.svg"%(p,n), "w").write(svg)
+			open("cache/card-light_%s_%d.svg"%(p,n+1), "w").write(svg)
 	svg =c(25, 0, 0.5, 2, "card-light")
-	open("cache/card-light_%d.svg"%(n), "w").write(svg)
+	open("cache/card-light_%d.svg"%(0), "w").write(svg)
+
+if __name__ == "__main__" and "suite-real" in sys.argv :
+	for p in ("spade", "heart", "diamond", "club") :
+		for n in range(13) :
+			c =Card(p, (2.5, 4.5), gradient=1, backfig="8r")
+			svg =c(500, n+1, 0.5, 2, "card-real")
+			open("cache/card-real_%s_%d.svg"%(p,n+1), "w").write(svg)
+	svg =c(500, 0, 0.5, 2, "card-real")
+	open("cache/card-real_%d.svg"%(0), "w").write(svg)
+
+if __name__ == "__main__" and "suite-web" in sys.argv :
+	for p in ("spade", "heart", "diamond", "club") :
+		for n in range(13) :
+			c =Card(p, (2.5, 4.5), gradient=1, backfig="8r")
+			svg =c(150, n+1, 0.5, 2, "card-web")
+			open("cache/card-web_%s_%d.svg"%(p,n+1), "w").write(svg)
+	svg =c(150, 0, 0.5, 2, "card-web")
+	open("cache/card-web_%d.svg"%(0), "w").write(svg)
 
 if __name__ == "__main__" and "test" in sys.argv :
 	g0 =Graph(fpath[0])
@@ -62,7 +80,8 @@ if __name__ == "__main__" and "test" in sys.argv :
 	wf =g.wireframe()
 	wf.save(open("cache/test.jpg", "w"))
 
-	c =Card("club", (2.5, 4.5), gradient=1)
-	svg =c(25, 0, 0.5, 2, "card")
+	c =Card("heart", (2.5, 4.5), gradient=1)
+	svg =c(500, 2, 0.5, 2, "card")
+	#svg =c(25, 0, 0.5, 2, "card")
 	open("cache/test.svg", "w").write(svg)
 

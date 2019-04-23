@@ -303,7 +303,7 @@ class Graph :
 			def form6(n) :
 				if type(n) == int : return str(n)
 				r =format("%.6f"%n) 
-				while r[-1] == "0" : r =r[:-1]
+				while r[-1] == "0" and r[-2] != "." : r =r[:-1]
 				return r
 			if code[0].lower() == "h" :
 				cpy +=form6(mapping((code[1],0))[0])
@@ -313,7 +313,7 @@ class Graph :
 				cpy +=" ".join(form6(a) for a in mapping(code[1:]))
 		return cpy
 
-	def __call__(ipse, origin, mat2, upper=0) :
+	def __call__(ipse, origin, mat2, upper=1) :
 		def f(a) :
 			b =tuple()
 			for i in range(0,len(a),2) :
@@ -462,11 +462,11 @@ class Card :
 			svg +='<stop stop-color="#FDFDF8" offset=".75"/>\n'
 			svg +='<stop stop-color="#FFFDFA" offset="1"/>\n'
 			svg +='</radialGradient>\n'
-			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="url(#'+prefix+'whitegradient)" />\n';
-			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="url(#'+prefix+'whitegradient)" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="url(#'+prefix+'whitegradient)" />\n';
+			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="url(#'+prefix+'whitegradient)" />\n';
 		else :
-			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
-			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
 		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
 
 		ge =Graph(ipse.path)
@@ -572,8 +572,8 @@ class Card :
 			svg +='<stop stop-color="#182110" offset="1"/>'
 			svg +='</radialGradient>'
 
-		#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
-		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
+		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
 
 		bratio =0.95
 		bsize =size[0]*bratio, size[1]*bratio

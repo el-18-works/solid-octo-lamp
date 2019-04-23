@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>留華のおうち</title>
-<link rel="icon" href="http://l18.work/akali/female-octocoder-120x120.png" type="image/png">
+<link rel="icon" href="https://l18.work/akali/female-octocoder-120x120.png" type="image/png">
 <link rel="stylesheet" href="styles.css">
 <meta charset="UTF-8">
 
@@ -85,6 +85,8 @@ myFunction();
     kfplayer = new YT.Player('kfplayer', {
       width: '560',
       height: '315',
+      host: 'https://www.youtube.com',
+      playerVars: {'origin' : 'https://luckxa.l18.work'},
       videoId: 'kzUmM-uQVOM'
     });
     document.getElementById("my").addEventListener("mouseover", (function() {kfplayer.playVideo();}));
@@ -93,6 +95,8 @@ myFunction();
     sdplayer = new YT.Player('sdplayer', {
       width: '560',
       height: '315',
+      host: 'https://www.youtube.com',
+      playerVars: {'origin' : 'https://luckxa.l18.work'},
       videoId: 'fTnJjvYZkdU'
     });
     document.getElementById("startdash").addEventListener("mouseover", (function() {sdplayer.playVideo();}));

@@ -142,8 +142,8 @@ myNowloadingInit();
 $localdate =localtime()[3];
 if ($localdate == 21)
 	echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
-else
-	echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
+//else
+	//echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
 ?>
 <h1 class="titleicon">my<ruby>流華<rt>るか</rt></ruby>日記</h1>
 <!--
@@ -157,14 +157,14 @@ else
 if ($localdate == 21)
  	echo '<a xlink:href="https://namu.wiki/w/%EA%B3%BC%ED%95%99%EC%9D%98%20%EB%82%A0" target="_self">';
 else
-	echo '<a xlink:href="https://ja.wikipedia.org/wiki/%E9%83%B5%E6%94%BF%E8%A8%98%E5%BF%B5%E6%97%A5" target="_self">';
+	echo '<a href=#bot>';
 ?>
 <text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)">
 <?php
 if ($localdate == 21)
 	echo '<tspan x=5px y=55px>오늘은</tspan><tspan x=70px y=80px>과학의 날w</tspan>';
 else
-	echo '<tspan x=5px y=55px>今日は</tspan><tspan x=70px y=80px>郵政記念日</tspan>';
+	echo '<tspan x=5px y=55px>流華の</tspan><tspan x=70px y=80px>日記</tspan>';
 ?>
   </text>
  </a>
@@ -285,6 +285,7 @@ function txtclassAct(id, h, s) {
 		div.removeChild(p);
 	}
 }
+
 function myRecvData(q, c, callback) {
 	console.log(q);
 	var http =new XMLHttpRequest();
@@ -299,25 +300,23 @@ function myRecvData(q, c, callback) {
 	http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	http.send(encodeURI(postdata.join("&")));
 }
-
-
-function mySetTxt(a,m,d) {
+var aid =[];
+function mySetTxt(a,m,d, onloadCallback) {
 	myRecvData(`SELECT * FROM luckxa_mydiary_txt_test WHERE a=${a} && m=${m} && ABS(d-${d}) < 7 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
-	//myRecvData(`SELECT * FROM luckxa_mydiary_txt WHERE a=${a} && m=${m} && ABS(d-${d}) < 2 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
-			data =JSON.parse(data);
-			//console.log(data["error"]);
-			let res =data["res"];
-			//console.log("fetched ".(res.length));
-			console.log("fetched ");
-			console.log(res.length);
-			let aid =[];
-			for (let i =0; i<res.length; ++i) {
-				txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
-				console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
-				aid.push(res[i]["id"]);
-			}
-			hodieId =aid[aid.length-1];
-			hodieActitatum =(new Date()).getTime();
+		data =JSON.parse(data);
+		//console.log(data["error"]);
+		let res =data["res"];
+		//console.log("fetched ".(res.length));
+		console.log("fetched ");
+		console.log(res.length);
+		for (let i =0; i<res.length; ++i) {
+			txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
+			console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
+			aid.push(res[i]["id"]);
+		}
+		hodieId =aid[aid.length-1];
+		hodieActitatum =(new Date()).getTime();
+		onloadCallback();
 	});
 }
 (function initSetTxt() {
@@ -326,12 +325,13 @@ function mySetTxt(a,m,d) {
 	let m =dt.getMonth()+1;
 	let d =dt.getDate();
 	console.log("amd= %d,%d,%d",a,m,d);
-	mySetTxt(a, m, d);
+	myNowloadingInit();
+	mySetTxt(a, m, d, () => myNowloadingFini(2));
 })();
 /*
 */
 function myActTxt(id) {
-	myRecvData(`SELECT h,txt FROM luckxa_mydiary_txt_test WHERE id=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	myRecvData(`SELECT id,h,txt FROM luckxa_mydiary_txt_test WHERE id>=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
 			data =JSON.parse(data);
 			if (data["error"])
 				console.log(data["error"]);
@@ -341,6 +341,12 @@ function myActTxt(id) {
 			} else {
 				console.log("myActTxt fetched ");
 				console.log(res.length);
+				txtclassAct(id, res[0]["h"], res[0]["txt"]);
+				for (let i =1; i<res.length; ++i) {
+					txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
+					console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
+					aid.push(res[i]["id"]);
+				}
 			}
 	});
 }
@@ -483,4 +489,5 @@ function myOpenPhoto(e, data, width, height) {
 
 
 </script>
+<a name=bot></a>
 </body></html>
