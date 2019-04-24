@@ -401,6 +401,7 @@ class Graph :
 white ="#fffdfa"
 red ="#da0a0a"
 black ="#010101"
+ablack ="rgba(1,1,1,0.333)"
 theme ="#210126"
 
 class Card :
@@ -462,10 +463,10 @@ class Card :
 			svg +='<stop stop-color="#FDFDF8" offset=".75"/>\n'
 			svg +='<stop stop-color="#FFFDFA" offset="1"/>\n'
 			svg +='</radialGradient>\n'
-			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="url(#'+prefix+'whitegradient)" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+ablack+'" fill="url(#'+prefix+'whitegradient)" />\n';
 			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="url(#'+prefix+'whitegradient)" />\n';
 		else :
-			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+			svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+ablack+'" fill="'+white+'" />\n';
 			#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
 		length =size[0]/ipse.freq[0],size[1]/ipse.freq[1]
 
@@ -506,7 +507,7 @@ class Card :
 		if num in (9,10) :
 			offset.append([0,size[0]/2,yoffset[2]-(yoffset[2]-yoffset[0])/2])
 		if num == 10 :
-			offset.append([0,size[0]/2,size[1]-offset[-1][2]])
+			offset.append([1,size[0]/2,size[1]-offset[-1][2]])
 
 		scale =(length[0]/ge.side)*element_scale
 		if num == 1 :
@@ -535,10 +536,10 @@ class Card :
 		else :
 			gf =Graph(figure_path[num])
 		fscale =(length[0]/gf.side)*figure_scale
-		gscale =(length[0]/ge.side)*figure_scale*0.66666
+		gscale =(length[0]/ge.side)*figure_scale*0.75
 		xoffset =size[0]-length[0]/5,length[0]/5
 		for i,xo in enumerate(xoffset) :
-			yoffset =length[1]/2,length[1]
+			yoffset =length[1]*0.33333,length[1]*0.85
 			if i%2 :
 				yoffset =tuple(size[1]-yo for yo in yoffset)
 			for j,yo in enumerate(yoffset) :
@@ -572,7 +573,7 @@ class Card :
 			svg +='<stop stop-color="#182110" offset="1"/>'
 			svg +='</radialGradient>'
 
-		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+black+'" fill="'+white+'" />\n';
+		svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" stroke="'+ablack+'" fill="'+white+'" />\n';
 		#svg +='<rect x="0" y="0" rx="'+str(rsize)+'" ry="'+str(rsize)+'" width="'+str(size[0])+'" height="'+str(size[1])+'" fill="'+white+'" />\n';
 
 		bratio =0.95
