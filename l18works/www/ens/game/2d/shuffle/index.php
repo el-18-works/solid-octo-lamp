@@ -3,10 +3,6 @@
 .c {
 	margin : 30px 30px 30px;
 	width : 150px;
-	/*
-	flow : right;
-	display : inline;
-	*/
 	position : fixed;
 	display : none;
 	transition-timing-function : ease-out;
@@ -16,8 +12,7 @@
 </style>
 <body style="background-color:#121232; margin:10px">
 <?php 
-	//echo ($prefix."card-web_heart_8.svg"); 
-$prefix="https://ens.l18.work/res/misc/baraja/";
+	$prefix="https://ens.l18.work/res/misc/baraja/";
 	$a =array();
 	$figs =array("spade", "heart", "diamond", "club");
 	$z =1;
@@ -29,21 +24,11 @@ $prefix="https://ens.l18.work/res/misc/baraja/";
 			$t .="</div>";
 			$a[]= $t;
 		}
-		/*
-		$t ="<div class=c>";
-		$t .=file_get_contents($prefix."card-web_0.svg"); 
-		$t .="</div>";
-		$a[]= $t;
-		*/
 	}
 	shuffle($a);
 	foreach($a as $div) {
 		echo $div;
 	}
-	//echo file_get_contents($prefix."card-light_heart_1.svg"); 
-	//echo "<image src=".($prefix."card-light_heart_8.svg")." >" ; 
-?>
-<?php
 	$t ="<div class=c id=c0>";
 	$t .=file_get_contents($prefix."card-web_0.svg"); 
 	$t .="</div>";
@@ -69,7 +54,6 @@ $prefix="https://ens.l18.work/res/misc/baraja/";
 			console.log(x,y);
 			div.style.transform ="rotate("+r+"deg)";
 			div.style.display ="block";
-			//echo "transform:rotate(".$rot."deg);";
 			div.onclick = (e) => {
 				if (e.detail == 2) {	
 					c0 =document.querySelector("#c0");

@@ -64,6 +64,10 @@ a:hover {
 	transition-timing-function : ease-in-out;
 	border-width : 20%;
 }
+code {
+	background-color : #efefef;
+	padding : 5px 5px 5px 8px;
+}
 
 #startdash {
 	font-family : monospace;
@@ -347,6 +351,7 @@ function myActTxt(id) {
 					console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
 					aid.push(res[i]["id"]);
 				}
+				hodieId =aid[aid.length-1];
 			}
 	});
 }
