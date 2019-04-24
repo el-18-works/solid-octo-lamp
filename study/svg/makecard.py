@@ -81,7 +81,7 @@ if __name__ == "__main__" and "test" in sys.argv :
 	wf.save(open("cache/test.jpg", "w"))
 
 	c =Card("heart", (2.5, 4.5), gradient=1)
-	svg =c(500, 2, 0.5, 2, "card")
+	svg =c(500, 10, 0.5, 2, "card")
 	#svg =c(25, 0, 0.5, 2, "card")
 	open("cache/test.svg", "w").write(svg)
 
