@@ -6,17 +6,24 @@ au BufWinEnter *.* silent loadview
 :set tabstop=4
 :set shiftwidth=4
 :set encoding=utf-8
+:let QA_make_target="undefined"
 
 " E124 E125 E853 E884
 fun! QA_make(...)
 	:wa
 	:let l:count = len(a:000)
 	:if l:count == 0
-	:	exe "!make $(cat ~/.vim/run/qa_make-target || true)"
+	:	if g:QA_make_target != "undefined"
+	:		let s=g:QA_make_target
+	:		exe "!make ".s
+	:	else
+	:		exe "!make $(cat ~/.vim/run/qa_make-target || true)"
+	:	endif
 	:else
 	:	let s =join(a:000, " ")
+	:	let g:QA_make_target=s
 	:	exe "!echo ".s." > ~/.vim/run/qa_make-target && make ".s
-	:endif
+	endif
 endfun
 :com! -nargs=* ZQAmake call QA_make(<f-args>)
 :map zq :call QA_make()<CR>
