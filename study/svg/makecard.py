@@ -42,14 +42,22 @@ if __name__ == "__main__" and "wireframe" in sys.argv :
 		n ="etc"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 
+if __name__ == "__main__" and "suite-medium" in sys.argv :
+	for p in ("spade", "heart", "diamond", "club") :
+		for n in range(13) :
+			c =Card(p, (2.5, 4.5), gradient=1)
+			svg =c(120, n+1, 0.5, 2, "card-medium")
+			open("cache/card-medium_%s_%d.svg"%(p,n+1), "w").write(svg)
+	svg =c(120, 0, 0.5, 2, "card-medium")
+	open("cache/card-medium_%d.svg"%(0), "w").write(svg)
 
 if __name__ == "__main__" and "suite-light" in sys.argv :
 	for p in ("spade", "heart", "diamond", "club") :
 		for n in range(13) :
-			c =Card(p, (2.5, 4.5), gradient=0)
-			svg =c(25, n+1, 0.5, 2, "card-light")
+			c =Card(p, (2.5, 4.5), gradient=1)
+			svg =c(50, n+1, 0.5, 2, "card-light")
 			open("cache/card-light_%s_%d.svg"%(p,n+1), "w").write(svg)
-	svg =c(25, 0, 0.5, 2, "card-light")
+	svg =c(50, 0, 0.5, 2, "card-light")
 	open("cache/card-light_%d.svg"%(0), "w").write(svg)
 
 if __name__ == "__main__" and "suite-real" in sys.argv :
@@ -65,9 +73,9 @@ if __name__ == "__main__" and "suite-web" in sys.argv :
 	for p in ("spade", "heart", "diamond", "club") :
 		for n in range(13) :
 			c =Card(p, (2.5, 4.5), gradient=1, backfig="8r")
-			svg =c(150, n+1, 0.5, 2, "card-web")
+			svg =c(180, n+1, 0.5, 2, "card-web")
 			open("cache/card-web_%s_%d.svg"%(p,n+1), "w").write(svg)
-	svg =c(150, 0, 0.5, 2, "card-web")
+	svg =c(180, 0, 0.5, 2, "card-web")
 	open("cache/card-web_%d.svg"%(0), "w").write(svg)
 
 if __name__ == "__main__" and "test" in sys.argv :

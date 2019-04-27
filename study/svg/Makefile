@@ -1,5 +1,5 @@
 
-JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg
+JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg suite-medium.flg
 all : $(foreach i,$(JOBS),cache/$(i))
 
 .PHONY : clean test install-suite
@@ -30,6 +30,10 @@ cache/wireframe.flg : cache/card_data.py makecard.py card.py
 
 cache/suite-light.flg : cache/card_data.py makecard.py card.py
 	./makecard.py suite-light
+	touch $@
+
+cache/suite-medium.flg : cache/card_data.py makecard.py card.py
+	./makecard.py suite-medium
 	touch $@
 
 cache/suite-real.flg : cache/card_data.py makecard.py card.py
