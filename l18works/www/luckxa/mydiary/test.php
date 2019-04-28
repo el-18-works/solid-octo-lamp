@@ -7,10 +7,41 @@ require_once "host/mobile.php";
 $MOBILE =my_test_mobile();
 my_noscriptalert();
 ?>
+<?php
+$localdate =localtime()[3];
+if ($localdate == 29) {
+	$today_body_css = "filter : sepia(100%) blur(1px); font-size : 22px; font-weight : bold";
+	$today_css = "transform: rotate(2deg); filter : sepia(100%); filter : blur(1px);";
+	$today_fukidashi = '<a href="javascript:void(0)" onclick="todayvideo();"><text style="font-family:gothic;font-size:25px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)"><tspan x=2px y=55px>今日は</tspan><tspan x=70px y=80px>昭和の日。</tspan>';
+	$today_titleicon ="<img src='https://thumbnail.image.rakuten.co.jp/@0_mall/auc-t-link/cabinet/hatta/ht001-.jpg' height=150px alt='mazda' style='top:20px;right:5px;position:absolute;transform:rotate(-10deg);opacity:0.5;'>";
+	$today_video ='<center><div id=video style="position:fixed;top:20px;horizontal-align:center;width:100%;transition-duration:4s;"></div></center>';
+} else {
+	$today_body_css ="";
+	$today_css ="";
+	$today_fukidashi = '<a href="javascript:void(0)" onclick="scrolltobot()"><text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)"><tspan x=25px y=55px>流華の</tspan><tspan x=90px y=80px>日記</tspan>';
+	$today_titleicon ="";
+	$today_video ="";
+}
+?>
+<script>
+function todayvideo() {
+	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
+}
+function scrolltobot() {
+	document.querySelector("#bottom").scrollIntoView();
+}
+</script>
 <link href="https://fonts.googleapis.com/css?family=Alice" rel="stylesheet">
 <link href="xxxtmpdata/photo.css" rel="stylesheet">
 <style>	
 
+@font-face {
+	font-family : 'k8x12';
+	src : url('/res/fonts/k8x12.woff') format('woff'), url('/res/fonts/k8x12.ttf') format('ttf');
+	font-weight : normal;
+	font-style : normal;
+	font-stretch : normal;
+}
 @font-face {
 	font-family : 'Bandal';
 	src : url('https://ens.l18.work/res/fonts/Bandal.woff') format('woff'), url('https://ens.l18.work/res/fonts/Bandal.svg#Bandal') format('svg');
@@ -22,10 +53,17 @@ my_noscriptalert();
 	font-stretch : normal;
 }
 
+html {
+	scroll-behavior : smooth;
+}
+
 body {
 	background-color : #eeffff;
+/*
 	font-family : 'Alice', "Hiragino Mincho ProN", "メイリオ", "Ume Mincho S3", serif;
+*/
 	margin : 0px;
+<?php echo $today_body_css; ?>
 }
 .txt {
 <?php
@@ -38,7 +76,9 @@ if ($MOBILE) {
 }
 ?>
 	background-color : white;
+/*
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
+*/
 	line-height : 40px;
 	box-shadow : 5px 5px 10px #ead
 }
@@ -64,6 +104,10 @@ a:hover {
 	transition-timing-function : ease-in-out;
 	border-width : 20%;
 }
+code {
+	background-color : #efefef;
+	padding : 5px 5px 5px 8px;
+}
 
 #startdash {
 	font-family : monospace;
@@ -83,6 +127,7 @@ a:hover {
 	left : 35px;
 	opacity : 0.39;
 	z-index : 2;
+<?php echo $today_css; ?>
 }
 #jumpsvg {
 	position : relative;
@@ -131,14 +176,21 @@ a:hover {
 </script>
 </head> <body>
 
+<a name="top" id="top"></a>
 <script>
 myNowloadingInit();
 </script>
 <a id=startdash href="//luckxa.l18.work/start-dash-diary/#bot">麻衣ねぇがリーダー就任するまでの日記</a>
+<?php echo $today_video; ?>
 
 <div id=mypagetitle>
 <img src=xxxtmpdata/miku_400x400.jpg height=40px id=mikuicon class="titleicon"> 
-<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> 
+<?php
+	echo $today_titleicon;
+	//echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
+//else
+	//echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
+?>
 <h1 class="titleicon">my<ruby>流華<rt>るか</rt></ruby>日記</h1>
 <!--
 <img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon class="titleicon"> 
@@ -147,10 +199,9 @@ myNowloadingInit();
 <svg id=jumpsvg class=titleicon width=180px height=80px>
  <polygon points="50,3 40,20  60,20" style="fill:lightblue" />
  <rect width=180px height=60px x=0 y=20 rx=20 ry=20 style="fill:lightblue" />
- <a xlink:href="https://ja.wikipedia.org/wiki/%E9%83%B5%E6%94%BF%E8%A8%98%E5%BF%B5%E6%97%A5" target="_self">
-<text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)">
-  <tspan x=5px y=55px>今日は</tspan>
-  <tspan x=70px y=80px>郵政記念日</tspan>
+<?php
+echo $today_fukidashi;
+?>
   </text>
  </a>
 </svg>
@@ -178,7 +229,6 @@ $a =array_slice($adata, 1);
 txtclass($hdata[0], $hdata[1], $a);
 */
 ?>
-<a name="bot"></a>
 <br/><br/>
 <script>
 myNowloadingFini(2);
@@ -231,7 +281,8 @@ function txtclass(id, h, s) {
 		p.innerHTML =a[i];
     	div.appendChild(p);
 	}
-    document.body.appendChild(div);
+    document.body.insertBefore(div, document.querySelector("#bottom"));
+    //document.body.appendChild(div);
 	hodieALength =a.length;
 }
 
@@ -270,6 +321,7 @@ function txtclassAct(id, h, s) {
 		div.removeChild(p);
 	}
 }
+
 function myRecvData(q, c, callback) {
 	console.log(q);
 	var http =new XMLHttpRequest();
@@ -284,25 +336,23 @@ function myRecvData(q, c, callback) {
 	http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	http.send(encodeURI(postdata.join("&")));
 }
-
-
-function mySetTxt(a,m,d) {
+var aid =[];
+function mySetTxt(a,m,d, onloadCallback) {
 	myRecvData(`SELECT * FROM luckxa_mydiary_txt_test WHERE a=${a} && m=${m} && ABS(d-${d}) < 7 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
-	//myRecvData(`SELECT * FROM luckxa_mydiary_txt WHERE a=${a} && m=${m} && ABS(d-${d}) < 2 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
-			data =JSON.parse(data);
-			//console.log(data["error"]);
-			let res =data["res"];
-			//console.log("fetched ".(res.length));
-			console.log("fetched ");
-			console.log(res.length);
-			let aid =[];
-			for (let i =0; i<res.length; ++i) {
-				txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
-				console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
-				aid.push(res[i]["id"]);
-			}
-			hodieId =aid[aid.length-1];
-			hodieActitatum =(new Date()).getTime();
+		data =JSON.parse(data);
+		//console.log(data["error"]);
+		let res =data["res"];
+		//console.log("fetched ".(res.length));
+		console.log("fetched ");
+		console.log(res.length);
+		for (let i =0; i<res.length; ++i) {
+			txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
+			console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
+			aid.push(res[i]["id"]);
+		}
+		hodieId =aid[aid.length-1];
+		hodieActitatum =(new Date()).getTime();
+		onloadCallback();
 	});
 }
 (function initSetTxt() {
@@ -311,12 +361,13 @@ function mySetTxt(a,m,d) {
 	let m =dt.getMonth()+1;
 	let d =dt.getDate();
 	console.log("amd= %d,%d,%d",a,m,d);
-	mySetTxt(a, m, d);
+	myNowloadingInit();
+	mySetTxt(a, m, d, () => myNowloadingFini(2));
 })();
 /*
 */
 function myActTxt(id) {
-	myRecvData(`SELECT h,txt FROM luckxa_mydiary_txt_test WHERE id=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	myRecvData(`SELECT id,h,txt FROM luckxa_mydiary_txt_test WHERE id>=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
 			data =JSON.parse(data);
 			if (data["error"])
 				console.log(data["error"]);
@@ -326,6 +377,13 @@ function myActTxt(id) {
 			} else {
 				console.log("myActTxt fetched ");
 				console.log(res.length);
+				txtclassAct(id, res[0]["h"], res[0]["txt"]);
+				for (let i =1; i<res.length; ++i) {
+					txtclass(res[i]["id"], res[i]["h"], res[i]["txt"]);
+					console.log("%d)id=%s,h=%s",i,res[i]["id"], res[i]["h"]);
+					aid.push(res[i]["id"]);
+				}
+				hodieId =aid[aid.length-1];
 			}
 	});
 }
@@ -468,4 +526,5 @@ function myOpenPhoto(e, data, width, height) {
 
 
 </script>
+<a name="bot" id="bottom"></a>
 </body></html>
