@@ -7,20 +7,20 @@ all : $(foreach i,$(JOBS),cache/$(i))
 clean :
 	rm -rf cache/*
 
-cache/card_data.py : element.svg figure.svg etc.svg
+cache/card_data.py : fonts/element.svg fonts/figure.svg fonts/etc.svg
 	echo "element_path ={}" > $@
 	echo "try :" >> $@
-	cat element.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|\([0-9]\)[ \t]*<glyph d=|element_path[\1]=|" >> $@
+	cat fonts/element.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|\([0-9]\)[ \t]*<glyph d=|element_path[\1]=|" >> $@
 	echo "except Exception as e :" >> $@
 	echo "\tprint(e)" >> $@
 	echo "figure_path =[]" >> $@
 	echo "try :" >> $@
-	cat figure.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|.*<glyph d=\(.*\)|    figure_path.append(\1)|" >> $@
+	cat fonts/figure.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|.*<glyph d=\(.*\)|    figure_path.append(\1)|" >> $@
 	echo "except Exception as e :" >> $@
 	echo "\tprint(e)" >> $@
 	echo "etc_path =[]" >> $@
 	echo "try :" >> $@
-	cat etc.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|.*<glyph d=\(.*\)|    etc_path.append(\1)|" >> $@
+	cat fonts/etc.svg | grep glyph-name | sed -e "s|glyph-name.*||g" | nl | sed -e "s|.*<glyph d=\(.*\)|    etc_path.append(\1)|" >> $@
 	echo "except Exception as e :" >> $@
 	echo "\tprint(e)" >> $@
 

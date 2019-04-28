@@ -23,7 +23,7 @@ class Stack :
 
 token =["<", "</", "/>", "xml", "DOCTYPE", "comment", "key", "tag", "attrname", "literal", "PUBLIC"]
 
-class Parse (Stack) :
+class StateMachine (Stack) :
 	def __call__(ipse) :
 		ipse.push(0)
 		for c in ipse.get() :
@@ -31,7 +31,6 @@ class Parse (Stack) :
 			#if type(c) == str : ipse.info("[%d] '%c'"%(state,c))
 			#else : ipse.info('[%d] "%s"'%(state,token[c]))
 			if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13] and type(c) == str and c.isspace() :
-				#ipse.push(state)
 				continue
 #negative :
 			if state == 0 : # S 0
@@ -230,7 +229,7 @@ class Parse (Stack) :
 			elif state == 10 :
 				if c == '>' : # *10 > <<3 : def xml-attrset
 					ipse.pop(2)
-					ipse.on("xml-attrset", a)
+					ipse.on("xmlattrset", a)
 			elif state == 11 :
 				if c == token.index("key") : # 1,11 key &tag  : t =new tag
 					ipse.unget(token.index("tag"))
@@ -405,7 +404,7 @@ class Parse (Stack) :
 # 25 else : error
 
 
-class Read (Stack) :
+class SVGParse (Stack) :
 
 	def info(ipse, message) :
 		i,j =ipse.pos
@@ -426,34 +425,34 @@ class Read (Stack) :
 				while ipse.unput_buffer :
 					yield ipse.unput_buffer.pop()
 				yield c
+
 	def on(ipse, event, data) :
 		if event == "emptytag" :
-			if data["name"] == "font-face" :
-				ipse.info("emptytag %s"%data)
+			ipse.info("emptytag %s"%data)
 			if data["name"] == "glyph" :
 				ipse.info("%s"%data["attr"])
-		if event == "opentag" :
-			ipse.info("open %s %s"%(data["name"],data["attr"]))
-		if event == "closetag" :
-			ipse.info("close %s %s"%(data["name"],data["attr"]))
-		elif event == "xml-attrset" :
+		elif event == "opentag" :
+			ipse.info("opentag %s %s"%(data["name"],data["attr"]))
+		elif event == "closetag" :
+			ipse.info("closetag %s %s"%(data["name"],data["attr"]))
+		elif event == "xmlattrset" :
 			ipse.info("xmlattrset %s"%data)
 		elif event == "doctype" :
 			ipse.info("doctype %s"%data)
 
 	def __call__(ipse) :
-		p =Parse()
-		p.info =ipse.info
-		p.error =ipse.error
-		p.get =ipse.put
-		p.unget =ipse.unput
-		p.on =ipse.on
+		sm =StateMachine()
+		sm.info =ipse.info
+		sm.error =ipse.error
+		sm.get =ipse.put
+		sm.unget =ipse.unput
+		sm.on =ipse.on
 		ipse.unput_buffer =Stack()
 		return p()
 
-r =Read()
-r.file_name ="MisakiGothic.svg"
-r.input =open("MisakiGothic.svg")
-r()
+sp =SVGParse()
+sp.file_name ="MisakiGothic.svg"
+sp.input =open("fonts/MisakiGothic.svg")
+sp()
 
 
