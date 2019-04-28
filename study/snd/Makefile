@@ -44,3 +44,13 @@ install-noise :
 	cp cache/cardnoise* $(INSTALL)
 
 
+test : $(BINS)
+	xdotool key super+Tab
+	$(BIN)/wavedump 1 1.01 cache/guitar_A5.wav
+	#xdotool key super+Tab
+
+	#$(BIN)/cardnoise click 2
+	#$(BIN)/cardnoise white 2
+	#$(BIN)/cardnoise pink 2
+	#$(BIN)/cardnoise red 2
+
