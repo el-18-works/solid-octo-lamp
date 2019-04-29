@@ -143,7 +143,7 @@ static void clicknoise( double secs, char *file_left, char *file_right ) {
  */
 int main(int argc, char *argv[]) {
 	if (argc < 3) {
-		printf("usage : %s [cracklenoise|white|pink|red] secs [left.wav [right.wav]]\n", argv[0]);
+		printf("usage : %s [crackle|white|pink|red] secs [left.wav [right.wav]]\n", argv[0]);
 		exit(1);
 	}
 	char *ssecs =argv[2];
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
 	if (argc >= 5) {
 		right =argv[4];
 	}
-	if (strcmp(argv[1], "cracklenoise") == 0) {
+	if (strcmp(argv[1], "crackle") == 0) {
 		cracklenoise(secs, left, right);
 	} else if (strcmp(argv[1], "white") == 0) {
 		whitenoise(secs, left, right);
