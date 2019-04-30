@@ -25,7 +25,7 @@ if ($localdate == 29) {
 ?>
 <script>
 function todayvideo() {
-	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
+	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1&playlist=5q2xypgPm3k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
 }
 function scrolltobot() {
 	document.querySelector("#bottom").scrollIntoView();
@@ -104,6 +104,11 @@ a:hover {
 	transition-timing-function : ease-in-out;
 	border-width : 20%;
 }
+
+.normal {
+	text-indent : 12px;
+}
+
 code {
 	background-color : #efefef;
 	padding : 5px 5px 5px 8px;
@@ -338,7 +343,13 @@ function myRecvData(q, c, callback) {
 }
 var aid =[];
 function mySetTxt(a,m,d, onloadCallback) {
-	myRecvData(`SELECT * FROM luckxa_mydiary_txt_test WHERE a=${a} && m=${m} && ABS(d-${d}) < 7 ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	myRecvData(`SELECT * FROM luckxa_mydiary_txt 
+		WHERE DATEDIFF(
+			CONCAT(${a}, "-", ${m}, "-", ${d}),
+			CONCAT(a, "-", m, "-", d)
+		) < 7 
+		ORDER BY a,m,d`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, 
+	(data)=> {
 		data =JSON.parse(data);
 		//console.log(data["error"]);
 		let res =data["res"];
@@ -357,7 +368,7 @@ function mySetTxt(a,m,d, onloadCallback) {
 }
 (function initSetTxt() {
 	let dt =new Date();
-	let a =dt.getFullYear();
+	let a =dt.getFullYear()-2018;
 	let m =dt.getMonth()+1;
 	let d =dt.getDate();
 	console.log("amd= %d,%d,%d",a,m,d);
@@ -367,7 +378,9 @@ function mySetTxt(a,m,d, onloadCallback) {
 /*
 */
 function myActTxt(id) {
-	myRecvData(`SELECT id,h,txt FROM luckxa_mydiary_txt_test WHERE id>=${id}`, {"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, (data)=> {
+	myRecvData(`SELECT id,h,txt FROM luckxa_mydiary_txt WHERE id>=${id}`, 
+		{"user" : "luckxa", "pass" : "MyLinka", "schema" : "l18"}, 
+	(data)=> {
 			data =JSON.parse(data);
 			if (data["error"])
 				console.log(data["error"]);

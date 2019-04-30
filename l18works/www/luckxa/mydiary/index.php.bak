@@ -7,10 +7,41 @@ require_once "host/mobile.php";
 $MOBILE =my_test_mobile();
 my_noscriptalert();
 ?>
+<?php
+$localdate =localtime()[3];
+if ($localdate == 29) {
+	$today_body_css = "filter : sepia(100%) blur(1px); font-size : 22px; font-weight : bold";
+	$today_css = "transform: rotate(2deg); filter : sepia(100%); filter : blur(1px);";
+	$today_fukidashi = '<a href="javascript:void(0)" onclick="todayvideo();"><text style="font-family:gothic;font-size:25px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)"><tspan x=2px y=55px>今日は</tspan><tspan x=70px y=80px>昭和の日。</tspan>';
+	$today_titleicon ="<img src='https://thumbnail.image.rakuten.co.jp/@0_mall/auc-t-link/cabinet/hatta/ht001-.jpg' height=150px alt='mazda' style='top:20px;right:5px;position:absolute;transform:rotate(-10deg);opacity:0.5;'>";
+	$today_video ='<center><div id=video style="position:fixed;top:20px;horizontal-align:center;width:100%;transition-duration:4s;"></div></center>';
+} else {
+	$today_body_css ="";
+	$today_css ="";
+	$today_fukidashi = '<a href="javascript:void(0)" onclick="scrolltobot()"><text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)"><tspan x=25px y=55px>流華の</tspan><tspan x=90px y=80px>日記</tspan>';
+	$today_titleicon ="";
+	$today_video ="";
+}
+?>
+<script>
+function todayvideo() {
+	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1&playlist=5q2xypgPm3k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
+}
+function scrolltobot() {
+	document.querySelector("#bottom").scrollIntoView();
+}
+</script>
 <link href="https://fonts.googleapis.com/css?family=Alice" rel="stylesheet">
 <link href="xxxtmpdata/photo.css" rel="stylesheet">
 <style>	
 
+@font-face {
+	font-family : 'k8x12';
+	src : url('/res/fonts/k8x12.woff') format('woff'), url('/res/fonts/k8x12.ttf') format('ttf');
+	font-weight : normal;
+	font-style : normal;
+	font-stretch : normal;
+}
 @font-face {
 	font-family : 'Bandal';
 	src : url('https://ens.l18.work/res/fonts/Bandal.woff') format('woff'), url('https://ens.l18.work/res/fonts/Bandal.svg#Bandal') format('svg');
@@ -22,10 +53,17 @@ my_noscriptalert();
 	font-stretch : normal;
 }
 
+html {
+	scroll-behavior : smooth;
+}
+
 body {
 	background-color : #eeffff;
+/*
 	font-family : 'Alice', "Hiragino Mincho ProN", "メイリオ", "Ume Mincho S3", serif;
+*/
 	margin : 0px;
+<?php echo $today_body_css; ?>
 }
 .txt {
 <?php
@@ -38,7 +76,9 @@ if ($MOBILE) {
 }
 ?>
 	background-color : white;
+/*
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
+*/
 	line-height : 40px;
 	box-shadow : 5px 5px 10px #ead
 }
@@ -87,6 +127,7 @@ code {
 	left : 35px;
 	opacity : 0.39;
 	z-index : 2;
+<?php echo $today_css; ?>
 }
 #jumpsvg {
 	position : relative;
@@ -135,17 +176,18 @@ code {
 </script>
 </head> <body>
 
+<a name="top" id="top"></a>
 <script>
 myNowloadingInit();
 </script>
 <a id=startdash href="//luckxa.l18.work/start-dash-diary/#bot">麻衣ねぇがリーダー就任するまでの日記</a>
+<?php echo $today_video; ?>
 
 <div id=mypagetitle>
 <img src=xxxtmpdata/miku_400x400.jpg height=40px id=mikuicon class="titleicon"> 
 <?php
-$localdate =localtime()[3];
-if ($localdate == 21)
-	echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
+	echo $today_titleicon;
+	//echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
 //else
 	//echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
 ?>
@@ -158,17 +200,7 @@ if ($localdate == 21)
  <polygon points="50,3 40,20  60,20" style="fill:lightblue" />
  <rect width=180px height=60px x=0 y=20 rx=20 ry=20 style="fill:lightblue" />
 <?php
-if ($localdate == 21)
- 	echo '<a xlink:href="https://namu.wiki/w/%EA%B3%BC%ED%95%99%EC%9D%98%20%EB%82%A0" target="_self">';
-else
-	echo '<a href=#bot>';
-?>
-<text style="font-family:gothic;font-size:20px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)">
-<?php
-if ($localdate == 21)
-	echo '<tspan x=5px y=55px>오늘은</tspan><tspan x=70px y=80px>과학의 날w</tspan>';
-else
-	echo '<tspan x=5px y=55px>流華の</tspan><tspan x=70px y=80px>日記</tspan>';
+echo $today_fukidashi;
 ?>
   </text>
  </a>
@@ -197,7 +229,6 @@ $a =array_slice($adata, 1);
 txtclass($hdata[0], $hdata[1], $a);
 */
 ?>
-<a name="bot"></a>
 <br/><br/>
 <script>
 myNowloadingFini(2);
@@ -250,7 +281,8 @@ function txtclass(id, h, s) {
 		p.innerHTML =a[i];
     	div.appendChild(p);
 	}
-    document.body.appendChild(div);
+    document.body.insertBefore(div, document.querySelector("#bottom"));
+    //document.body.appendChild(div);
 	hodieALength =a.length;
 }
 
@@ -494,5 +526,5 @@ function myOpenPhoto(e, data, width, height) {
 
 
 </script>
-<a name=bot></a>
+<a name="bot" id="bottom"></a>
 </body></html>
