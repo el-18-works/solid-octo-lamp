@@ -9,6 +9,9 @@ from sys import argv, stdin, stdout, stderr
 from subprocess import call, Popen
 from os import pipe, read, write, fdopen, close
 
+nikidir="niki/"
+#nikidir="genko/"
+
 def copy_clipboard(s) :
 	cmd =['/usr/bin/xclip', '-selection', 'clipboard']
 	rfd, wfd =pipe()
@@ -34,7 +37,7 @@ def paste_clipboard(prefix="") :
 	if prefix :
 		l =[ "space" if i == " " else i for i in list(prefix) ]
 		key =l + key
-	cmd =keycmd+key
+	cmd =keycmd+key+['Return']
 	call(cmd)
 
 class stamp : 
@@ -131,7 +134,7 @@ u =mc.ultimum()
 class h(stamp) : 
 	id =u.id+1
 	hodie =date.today()
-	a,m,d =hodie.year, hodie.month, hodie.day
+	a,m,d =hodie.year-2018, hodie.month, hodie.day
 	del hodie
 
 #print(u.md())
@@ -144,10 +147,10 @@ if "update" in argv :
 	arg =md[:-3]
 	print ("update----")
 	print(md)
-	gdr =path.dirname(__file__)+"/genko/"
+	gdr =path.dirname(__file__)+"/"+nikidir
 	ls =open(gdr+md).readlines()
 	if ls[0].strip() != arg :
-		input("tag screw <"+arg+"> <"+ls[0]+"> ?? )")
+		input("tag skew <"+arg+"> <"+ls[0]+"> ?? )")
 	class txt :
 		h =""
 		p =[]
@@ -177,17 +180,24 @@ elif "check" in argv :
 	arg =md[:-3]
 	mc.check(arg.split("-")[-1])
 	exit()
+elif "init" in argv :
+	i =argv.index("init")
+	idamd =argv[i+1:i+1+4]
+	res =[int(i) for i in idamd]
+	class initstamp(stamp) : id,a,m,d =res
+	mc.hodie(initstamp)
+	exit()
 
 print ("!!update----")
 
 while 1 :
 	c =input(u.md()+" u/h/?)")
 	if c == "u" :
-		md ="genko/"+u.md()
+		md =nikidir+u.md()
 		copy_clipboard(md)
 		paste_clipboard("vi ")
 	elif c == "h" :
-		md ="genko/"+h.md()
+		md =nikidir+h.md()
 		txt =mc.hodie(h)
 		open(md, "w").write("\n".join([h.mdheader(), txt]))
 		copy_clipboard(md)

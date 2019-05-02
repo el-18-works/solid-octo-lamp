@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+
+from sys import argv
+from my.pylib import mkpylib
+
+if __name__ == "__main__" :
+	for i in argv[1:] :
+		mkpylib(i)
+

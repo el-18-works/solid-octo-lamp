@@ -313,7 +313,6 @@
 				}
 			}
 			div.onmousedown = () => {
-				c0 =document.querySelector("#c0");
 				var moving =div;
 				moving.style.opacity =0.5;
 				moving.style.cursor ="grabbing";

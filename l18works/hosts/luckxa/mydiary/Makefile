@@ -1,9 +1,10 @@
 
-WORKS=createtable-txt insert-init
+WORKS=createtable-txt
+#WORKS=createtable-txt insert-init
 FLGS=$(foreach i,$(WORKS),cache/$(i).flg)
 
 .IMPORT : MYSHARE
-.PHONY : clean genko
+.PHONY : clean genko niki
 
 all : $(FLGS)
 
@@ -23,4 +24,8 @@ cache/insert-init.flg :
 
 genko :
 	cd genko && make
+
+niki :
+	echo niki
+	cd niki && make
 

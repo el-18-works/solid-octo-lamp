@@ -55,6 +55,10 @@ Sample values are given above for a 16-bit stereo source.
   data_chunk_ID[4] =0;
 
   fp = fopen(file_name, "rb");
+  if (fp == NULL) {
+	fprintf(stderr, "dump header : cannot open %s\n", file_name);
+	exit(1);
+  }
 
   fread(riff_chunk_ID, 1, 4, fp);
   fread(&riff_chunk_size, 4, 1, fp);
@@ -139,7 +143,7 @@ void mono_wave_read(MONO_PCM *pcm, char *file_name) {
   struct stat st;
   if(stat(file_name, &st) == 0) {
   	printf("file size : %ld\n", st.st_size);
-	if (data_chunk_size > st.st_size-44) {
+	if (data_chunk_size != st.st_size-44) {
   		printf("adjusting data_chunk_size to : %ld\n", st.st_size-44);
 		data_chunk_size =st.st_size;
 	}

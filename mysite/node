@@ -1,6 +1,0 @@
-#!/bin/sh
-#XXX syslog.
-
-/usr/bin/node $@
-exit $?
-
