@@ -3,7 +3,7 @@ MYSITE=/usr/local/my
 
 SQLFILES=pylib.sql
 SQLFLGS=$(foreach f,$(SQLFILES),cache/$(f).flg)
-BINFILES=node myunison mypath mkpylib
+BINFILES=node myunison mypath mkpylib mkweb
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
 ENVFILES=myenv vimrc
 ENVFLGS=$(foreach f,$(ENVFILES),cache/$(f).flg)

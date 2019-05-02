@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-from card import Graph, Card, element_path as epath, figure_path as fpath, etc_path as apath
+from py.card import Card, element_path as epath, figure_path as fpath, etc_path as apath
+from py.svgpath import dgraph
 import sys
 
 # spade, 0 heart, 0 diamond, club
@@ -12,7 +13,7 @@ import sys
 
 if __name__ == "__main__" and "wireframe" in sys.argv :
 	for i in epath :
-		g =Graph(epath[i])
+		g =dgraph(epath[i])
 		wf =g.wireframe()
 		if i == 1 :
 			n ="spade"
@@ -32,12 +33,12 @@ if __name__ == "__main__" and "wireframe" in sys.argv :
 			n ="openclub"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 	for i,fp in enumerate(fpath) :
-		g =Graph(fp)
+		g =dgraph(fp)
 		wf =g.wireframe()
 		n ="figure"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
 	for i,fp in enumerate(apath) :
-		g =Graph(fp)
+		g =dgraph(fp)
 		wf =g.wireframe()
 		n ="etc"
 		wf.save(open("cache/path%d-%s.jpg"%(i,n), "w"))
@@ -79,12 +80,12 @@ if __name__ == "__main__" and "suite-web" in sys.argv :
 	open("cache/card-web_%d.svg"%(0), "w").write(svg)
 
 if __name__ == "__main__" and "test" in sys.argv :
-	g0 =Graph(fpath[0])
-	g1 =Graph(fpath[10])
+	g0 =dgraph(fpath[0])
+	g1 =dgraph(fpath[10])
 	cx,cy =g1.origin
 	p =g1((cx-130,cy), (0.66666,0,0,1))
 	p +=g0((cx+130,cy), (0.66666,0,0,1))
-	g =Graph(p)
+	g =dgraph(p)
 	wf =g.wireframe()
 	wf.save(open("cache/test.jpg", "w"))
 

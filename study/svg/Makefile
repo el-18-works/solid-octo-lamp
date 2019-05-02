@@ -1,11 +1,17 @@
+PYLIB=svgpath
+PYLIBFLAGS=$(foreach i,$(PYLIB),cache/$i.flg)
 
 JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg suite-medium.flg
 all : $(foreach i,$(JOBS),cache/$(i))
 
-.PHONY : clean test install-suite
+.PHONY : clean test install-suite $(PYLIBFLAGS)
 
 clean :
 	rm -rf cache/*
+
+cache/svgpath.flg : py/svgpath.py
+	mkpylib $<
+	touch $@
 
 cache/card_data.py : fonts/element.svg fonts/figure.svg fonts/etc.svg
 	echo "element_path ={}" > $@
@@ -24,23 +30,23 @@ cache/card_data.py : fonts/element.svg fonts/figure.svg fonts/etc.svg
 	echo "except Exception as e :" >> $@
 	echo "\tprint(e)" >> $@
 
-cache/wireframe.flg : cache/card_data.py makecard.py card.py
+cache/wireframe.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py wireframe
 	touch $@
 
-cache/suite-light.flg : cache/card_data.py makecard.py card.py
+cache/suite-light.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py suite-light
 	touch $@
 
-cache/suite-medium.flg : cache/card_data.py makecard.py card.py
+cache/suite-medium.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py suite-medium
 	touch $@
 
-cache/suite-real.flg : cache/card_data.py makecard.py card.py
+cache/suite-real.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py suite-real
 	touch $@
 
-cache/suite-web.flg : cache/card_data.py makecard.py card.py
+cache/suite-web.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py suite-web
 	touch $@
 

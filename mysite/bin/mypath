@@ -20,9 +20,9 @@ esac
 while [ $# -gt 0 ] ; do
 	case $1 in
 	--host)
-		echo $host;;
+		realpath $host;;
 	--web)
-		echo $web;;
+		realpath $web;;
 	*)
 		exit 1;;
 	esac
