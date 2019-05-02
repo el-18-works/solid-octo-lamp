@@ -107,6 +107,7 @@ a:hover {
 
 .normal {
 	text-indent : 12px;
+	text-shadow : 0.5px 0.5px 1.5px gray;
 }
 
 code {

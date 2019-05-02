@@ -1,28 +1,44 @@
 
-SITEBIN=/usr/local/my/bin
+MYSITE=/usr/local/my
 
-BINFILES=node myunison mypath
+SQLFILES=pylib.sql
+SQLFLGS=$(foreach f,$(SQLFILES),cache/$(f).flg)
+BINFILES=node myunison mypath mkpylib
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
-FILES=myenv vimrc
-FLGS=$(foreach f,$(FILES),cache/$(f).flg)
+ENVFILES=myenv vimrc
+ENVFLGS=$(foreach f,$(ENVFILES),cache/$(f).flg)
+CLEANFLGS=$(foreach f,$(BINFILES),cache/$(f).clean.flg)
 
-all :  $(BINFLGS) $(FLGS)
-.PHONY clean :
+.PHONY : all clean distclean
+
+all :  $(BINFLGS) $(ENVFLGS) $(SQLFLGS)
+
+clean :
 	rm -f cache/*.flg
 
-cache/%.bin.flg : %
+cache/%.clean.flg : bin/%
+	rm -f $(MYSITE)/$(<)
+	touch $(@)
+
+distclean : $(CLEANFLGS)
+
+cache/%.bin.flg : bin/%
 	chmod +x $(PWD)/$(<)
-	sudo ln -s $(PWD)/$(<) $(SITEBIN)/$(<) || true
+	sudo ln -s $(PWD)/$(<) $(MYSITE)/$(<) || true
 	touch $@
 
-cache/myenv.flg : myenv.sh
+cache/myenv.flg : env/myenv.sh
 	cat $(HOME)/.bashrc | grep $(PWD)/$(<) || \
 		echo ". $(PWD)/$(<)" >> $(HOME)/.bashrc
 	touch $@
 
-cache/vimrc.flg : vimrc
+cache/vimrc.flg : env/vimrc
 	test -f $(HOME)/.vimrc || \
-		ln -s $(PWD)/vimrc $(HOME)/.vimrc
+		ln -sf $(PWD)/$(<) $(HOME)/.vimrc
 	mkdir -p $(HOME)/.vim/run
+	touch $@
+
+cache/pylib.sql.flg : sql/pylib.sql
+	mysql -u l18 -p@ -sB < $<
 	touch $@
 
