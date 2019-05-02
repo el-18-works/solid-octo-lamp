@@ -1,4 +1,6 @@
 
+-- l18 schema.
+
 CREATE SCHEMA IF NOT EXISTS l18;
 USE l18;
 

@@ -70,6 +70,8 @@ cache/underground-theme.wav : cache/underground-theme.csv
 cache/submarine-theme.wav : $(BINS) cache/submarine-theme.csv
 	py/oscpp.py cache/submarine-theme.csv  > cache/submarine-theme.gdf.csv
 	$(BIN)/osc cache/submarine-theme.gdf.csv $@
+	ffmpeg -i $@ cache/submarine-theme.ogg
+	ffmpeg -i $@ -ac 1 -ab 2000 cache/submarine-theme-mono.wav
 
 test : $(BINS)
 	#xdotool key super+Tab

@@ -37,7 +37,7 @@ def paste_clipboard(prefix="") :
 	if prefix :
 		l =[ "space" if i == " " else i for i in list(prefix) ]
 		key =l + key
-	cmd =keycmd+key
+	cmd =keycmd+key+['Return']
 	call(cmd)
 
 class stamp : 
