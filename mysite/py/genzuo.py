@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 
-import re
+OPTARGS =[
+	("-f,--file,--makefile", "+f"),
+	("-n,--just-print,--dry-run,--recon", "n"),
+	("-s,--silent,--quiet", "s"),
+	("-j,--jobs", "*j"),
+	("-t,--touch", "t"),
+]
 
-
-#def make(target) :
-	
 class Stack :
 	def __init__(ipse) :
 		ipse.a =[]
@@ -23,7 +26,8 @@ class GenOptParse :
 		print(msg)
 		exit(1)
 
-	def __init__(ipse) :
+	def __init__(ipse, debug=False) :
+		ipse.debug =debug
 		ipse.autoinc =0
 		ipse.trans ={0:{}}
 
@@ -45,19 +49,47 @@ class GenOptParse :
 		ipse.trans[st]["="] =cmdfun
 	
 	def __iter__(ipse) :
-		actst =-1 # ipse.prim()
+		preactst =-2
+		actst =-1
 		yield "st =0"
 		yield "while st != 0 or lex.la != '$' :"
-		yield "\tprint( st,lex.la)"
-		yield "\tif st == %d :"%actst
+		if ipse.debug :
+			yield "\tprint( st,lex.la)"
+		yield "\tif st == %d :"%preactst
+		yield "\t\tif setoptf[0] == 'arg' :"
+		yield "\t\t\tif lex.la == '=' :"
+		yield "\t\t\t\tl =lex.getl()"
+		yield "\t\t\t\topt[setoptf[1]].append(l[1:])"
+		yield "\t\t\telse :"
+		yield "\t\t\t\topt['flgs'].add(setoptf[1])"
+		if ipse.debug :
+			yield "\t\telse :"
+			yield "\t\t\terror('internal error')"
+		yield "\t\tst =0"
+		yield "\telif st == %d :"%actst
 		yield "\t\tif setoptf[0] == 'arg' :"
 		yield "\t\t\tl =lex.getl()"
-		yield "\t\t\topt[setoptf[1]].add(l[1:] if len(l) and l[0] == '=' else l)"
+		yield "\t\t\topt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)"
 		yield "\t\telif setoptf[0] == 'flg' :"
 		yield "\t\t\topt['flgs'].add(setoptf[1])"
+		if ipse.debug :
+			yield "\t\telse :"
+			yield "\t\t\terror('internal error')"
 		yield "\t\tst =0"
 		for st in sorted(ipse.trans) :
 			yield "\telif st == %d :"%st
+			if '=' in ipse.trans[st] :
+				opt =ipse.trans[st]["="]
+				if opt[0] == '*' :
+					yield "\t\tst =%d"%preactst
+					yield "\t\tsetoptf =('arg', '%s')"%opt[1:]
+				elif opt[0] == '+' :
+					yield "\t\tst =%d"%actst
+					yield "\t\tsetoptf =('arg', '%s')"%opt[1:]
+				else :
+					yield "\t\tst =%d"%actst
+					yield "\t\tsetoptf =('flg', '%s')"%opt
+				continue
 			for i,c in enumerate(ipse.trans[st]) :
 				s ="\t\t"
 				if i != 0 :
@@ -66,16 +98,6 @@ class GenOptParse :
 					yield s + "if lex.la == '%c' :"%c
 					yield "\t\t\tst =%d"%ipse.trans[st][c]
 					yield "\t\t\tlex.getc()"
-			if '=' in ipse.trans[st] :
-				yield "\t\tst =%d"%actst
-				opt =ipse.trans[st][c]
-				if opt[0] == ':' :
-					yield "\t\tsetoptf =('arg', '%s')"%opt[1:]
-					#yield "\t\tlex.getc()"
-				else :
-					yield "\t\tsetoptf =('flg', '%s')"%opt
-					#yield "\t\tlex.getc()"
-				continue
 			yield "\t\telse :"
 			if st == 0 :
 				yield "\t\t\tsetoptf =('arg', 'args')"
@@ -85,13 +107,9 @@ class GenOptParse :
 
 class GenMakeOptParse :
 
-	def __init__(ipse) :
-		ipse.optargs =[
-			("-f,--file,--makefile", ":makefile"),
-			("-n,--just-print,--dry-run,--recon", "n"),
-			("-s,--silent,--quiet", "s"),
-			("-t,--touch", "t")
-		]
+	def __init__(ipse, debug=False) :
+		ipse.debug =debug
+		ipse.optargs =OPTARGS
 
 	def __call__(ipse, out) :
 
@@ -143,11 +161,11 @@ class GenMakeOptParse :
 		out.write("\t\tprint('%s'%msg)\n")
 		out.write("\t\texit(1)\n")
 		out.write("\n")
-		out.write("\tdef __call__(ipse, opt={'args':set(),'makefile':set(),'flgs':set()}) :\n")
+		out.write("\tdef __call__(ipse, opt={'args':[],'f':[],'j':[],'flgs':set()}) :\n")
 		out.write("\t\tlex =ipse\n")
 		out.write("\t\terror =ipse.error\n")
 
-		gop =GenOptParse()
+		gop =GenOptParse(ipse.debug)
 		for cmd,f in ipse.optargs :
 			for c in cmd.split(",") :
 				gop(c, f)
@@ -164,7 +182,7 @@ class GenMakeOptParse :
 		out.write("\treturn mop()\n")
 
 if __name__ == "__main__" :
-	gmop =GenMakeOptParse()
+	gmop =GenMakeOptParse(debug=True)
 	from sys import stdout
 	testout =open("cache/testmakeparse.py", "w")
 	testout.write("#!/usr/bin/python3\n")
