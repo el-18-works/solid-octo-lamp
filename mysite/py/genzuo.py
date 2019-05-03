@@ -61,7 +61,7 @@ class GenOptParse :
 		yield "\t\t\t\tl =lex.getl()"
 		yield "\t\t\t\topt[setoptf[1]].append(l[1:])"
 		yield "\t\t\telse :"
-		yield "\t\t\t\topt['flgs'].add(setoptf[1])"
+		yield "\t\t\t\topt['flgs'] +=setoptf[1]"
 		if ipse.debug :
 			yield "\t\telse :"
 			yield "\t\t\terror('internal error')"
@@ -71,7 +71,8 @@ class GenOptParse :
 		yield "\t\t\tl =lex.getl()"
 		yield "\t\t\topt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)"
 		yield "\t\telif setoptf[0] == 'flg' :"
-		yield "\t\t\topt['flgs'].add(setoptf[1])"
+		yield "\t\t\topt['flgs'] +=setoptf[1]"
+		yield "\t\t\topt['flgs'] +=lex.getl(noinc=1)"
 		if ipse.debug :
 			yield "\t\telse :"
 			yield "\t\t\terror('internal error')"
@@ -79,6 +80,8 @@ class GenOptParse :
 		for st in sorted(ipse.trans) :
 			yield "\telif st == %d :"%st
 			if '=' in ipse.trans[st] :
+				if len(ipse.trans[st]) != 1 :
+					ipse.error("indeterminismus")
 				opt =ipse.trans[st]["="]
 				if opt[0] == '*' :
 					yield "\t\tst =%d"%preactst
@@ -92,12 +95,10 @@ class GenOptParse :
 				continue
 			for i,c in enumerate(ipse.trans[st]) :
 				s ="\t\t"
-				if i != 0 :
-					s +="el"
-				if c != '=' :
-					yield s + "if lex.la == '%c' :"%c
-					yield "\t\t\tst =%d"%ipse.trans[st][c]
-					yield "\t\t\tlex.getc()"
+				if i != 0 : s +="el"
+				yield s + "if lex.la == '%c' :"%c
+				yield "\t\t\tst =%d"%ipse.trans[st][c]
+				yield "\t\t\tlex.getc()"
 			yield "\t\telse :"
 			if st == 0 :
 				yield "\t\t\tsetoptf =('arg', 'args')"
@@ -140,7 +141,9 @@ class GenMakeOptParse :
 		out.write("\t\t\tipse.la =ipse.argv[ipse.argi][ipse.argj]\n")
 		out.write("\t\treturn c\n")
 		out.write("\n")
-		out.write("\tdef getl(ipse) :\n")
+		out.write("\tdef getl(ipse, noinc=0) :\n")
+		out.write("\t\tif noinc == 1 and ipse.argj == 0 :\n")
+		out.write("\t\t\treturn ''\n")
 		out.write("\t\tif ipse.la == '$' :\n")
 		out.write("\t\t\treturn '$'\n")
 		out.write("\t\telif len(ipse.argv[ipse.argi]) == ipse.argj :\n")
@@ -161,14 +164,18 @@ class GenMakeOptParse :
 		out.write("\t\tprint('%s'%msg)\n")
 		out.write("\t\texit(1)\n")
 		out.write("\n")
-		out.write("\tdef __call__(ipse, opt={'args':[],'f':[],'j':[],'flgs':set()}) :\n")
-		out.write("\t\tlex =ipse\n")
-		out.write("\t\terror =ipse.error\n")
 
 		gop =GenOptParse(ipse.debug)
+		ls =[]
 		for cmd,f in ipse.optargs :
 			for c in cmd.split(",") :
 				gop(c, f)
+			if f[0] in ("*", "+") :
+				ls.append(cmd[1])
+		opt = "{'flgs':'','args':[]," + ",".join("'%c':[]"%c for c in ls) + "}"
+		out.write("\tdef __call__(ipse, opt=%s) :\n"%opt)
+		out.write("\t\tlex =ipse\n")
+		out.write("\t\terror =ipse.error\n")
 
 		for i in gop :
 			out.write ("\t\t"+i)
@@ -182,7 +189,7 @@ class GenMakeOptParse :
 		out.write("\treturn mop()\n")
 
 if __name__ == "__main__" :
-	gmop =GenMakeOptParse(debug=True)
+	gmop =GenMakeOptParse(debug=1)
 	from sys import stdout
 	testout =open("cache/testmakeparse.py", "w")
 	testout.write("#!/usr/bin/python3\n")
