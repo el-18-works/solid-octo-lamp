@@ -2,9 +2,10 @@ PYLIB=svgpath
 PYLIBFLAGS=$(foreach i,$(PYLIB),cache/$i.flg)
 
 JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg suite-medium.flg
-all : $(foreach i,$(JOBS),cache/$(i))
 
-.PHONY : clean test install-suite $(PYLIBFLAGS)
+all : $(foreach i,$(JOBS),cache/$(i)) $(PYLIBFLAGS)
+
+.PHONY : clean test install-suite 
 
 clean :
 	rm -rf cache/*
