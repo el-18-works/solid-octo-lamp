@@ -8,18 +8,18 @@ if [ x"$host" == x"" ]; then
 fi
 
 mkdir -p $web/res
-subd=${web#/var/www/html/}
+subd=${web#/var/www/html}
 case $subd in
-ens/*)
-	url="https://ens.l18.work/${subd#ens/}"
+/ens/*)
+	url="https://ens.l18.work/${subd#/ens/}"
 	;;
-luckxa/*)
-	url="https://luckxa.l18.work/${subd#luckxa/}"
+/luckxa/*)
+	url="https://luckxa.l18.work/${subd#/luckxa/}"
 	;;
 *)
 	url="https://l18.work/$subd"
 	;;
 esac
-echo $url
+echo "qrcode url=$url"
 qr --factory="svg-path" $url > $web/res/qrcode.svg
 
