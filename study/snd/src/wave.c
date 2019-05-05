@@ -13,6 +13,9 @@
 #include <stdlib.h>
 #include <sys/sysmacros.h>
 
+#include <unistd.h>
+
+#define BOLD(x) ( isatty(1) ? "\033[1m" x "\033[0m" : x )
 
 void mono_wave_dump_header(char *file_name) {
 /*
@@ -76,15 +79,17 @@ Sample values are given above for a 16-bit stereo source.
 
   printf("riff_chunk_ID        : %s\n", riff_chunk_ID);
   printf("riff_chunk_size      : %ld\n", riff_chunk_size);
-  printf("riff_form_type       : %s\n", riff_form_type);
-  printf("fmt_chunk_ID         : %s\n", fmt_chunk_ID);
+  printf("riff_form_type       : %s (%s)\n", riff_form_type, riff_form_type[0] == 'W' ? BOLD(".wav") : "??");
+
+  printf("fmt_chunk_ID         : %s (%s)\n", fmt_chunk_ID, fmt_chunk_ID[0] == 'f' ? BOLD("Format chunk marker") : "??");
   printf("fmt_chunk_size       : %ld\n", fmt_chunk_size);
-  printf("fmt_wave_format_type : %d\n", fmt_wave_format_type);
-  printf("fmt_channel          : %d\n", fmt_channel);
+  printf("fmt_wave_format_type : %d (%s)\n", fmt_wave_format_type, fmt_wave_format_type == 1 ? BOLD("PCM") : "??");
+  printf("fmt_channel          : %d (%s)\n", fmt_channel, fmt_channel == 1 ? BOLD("mono") : BOLD("stereo"));
   printf("fmt_samples_per_sec  : fs=%ld\n", fmt_samples_per_sec);
   printf("fmt_bytes_per_sec    : %ld\n", fmt_bytes_per_sec);
   printf("fmt_block_size       : %d\n", fmt_block_size);
   printf("fmt_bits_per_sample  : bits=%d,db=%f\n", fmt_bits_per_sample, 20*log10(exp2(fmt_bits_per_sample)));
+
   printf("data_chunk_ID        : %s\n", data_chunk_ID);
   printf("data_chunk_size      : %ld\n", data_chunk_size);
 }
@@ -126,19 +131,6 @@ void mono_wave_read(MONO_PCM *pcm, char *file_name) {
   fread(&fmt_bits_per_sample, 2, 1, fp);
   fread(data_chunk_ID, 1, 4, fp);
   fread(&data_chunk_size, 4, 1, fp);
-  printf("riff_chunk_ID        : %s\n", riff_chunk_ID);
-  printf("riff_chunk_size      : %ld\n", riff_chunk_size);
-  printf("riff_form_type       : %s\n", riff_form_type);
-  printf("fmt_chunk_ID         : %s\n", fmt_chunk_ID);
-  printf("fmt_chunk_size       : %ld\n", fmt_chunk_size);
-  printf("fmt_wave_format_type : %d\n", fmt_wave_format_type);
-  printf("fmt_channel          : %d\n", fmt_channel);
-  printf("fmt_samples_per_sec  : fs=%ld\n", fmt_samples_per_sec);
-  printf("fmt_bytes_per_sec    : %ld\n", fmt_bytes_per_sec);
-  printf("fmt_block_size       : %d\n", fmt_block_size);
-  printf("fmt_bits_per_sample  : bits=%d,db=%f\n", fmt_bits_per_sample, 20*log10(exp2(fmt_bits_per_sample)));
-  printf("data_chunk_ID        : %s\n", data_chunk_ID);
-  printf("data_chunk_size      : %ld\n", data_chunk_size);
 
   struct stat st;
   if(stat(file_name, &st) == 0) {
@@ -158,7 +150,7 @@ void mono_wave_read(MONO_PCM *pcm, char *file_name) {
   for (n = 0; n < pcm->length; n++)
   {
     fread(&data, 2, 1, fp);
-    pcm->s[n] = (double)data / 32768.0;
+    pcm->s[n] = (double)data / 32768.0; // 332768 = 2**15
   }
   fclose(fp);
 }
