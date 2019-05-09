@@ -10,8 +10,15 @@ MAKENOISEDEP = $(OBJ)/wave.o $(OBJ)/cardnoise.o
 OSCDEP = $(OBJ)/wave.o $(OBJ)/osc.o
 NOISE=cache/cardnoise-left.wav cache/cardnoise-right.wav
 INSTALL=/var/www/html/ens/res/snd
+CFLAGS=-c
 CFLAGS=-Iinc -c
 LDFLAGS=-lm
+
+vpath %.c src
+vpath %.py py
+vpath %.csv cache
+vpath %.wav cache
+
 
 CC=g++
 
@@ -21,17 +28,17 @@ clean :
 	rm -rf cache/*/*
 	rm -rf cache/*.wav
 
-$(OBJ)/%.o:src/%.c
+$(OBJ)/%.o : %.c 
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BIN)/wavedump : $(WAVEDUMPDEP)
-	$(CC) $(WAVEDUMPDEP) $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 $(BIN)/cardnoise : $(MAKENOISEDEP)
-	$(CC) $(MAKENOISEDEP) $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 $(BIN)/osc : $(OSCDEP)
-	$(CC) $(OSCDEP) $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 makenoise : $(BINS)
 	$(BIN)/cardnoise $(NOISE)
@@ -47,31 +54,22 @@ install-noise :
 	mkdir -p $(INSTALL)
 	cp cache/cardnoise* $(INSTALL)
 
-%.gdf.csv : cache/%.csv 
-	py/oscpp.py $< > $@
+MARIO=course-clear game-over castle-theme underground-theme suichu-theme
+all : $(foreach i,$(MARIO),cache/$i.ogg)
+all : $(foreach i,$(MARIO),cache/$i.wav)
+all : $(foreach i,$(MARIO),cache/$i-mono.wav)
 
-cache/game-over.gdf.csv : cache/game-over.csv 
-	py/oscpp.py $< > $@
+%.wav : %.csv $(BINS) oscpp.py
+	$(csv2wav)
 
-cache/%.wav : cache/%.gdf.csv
-	$(BIN)/osc $< $@
+define csv2wav =
+	py/oscpp.py $<  > $(basename $<).gdf.csv
+	$(BIN)/osc $(basename $<).gdf.csv $@
+endef
 
-cache/osc-game-over.wav : $(BINS) cache/game-over.gdf.csv
-	$(BIN)/osc cache/game-over.gdf.csv $@
-
-cache/castle-theme.wav : cache/castle-theme.csv
-	py/oscpp.py $< > cache/castle-theme.gdf.csv
-	$(BIN)/osc cache/castle-theme.gdf.csv $@
-
-cache/underground-theme.wav : cache/underground-theme.csv
-	py/oscpp.py $< > cache/underground-theme.gdf.csv
-	$(BIN)/osc cache/underground-theme.gdf.csv $@
-
-cache/submarine-theme.wav : $(BINS) cache/submarine-theme.csv
-	py/oscpp.py cache/submarine-theme.csv  > cache/submarine-theme.gdf.csv
-	$(BIN)/osc cache/submarine-theme.gdf.csv $@
-	ffmpeg -i $@ cache/submarine-theme.ogg
-	ffmpeg -i $@ -ac 1 -ab 2000 cache/submarine-theme-mono.wav
+%.ogg %-mono.wav : %.wav
+	ffmpeg -i $< $(basename $<).ogg
+	ffmpeg -i $< -ac 1 -ab 2000 $(basename $<)-mono.wav
 
 test : $(BINS)
 	#xdotool key super+Tab

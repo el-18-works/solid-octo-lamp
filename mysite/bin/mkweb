@@ -1,0 +1,25 @@
+#!/bin/bash
+
+host=$(mypath --host)
+web=$(mypath --web)
+if [ x"$host" == x"" ]; then
+	echo "no web context"
+	exit 1
+fi
+
+mkdir -p $web/res
+subd=${web#/var/www/html}
+case $subd in
+/ens/*)
+	url="https://ens.l18.work/${subd#/ens/}"
+	;;
+/luckxa/*)
+	url="https://luckxa.l18.work/${subd#/luckxa/}"
+	;;
+*)
+	url="https://l18.work/$subd"
+	;;
+esac
+echo "qrcode url=$url"
+qr --factory="svg-path" $url > $web/res/qrcode.svg
+
