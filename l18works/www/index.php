@@ -1,5 +1,5 @@
 <?php
-require_once("satlin.php");
+require_once("globals.php");
 $motto =new JsonMotto("satlin.motto.json");
 
 if (local_agent()) {

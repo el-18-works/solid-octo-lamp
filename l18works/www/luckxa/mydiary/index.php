@@ -23,6 +23,7 @@ if ($localdate == 29) {
 	$today_video ="";
 }
 ?>
+<script> function osc(vol, freq, duration) { var a =new AudioContext(); a.resume(); let v =a.createOscillator(); let u =a.createGain(); v.connect(u); v.type ="square"; v.transition ="sudden"; v.frequency.value =freq; u.connect(a.destination); u.gain.value =vol*0.01; v.start(a.currentTime); v.stop(a.currentTime + duration * 0.001); } </script>
 <script>
 function todayvideo() {
 	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1&playlist=5q2xypgPm3k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
@@ -44,7 +45,7 @@ function scrolltobot() {
 }
 @font-face {
 	font-family : 'Bandal';
-	src : url('https://ens.l18.work/res/fonts/Bandal.woff') format('woff'), url('https://ens.l18.work/res/fonts/Bandal.svg#Bandal') format('svg');
+	src : url('/res/fonts/Bandal.woff') format('woff'), url('/res/fonts/Bandal.svg#Bandal') format('svg');
 /*
 	src : url('xxxtmpdata/Bandal.woff') format('woff'), url('xxxtmpdata/Bandal.svg#Bandal') format('svg');
 */
@@ -76,8 +77,8 @@ if ($MOBILE) {
 }
 ?>
 	background-color : white;
-/*
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
+/*
 */
 	line-height : 40px;
 	box-shadow : 5px 5px 10px #ead

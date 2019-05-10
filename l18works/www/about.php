@@ -1,24 +1,44 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body {
 	//background : url("teddy.png");
-	background : url("www/mai-closeup-bg.png");
+	//background : url("www/mai-closeup-bg.png");
 	background-repeat : no-repeat;
 	//background-size : 100%;
+	background-color : black;
+}
+a {
+	color : #123224;
+}
+#myabout {
+	position : fixed;
+	left: 0px;
+	right: 0px;
+	top: 0;
+//	max-width: 400px;
+	max-height:100%;
+	z-index : -1;
 }
 </style>
 </head>
 <body>
+<center>
+<video autoplay muted loop id="myabout">
+<source src="res/myabout.ogv" type="video/ogg">
+</video>
 <?php
 require_once("globals.php");
-echo "<h3>いよいよ、L１８ワークスのプレ始動ですよ〜！！</h3>";
+echo "<br/>";
+echo "<br/>";
+echo "<h3>令和時代に突入〜L１８ワークス始動〜！！</h3>";
 echo "<pre>";
 echo "サーバ所在地\n";
 echo "<a href=\"https://www.google.com/maps/place/1+Chome-6-37+Banba,+Hikone-shi,+Shiga-ken+522-0069/@35.2811985,136.2476957,17z/data=!4m5!3m4!1s0x60022b29001dc94d:0x5b491fed45f286c3!8m2!3d35.2811985!4d136.2498844\">滋賀県彦根市馬場一丁目６の三十七</a>\n";
 echo "遊歩道側二階のピンクのカーテンの部屋が私の部屋です。\n";
 echo "070-6567-6883\n";
-echo "satlin_luckxa@yahoo.co.jp\n";
+echo "satlin_luckxa@yahoo.com\n";
 echo "\n";
 readfile("new-introduction.txt");
 echo "\n";
