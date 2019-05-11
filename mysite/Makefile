@@ -1,17 +1,24 @@
 
-MYSITE=/usr/local/my
+.IMPORT : MYHOME
+MYSITE=$(MYHOME)
+MYSITE?=/usr/local/my
 
-SQLFILES=pylib.sql
+SQLFILES=pylib.sql vimrc.sql
 SQLFLGS=$(foreach f,$(SQLFILES),cache/$(f).flg)
-BINFILES=node myunison mypath mkpylib mkweb
+BINFILES=node myunison mypath mkpylib mkweb packme
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
-ENVFILES=myenv vimrc
+ENVFILES=myenv vimrc my.mk packme.mk
 ENVFLGS=$(foreach f,$(ENVFILES),cache/$(f).flg)
+PYLIBFILES=genoptparse pyvimrc
+PYLIBFLGS=$(foreach f,$(PYLIBFILES),cache/$f.flg)
 CLEANFLGS=$(foreach f,$(BINFILES),cache/$(f).clean.flg)
+
+vpath %.sql sql
+vpath %.py py
 
 .PHONY : all clean distclean
 
-all :  $(BINFLGS) $(ENVFLGS) $(SQLFLGS)
+all :  $(BINFLGS) $(ENVFLGS) $(SQLFLGS) $(PYLIBFLGS)
 
 clean :
 	rm -f cache/*.flg
@@ -38,7 +45,45 @@ cache/vimrc.flg : env/vimrc
 	mkdir -p $(HOME)/.vim/run
 	touch $@
 
-cache/pylib.sql.flg : sql/pylib.sql
+cache/my.mk.flg : env/my.mk
+	test -f $(MYHOME)/share/$< || \
+		ln -sf $(PWD)/$< $(MYHOME)/share/$(<F)
+	touch $@
+	
+cache/packme.mk.flg : env/packme.mk
+	test -f $(MYHOME)/share/$< || \
+		ln -sf $(PWD)/$< $(MYHOME)/share/$(<F)
+	touch $@
+
+cache/pylib.sql.flg : pylib.sql
 	mysql -u l18 -p@ -sB < $<
 	touch $@
+
+cache/vimrc.sql.flg : vimrc.sql
+	mysql -u l18 -p@ -sB < $<
+	touch $@
+
+.PHONY : bin/packme
+bin/packme : py/pack.py cache/packop.py
+	tail -n +1 cache/packop.py > $@ 
+	echo >> $@
+	cat $< >> $@
+	python3 $@ -m cache/spec.mk
+
+cache/packme.flg : bin/packme
+	test -f $(MYHOME)/bin/$< || \
+		ln -sf $(PWD)/$< $(MYHOME)/bin/$(<F)
+	touch $@
+
+cache/genoptparse.flg : py/genoptparse.py bin/mkpylib
+	mkpylib $<
+	touch $@
+
+cache/pyvimrc.flg : vimrc.py bin/mkpylib
+	mkpylib $<
+	touch $@
+
+cache/packop.py : cache/genoptparse.flg
+	python3 -c "from my.genoptparse import genoptparse; genoptparse('$@', [('-m,--mini','m'),],0)"
+
 

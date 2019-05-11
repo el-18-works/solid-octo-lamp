@@ -1,36 +1,14 @@
 #!/usr/bin/python3
-
-
 #
 #
 #  optionium parsitio
 #
 #
 
-OPTARGS =[
-	("-f,--file,--makefile", "+f"),
-	("-n,--just-print,--dry-run,--recon", "n"),
-	("-s,--silent,--quiet", "s"),
-	("-j,--jobs", "*j"),
-	("-t,--touch", "t"),
-]
 
-class Stack :
-	def __init__(ipse) :
-		ipse.a =[]
-
-	def push(ipse, i) :
-		ipse.a.append(i)
-		return len(ipse.a)
-
-	def pop(ipse) :
-		i =ipse.a[-1]
-		del ipse.a[-1]
-		return i
-
-class GenOptParse :
+class GenOptParseSM :
 	def error(ipse, msg) :
-		print(msg)
+		print("genoptparse :" + msg)
 		exit(1)
 
 	def __init__(ipse, debug=False) :
@@ -43,6 +21,7 @@ class GenOptParse :
 		return ipse.autoinc
 
 	def __call__(ipse, cmd, cmdfun) :
+
 		st =0
 		for c in cmd :
 			if c not in  ipse.trans[st] :
@@ -61,7 +40,7 @@ class GenOptParse :
 		yield "st =0"
 		yield "while st != 0 or lex.la != '$' :"
 		if ipse.debug :
-			yield "\tprint( st,lex.la)"
+			yield "\tprint(\"%d '%s'\"%(st,lex.la))"
 		yield "\tif st == %d :"%preactst
 		yield "\t\tif setoptf[0] == 'arg' :"
 		yield "\t\t\tif lex.la == '=' :"
@@ -71,7 +50,7 @@ class GenOptParse :
 		yield "\t\t\t\topt['flgs'] +=setoptf[1]"
 		if ipse.debug :
 			yield "\t\telse :"
-			yield "\t\t\terror('internal error')"
+			yield "\t\t\terror('internalis error')"
 		yield "\t\tst =0"
 		yield "\telif st == %d :"%actst
 		yield "\t\tif setoptf[0] == 'arg' :"
@@ -82,7 +61,7 @@ class GenOptParse :
 		yield "\t\t\topt['flgs'] +=lex.getl(noinc=1)"
 		if ipse.debug :
 			yield "\t\telse :"
-			yield "\t\t\terror('internal error')"
+			yield "\t\t\terror('internalis error')"
 		yield "\t\tst =0"
 		for st in sorted(ipse.trans) :
 			yield "\telif st == %d :"%st
@@ -111,18 +90,19 @@ class GenOptParse :
 				yield "\t\t\tsetoptf =('arg', 'args')"
 				yield "\t\t\tst =%d"%actst
 			else :
-				yield "\t\t\terror('syntax error')"
+				yield "\t\t\terror('non exspectato uso aborto')"
+				yield "\t\t\treturn"
 
-class GenMakeOptParse :
+class GenOptParse :
 
-	def __init__(ipse, debug=False) :
+	def __init__(ipse, optargs,debug=False) :
+		ipse.optargs =optargs
 		ipse.debug =debug
-		ipse.optargs =OPTARGS
 
 	def __call__(ipse, out) :
 
 		out.write("\n")
-		out.write("class MakeOptParse :\n")
+		out.write("class OptParse :\n")
 		out.write("\tdef __init__(ipse) :\n")
 		out.write("\t\timport sys\n")
 		out.write("\t\tipse.argv =sys.argv[1:]\n")
@@ -153,11 +133,11 @@ class GenMakeOptParse :
 		out.write("\t\t\treturn ''\n")
 		out.write("\t\tif ipse.la == '$' :\n")
 		out.write("\t\t\treturn '$'\n")
-		out.write("\t\telif len(ipse.argv[ipse.argi]) == ipse.argj :\n")
-		out.write("\t\t\tipse.argi +=1\n")
-		out.write("\t\t\tif len(ipse.argv) == ipse.argi :\n")
-		out.write("\t\t\t\treturn '$'\n")
-		out.write("\t\t\tl =ipse.argv[ipse.argi][0:]\n")
+		#out.write("\t\telif len(ipse.argv[ipse.argi]) == ipse.argj :\n")
+		#out.write("\t\t\tipse.argi +=1\n")
+		#out.write("\t\t\tif len(ipse.argv) == ipse.argi :\n")
+		#out.write("\t\t\t\treturn '$'\n")
+		#out.write("\t\t\tl =ipse.argv[ipse.argi][0:]\n")
 		out.write("\t\telse :\n")
 		out.write("\t\t\tl =ipse.argv[ipse.argi][ipse.argj:]\n")
 		out.write("\t\tipse.argi +=1; ipse.argj =0\n")
@@ -168,13 +148,26 @@ class GenMakeOptParse :
 		out.write("\t\treturn l\n")
 		out.write("\n")
 		out.write("\tdef error(ipse, msg='error') :\n")
-		out.write("\t\tprint('%s'%msg)\n")
-		out.write("\t\texit(1)\n")
+		out.write("\t\tprint('optparse : %s'%msg)\n")
+		#out.write("\t\texit(1)\n")
 		out.write("\n")
 
-		gop =GenOptParse(ipse.debug)
+		gop =GenOptParseSM(ipse.debug)
 		ls =[]
+		lutendi =[]
 		for cmd,f in ipse.optargs :
+			arg ="a"
+			if "=" in cmd :
+				cmd,arg =cmd.split("=")
+			utendi ="  "
+			if f[0] == "+" :
+				utendi +=", ".join(c+"="+arg for c in cmd.split(","))
+			elif f[0] == "*" :
+				utendi +=", ".join(c+"[="+arg+"]" for c in cmd.split(","))
+			else :
+				utendi +=", ".join(cmd.split(","))
+			lutendi.append(utendi)
+
 			for c in cmd.split(",") :
 				gop(c, f)
 			if f[0] in ("*", "+") :
@@ -191,87 +184,22 @@ class GenMakeOptParse :
 		out.write("\t\treturn opt\n")
 
 		out.write("\n")
-		out.write("def makeoptparse() :\n")
-		out.write("\tmop =MakeOptParse()\n")
+		out.write("def optutendi(nomen='') :\n")
+		out.write("\t\n")
+		out.write("\tprint('Modus utendi %s :'%nomen)\n")
+		for u in lutendi :
+			out.write("\tprint('%s')\n"%u)
+		out.write("\n")
+		out.write("def optparse() :\n")
+		out.write("\tmop =OptParse()\n")
 		out.write("\treturn mop()\n")
 
 
+def genoptparse(output, optargs, debug=1) :
+	gmop =GenOptParse(optargs=optargs, debug=debug)
+	libout =open(output, "w") if type(output) == str else output
+	if libout.tell() == 0 :
+		libout.write("#!/usr/bin/python3\n")
+	gmop(libout)
 
-#
-#
-#  fixurae parsitio
-#
-#
-
-trm =[
-	("uif", "ifdef,ifndef"),
-	("bif", "ifeq,ifneq"),
-	("els", "else"),
-	("fi", "endif"),
-	("(", "("),
-	(")", ")"),
-	(",", ","),
-	("+", " +"),
-	("-", " *"),
-	(".", ""),
-]
-rel =[
-	("BLO", "COND|REGL|ASSGN|TAG"),
-	("COND", "I BLO E BLO F | I BLO F"),
-	("I", "uif + VAR"),
-	("I", "bif + ( - TRM - , - TRM - )"),
-	("I", "bif + LIT + LIT"),
-	("E", "els"),
-	("F", "fi"),
-	("TRM", " REFLIT | REFVAR"),
-	("REGL", "TOP GCPL GDEP*"),
-	("GDEP", "ASSGN|TAG|TRM"),
-	("TOP", "TRM+"),
-	("REFLIT", "' LIT* '"),
-	("REFLIT", '" LIT* "'),
-	("REFVAR", '$ ( - VAR - )'),
-	("REFVAR", '$ { - VAR - }'),
-	("LIT", 'REFVAR|FRAG'),
-	("FRAG", '.*'),
-	("VAR", ''),
-]
-
-LINEA =[
-	("linea", 
-		"regula, assignatio, directiva, conditio", 
-	""),
-	("regula", 
-		"topos geodep prerequisitum#assignatio*", 
-	""),
-	("assignatio", 
-		"terminus arithmodep characteristica"
-	""),
-	("directiva", 
-		"tagos tagma", 
-	""),
-	("conditio", 
-		"hetu", 
-	""),
-]
-
-
-if __name__ == "__main__" :
-	gmop =GenMakeOptParse(debug=1)
-	from sys import stdout
-	testout =open("cache/testmakeparse.py", "w")
-	testout.write("#!/usr/bin/python3\n")
-	gmop(testout)
-	testout.write("print(makeoptparse())")
-	exit()
-	import sys
-	sys.path.append("cache")
-	sys.path.append(".")
-	try :
-		import testmakeparse
-		print(dir(testmakeparse))
-		from cache.testmakeparse import makeoptparse
-		print(makeoptparse())
-	except Exception as e:
-		print(e)
-		pass
 
