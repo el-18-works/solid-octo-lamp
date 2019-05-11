@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 
 class TapeScan :
+	@classmethod 
+	def onglobal(ipse, data) : pass
+	@classmethod 
+	def onchar(ipse, data) : pass
+
 	@classmethod
 	def read_property(ipse, s) :
 		if len(s) == 0 :
@@ -111,6 +116,7 @@ class TapeScan :
 		try :
 			ipse.data["METRICSSET"] =0
 			while ipse.scan_globals() : pass
+			ipse.onglobal(ipse.data)
 			key,value =next(ipse.get())
 			if key != "CHARS" :
 				ipse.error("CHARS expected")
@@ -164,11 +170,14 @@ class BDFParse :
 		ts.get =ipse.put
 		ts.unget =ipse.unput
 		ts.onchar =onchar
+		ts.onglobal =onglobal
 		ipse.pos =0
 		return ts()
 
 bp =BDFParse()
 bp.file_name ="fonts/k8x12.bdf"
 bp.input =open("fonts/k8x12.bdf")
-bp(print,print)
+def onchar(data) :
+	input(data)
+bp(onchar,print)
 
