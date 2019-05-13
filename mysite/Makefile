@@ -5,11 +5,11 @@ MYSITE?=/usr/local/my
 
 SQLFILES=pylib.sql vimrc.sql
 SQLFLGS=$(foreach f,$(SQLFILES),cache/$(f).flg)
-BINFILES=node myunison mypath mkpylib mkweb packme
+BINFILES=node myunison mypath mkpylib mkweb packme deliver
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
 ENVFILES=myenv vimrc my.mk packme.mk
 ENVFLGS=$(foreach f,$(ENVFILES),cache/$(f).flg)
-PYLIBFILES=genoptparse pyvimrc
+PYLIBFILES=gengetopt pyvimrc
 PYLIBFLGS=$(foreach f,$(PYLIBFILES),cache/$f.flg)
 CLEANFLGS=$(foreach f,$(BINFILES),cache/$(f).clean.flg)
 
@@ -75,7 +75,7 @@ cache/packme.flg : bin/packme
 		ln -sf $(PWD)/$< $(MYHOME)/bin/$(<F)
 	touch $@
 
-cache/genoptparse.flg : py/genoptparse.py bin/mkpylib
+cache/gengetopt.flg : py/gengetopt.py bin/mkpylib
 	mkpylib $<
 	touch $@
 
@@ -83,7 +83,7 @@ cache/pyvimrc.flg : vimrc.py bin/mkpylib
 	mkpylib $<
 	touch $@
 
-cache/packop.py : cache/genoptparse.flg
-	python3 -c "from my.genoptparse import genoptparse; genoptparse('$@', [('-m,--mini','m'),],0)"
+cache/packop.py : cache/gengetopt.flg
+	python3 -c "from my.gengetopt import gengetopt; gengetopt('$@', [('-m,--mini','m'),],0)"
 
 

@@ -174,10 +174,66 @@ class BDFParse :
 		ipse.pos =0
 		return ts()
 
-bp =BDFParse()
-bp.file_name ="fonts/k8x12.bdf"
-bp.input =open("fonts/k8x12.bdf")
-def onchar(data) :
-	input(data)
-bp(onchar,print)
+if __name__ == "__main__" :
+	from sys import argv, stdout
+	debug =len(argv) > 1 and "debug" in argv 
+	output =stdout
+	def putout(s) :
+		output.write(s)
+		output.write("\n")
+		
+	bp =BDFParse()
+	bp.file_name ="fonts/k8x12.bdf"
+	bp.input =open("fonts/k8x12.bdf")
+	def onglobal(data, debug=debug) :
+		global off
+		fbbx, fbby, xoff, yoff =data["FONTBOUNDINGBOX"]
+		fbb=fbbx,fbby
+		off =xoff,yoff
+		if debug :
+			print(data)
+			print (fbb)
+
+	def onchar(data, debug=debug) :
+		encoding =data["encoding"]
+		bbox =data["bbx"]
+		bitmap =data["bitmap"]
+		char =data["char"]
+		if debug :
+			print("encoding=",encoding,bitmap,bbox)
+			for i in range(9-(bbox[1]+bbox[3])) :
+				print()
+			for b in bitmap : 
+				b |= (1<<16)
+				print(bin(b)[-8:].replace("1", "#").replace("0", " ")+":")
+			for i in range(off[1], bbox[3]) :
+				print()
+			input(data)
+		putout("    case %s : /* %s */"%(hex(int(encoding)), char))
+		i =(9-(bbox[1]+bbox[3]))
+		for b in bitmap : 
+			b |= (1<<16)
+			for j,c in enumerate(bin(b)[-8:]) :
+				if c == "1" :
+					putout("      callback(%d,%d);"%(j,i))
+			i +=1
+		putout("      break;")
+
+	def amont() :
+		putout("function %s(encoding, callback) {"%fnc)
+		putout("  switch (encoding) {")
+	def aval() :
+		putout("  }")
+		putout("}")
+
+	from sys import argv 
+	if len(argv) > 3 and argv[1] == "makejs" :
+		print("make js")
+		output =open(argv[2], "w")
+		fnc =argv[3]
+		amont()
+		bp(onchar,onglobal)
+		aval()
+	else :
+		bp(onchar,onglobal)
 

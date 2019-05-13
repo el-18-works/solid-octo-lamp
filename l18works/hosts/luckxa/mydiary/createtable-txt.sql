@@ -6,7 +6,7 @@ USE l18;
 
 -- my diary txt table.
 
-DROP TABLE luckxa_mydiary_txt;
+-- DROP TABLE luckxa_mydiary_txt;
 
 -- a annus.
 -- m mensis.

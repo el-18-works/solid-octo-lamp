@@ -10,6 +10,7 @@ body {
 	margin:0px;
 	width:100%;
 	background-color:#121212;
+	cursor:col-resize;
 }
 #centro {
 	opacity:0;
@@ -17,7 +18,6 @@ body {
 	margin:0px;
 	position:absolute;
 	z-index:2;
-	cursor:col-resize;
 
 	transition:opacity 0.3s ease-in-out;
 	background-color:black;
@@ -80,6 +80,7 @@ body {
 	background-color:#121212;
 }
 .menudiv {
+	cursor : default;
 	transition-duration : 0.5s;
 }
 .menudiv:hover {
@@ -149,6 +150,12 @@ function preparaciónEstilo() {
 	window.onresize =preparaciónEstilo;
 }
 
+function indicar(t) {
+	let most =document.getElementById("mostrador");
+	let indicador =document.getElementById("indicador");
+	indicador.innerHTML =t == undefined ? most.style.backgroundColor : t;
+}
+
 function reflejo() {
 	let id =editor.session.getMode().$id;
 	if (id == "ace/mode/html" || id == "ace/mode/svg") {
@@ -160,6 +167,7 @@ function reflejo() {
 		mostrador.srcdoc =texto;
 	}
 	editor.focus();
+	indicar();
 }
 
 function inicio(modo) {
@@ -169,6 +177,7 @@ function inicio(modo) {
     editor.session.setMode("ace/mode/"+modo);
     //editor.session.setMode("ace/mode/javascript");
 	console.log(editor);
+	indicar();
 	editor.focus();
 }
 
@@ -183,15 +192,17 @@ function código(f, src) {
 </head>
 <body>
 <div id=navi width="100%" style="vertical-align:center;">
-	<div height=100% width=30px style="verticalAlign:center;margin:0px;float:left;" id="coloreardiv" class="menudiv" >
+	<div height=100% width=40px style="vertical-align:center;margin:0px;float:left;" id="coloreardiv" class="menudiv" >
 		<input type="color" id="colorear" value=#151515 style="margin:8px;" />
 	</div>
 
-	<div height=40px width=40px style="verticalAlign:center;margin:0px;border:0px;padding:0px;float:left;" id="reflejardiv" class="menudiv" >
-		<svg height=30px width=30px style="margin:5px;float:left;" id="reflejar" >
-			<circle cx=15 cy=15 r=10 stroke="rgba(2,10,2,1)" stroke-width=3 fill="none" class="refmenu" id="refmenu-circle" />
-			<path d="M22 15 L11.5 21 L11.5 9 Z" class="refmenu" id="refmenu-path" />
+	<div height=40px width=40px style="margin:0px;border:0px;padding:0px;float:left;" id="reflejardiv" class="menudiv" >
+		<svg viewBox="0 0 300 300" width=40px height=40px id="reflejar" >
+			<circle cx=150 cy=150 r=100 stroke="rgba(2,10,2,1)" stroke-width=12 fill="none" class="refmenu" id="refmenu-circle" />
+			<path d="M220 150 L115 210 L115 90 Z" class="refmenu" id="refmenu-path" />
 		</svg>
+	</div>
+	<div height=100% width=40px style="vertical-align:center;margin:0px;border:0px;padding:10px;float:right;color:rgba(200,210,200,0.5)" id="indicador" class="menudiv" >
 	</div>
 </div>
 <div id=cont>
@@ -206,6 +217,7 @@ function código(f, src) {
 <script>
 var refmenu =document.getElementById("reflejar");
 var colmenu =document.getElementById("colorear");
+var indmenu =document.getElementById("indicador");
 refmenu.onclick = () => {
 	let rc =document.getElementById("refmenu-circle");
 	let rp =document.getElementById("refmenu-path");
@@ -217,13 +229,38 @@ refmenu.onclick = () => {
 	}, 1000);
 	reflejo();
 }
+
 colorear.onchange = () => {
 	let mr =document.getElementById("mostrador");
 	let coseno =document.getElementById("coseno");
 	let cont =document.getElementById("cont");
+	let most =document.getElementById("mostrador");
 	mr.style.backgroundColor =colmenu.value;
 	coseno.style.backgroundColor =colmenu.value;
 	cont.style.backgroundColor =colmenu.value;
+	indicar();
+}
+
+indmenu.onclick = () => {
+	let indicador =document.getElementById("indicador");
+	let s =indicador.innerHTML;
+	if (s.length > 1 && s[0] == "r") {
+		let t =s.replace(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i, (match, p1, p2, p3) => { 
+			q1= Number(p1).toString(16).toUpperCase(); 
+			q2= Number(p2).toString(16).toUpperCase(); 
+			q3= Number(p3).toString(16).toUpperCase(); 
+			if (q1.length == 1) q1 ="0"+q1;
+			if (q2.length == 1) q2 ="0"+q2;
+			if (q3.length == 1) q3 ="0"+q3;
+			return "#"+q1+q2+q3;
+		});
+		indicar(t);
+	} else {
+		let t =s.replace(/#(..)(..)(..)/, (match, p1, p2, p3) => {
+    		return "rgb("+parseInt(p1,16)+", "+parseInt(p2,16)+", "+parseInt(p3,16)+")";
+		});
+		indicar(t);
+	}
 }
 <?php 
 $mode ="";

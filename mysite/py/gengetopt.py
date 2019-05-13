@@ -6,7 +6,7 @@
 #
 
 
-class GenOptParseSM :
+class OptParseSM :
 	def error(ipse, msg) :
 		print("genoptparse :" + msg)
 		exit(1)
@@ -93,7 +93,7 @@ class GenOptParseSM :
 				yield "\t\t\terror('non exspectato uso aborto')"
 				yield "\t\t\treturn"
 
-class GenOptParse :
+class OptParse :
 
 	def __init__(ipse, optargs,debug=False) :
 		ipse.optargs =optargs
@@ -152,7 +152,7 @@ class GenOptParse :
 		#out.write("\t\texit(1)\n")
 		out.write("\n")
 
-		gop =GenOptParseSM(ipse.debug)
+		gop =OptParseSM(ipse.debug)
 		ls =[]
 		lutendi =[]
 		for cmd,f in ipse.optargs :
@@ -195,11 +195,11 @@ class GenOptParse :
 		out.write("\treturn mop()\n")
 
 
-def genoptparse(output, optargs, debug=1) :
-	gmop =GenOptParse(optargs=optargs, debug=debug)
+def gengetopt(output, optargs, debug=1) :
+	gop =OptParse(optargs=optargs, debug=debug)
 	libout =open(output, "w") if type(output) == str else output
 	if libout.tell() == 0 :
 		libout.write("#!/usr/bin/python3\n")
-	gmop(libout)
+	gop(libout)
 
 

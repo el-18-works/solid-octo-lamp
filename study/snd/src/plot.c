@@ -4,11 +4,11 @@
 #include <string.h>
 #include <math.h>
 
-static MONO_PCM pcm;
-static STEREO_PCM spcm;
+static struct MONO_PCM pcm;
+static struct STEREO_PCM spcm;
 
 static void monopcm_stat( double de, double ad, char *file_name) {
-	mono_wave_dump_header(file_name);
+	wave_dump_header(file_name);
 	int n;
 	double amax =0, amin =0;
 	double a0 =0;
@@ -51,7 +51,7 @@ static void monopcm_stat( double de, double ad, char *file_name) {
 }
 
 static void monopcm_csv( char *file_name) {
-	mono_wave_dump_header(file_name);
+	wave_dump_header(file_name);
 	int n;
 	double amax =0, amin =0;
 	double a0 =0;
