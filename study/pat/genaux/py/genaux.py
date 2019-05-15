@@ -39,7 +39,7 @@ class tracepyfile (stack) :
         cb("open", l.strip())
         continue
       tabs,line =resettabs(l.rstrip())
-      if not line or line[0] == '#' :
+      if not line or line[0] == '#' and tabs != ipse.top() :
         cb("comment", line)
       else :
         while len(tabs) < len(ipse.top()) :
@@ -80,8 +80,6 @@ class blocktree(stack) :
       ipse.push({"key" : "", "list":[{'key':'decl', 'data':"file :"}]})
     elif e == "open" :
       key =value =""
-      udata =ipse.top()["list"][-1]
-      print(udata)
       udata =ipse.top()["list"][-1]['data']
       if udata :
         i =0
@@ -121,16 +119,17 @@ class filelist :
     ipse.lst ={}
     ipse.bt =blocktree()
 
-  def __call__(ipse, filename, itemname) :
+  def __call__(ipse, filename, itemname, tab="  ", initindent=0) :
     if filename not in ipse.lst :
-      ipse.lst[filename] =ipse.bt(filename)
-    for l in ipse.lst[filename]["list"][1:] :
-      print(">> '%s'"%l)
-    print( ipse.lst[filename] )
+      ipse.lst[filename] ={}
+      for l in ipse.bt(filename)["list"][1:] :
+        if l["key"] in ("class", "def") :
+          ipse.lst[filename][l["name"]] =l["list"]
+    return ipse.lst[filename][itemname]
 
 #for x in bt(__file__) :
   #print(x)
 #print(bt(__file__))
 fl =filelist()
-fl(__file__, "filelist")
+print(fl(__file__, "filelist"))
 
