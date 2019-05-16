@@ -23,7 +23,7 @@ def utendi() :
 		s +="\n"
 	return s
 
-opt =optparse()
+opt =getopt()
 if not opt :
 	optutendi("`pack`")
 	exit(1)

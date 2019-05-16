@@ -33,6 +33,9 @@ endfun
 :map zq :call QA_make()<CR>
 
 fun! QA_runBuffer(...)
+	":mark s
+	:%s/\t/  /ge
+	":`s
 	:wa
 	":!chmod +x %<CR>
 	:let l:count = len(a:000)
@@ -68,6 +71,6 @@ endfun
 :map zd :call QA_runBuffer("debug")<CR>
 :map zl :call QA_runBuffer("less")<CR>
 
-:map zt :%s/\t/  /g<CR>
+:map zt :mark s<CR>:%s/\t/  /ge<CR>:'s<CR>:<CR>
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-class OptParse :
+class GetOpt :
 	def __init__(ipse) :
 		import sys
 		ipse.argv =sys.argv[1:]
@@ -122,9 +122,10 @@ def optutendi(nomen='') :
 	print('Modus utendi %s :'%nomen)
 	print('  -m, --mini')
 
-def optparse() :
-	mop =OptParse()
-	return mop()
+def getopt() :
+	op =GetOpt()
+	return op()
+
 
 
 def utendi() :
@@ -151,7 +152,7 @@ def utendi() :
 		s +="\n"
 	return s
 
-opt =optparse()
+opt =getopt()
 if not opt :
 	optutendi("`pack`")
 	exit(1)
