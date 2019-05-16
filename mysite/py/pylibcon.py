@@ -2,7 +2,7 @@
 
 #
 #
-#  optionium parsitio
+#  concatenatio
 #
 #
 
@@ -91,7 +91,7 @@ class pyblocktree(stack) :
         while udata[i] not in ('(', ':') and not udata[i].isspace() :
           i +=1
         key =udata[:i]
-        if key in ("for", "while", "if", "elif", "else") :
+        if key in ("for", "while", "if", "elif", "else", "try", "except") :
           value =""
         elif key in ("def", "class") :
           while udata[i].isspace() :
@@ -156,8 +156,14 @@ class pyitem :
 
   def decl(ipse, filename, itemname) :
     s =ipse.fl(filename)[itemname][0]['data']
-    return s.rstrip()[:-1].rstrip()
-
+    s =s.rstrip()[:-1].rstrip()
+    if s[0] == 'c' :
+      ls =[]
+      for l in ipse.fl(filename)[itemname] :
+        if l["key"] in ("class", "def") :
+          ls.append( "  "+l['list'][0]['data'] )
+          #s += "  "+l['list'][0]['data'] + '\n'
+    return s + '\n'.join(ls)
 
 #
 #

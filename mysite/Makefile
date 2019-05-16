@@ -9,7 +9,7 @@ BINFILES=node myunison mypath mkpylib pylib mkweb packme deliver
 BINFLGS=$(foreach f,$(BINFILES),cache/$(f).bin.flg)
 ENVFILES=myenv vimrc my.mk packme.mk
 ENVFLGS=$(foreach f,$(ENVFILES),cache/$(f).flg)
-PYLIBFILES=pylib con pyvimrc
+PYLIBFILES=pylibdb pylibcon pyvimrc
 PYLIBFLGS=$(foreach f,$(PYLIBFILES),cache/$f.flg)
 CLEANFLGS=$(foreach f,$(BINFILES),cache/$(f).clean.flg)
 
@@ -75,19 +75,19 @@ cache/packme.flg : bin/packme
 		ln -sf $(PWD)/$< $(MYHOME)/bin/$(<F)
 	touch $@
 
-cache/pylib.flg : py/pylib.py bin/mkpylib
-	mkpylib $<
+cache/pylibdb.flg : py/pylibdb.py bin/pylib
+	bin/pylib mkpylib $<
 	touch $@
 
-cache/con.flg : py/con.py bin/mkpylib
-	mkpylib $<
+cache/pylibcon.flg : py/pylibcon.py bin/pylib
+	bin/pylib mkpylib $<
 	touch $@
 
-cache/pyvimrc.flg : vimrc.py bin/mkpylib
-	mkpylib $<
+cache/pyvimrc.flg : vimrc.py bin/pylib
+	bin/pylib mkpylib $<
 	touch $@
 
-cache/packop.py : cache/con.flg
-	python3 -c "from my.con import gengetopt; gengetopt('$@', [('-m,--mini','m'),],0)"
+cache/packop.py : cache/pylibcon.flg
+	python3 -c "from my.pylibcon import gengetopt; gengetopt('$@', [('-m,--mini','m'),],0)"
 
 

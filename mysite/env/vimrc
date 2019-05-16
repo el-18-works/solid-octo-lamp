@@ -3,10 +3,15 @@ au BufWinLeave *.* mkview
 au BufWinEnter *.* silent loadview
 :syntax enable
 :set autoindent
+:set smartindent
 :set tabstop=2
+:set expandtab
+:set smarttab
 :set shiftwidth=2
 :set encoding=utf-8
 :let QA_make_target="undefined"
+
+:retab
 
 " E124 E125 E853 E884
 fun! QA_make(...)
