@@ -63,7 +63,7 @@ class tracepyfile (stack) :
       cb("close", None)
     cb("closefile", None)
     
-class blocktree(stack) :
+class pyblocktree(stack) :
 
   def error(ipse, msg) :
     print(msg)
@@ -99,7 +99,7 @@ class blocktree(stack) :
           value =ipse.filename
         else :
           ipse.error("unknown key '%s'"%key)
-      ipse.push({"key":key, "name":value, "list":[udata, {'key':'decl', 'data':data}]})
+      ipse.push({"key":key, "name":value, "list":[{'key':'decl', 'data':udata}, {'key':'line', 'data':data}]})
     elif e == "line" :
       ipse.top()["list"].append({'key':'line', 'data':data})
     elif e == "close" :
@@ -109,27 +109,54 @@ class blocktree(stack) :
       ipse.top()["list"][-1] =data
     elif e == "comment" :
       pass
-      #print("comment",data)
+#      print("comment",data)
     elif e == "closefile" :
       ipse.pop()
 
-class filelist :
+class pyfilelist :
 
   def __init__(ipse) :
     ipse.lst ={}
-    ipse.bt =blocktree()
+    ipse.bt =pyblocktree()
 
-  def __call__(ipse, filename, itemname, tab="  ", initindent=0) :
+  def __call__(ipse, filename) :
     if filename not in ipse.lst :
       ipse.lst[filename] ={}
       for l in ipse.bt(filename)["list"][1:] :
         if l["key"] in ("class", "def") :
           ipse.lst[filename][l["name"]] =l["list"]
-    return ipse.lst[filename][itemname]
+    return ipse.lst[filename]
 
-#for x in bt(__file__) :
-  #print(x)
-#print(bt(__file__))
-fl =filelist()
-print(fl(__file__, "filelist"))
+class pyitem :
+
+  def __init__(ipse) :
+    ipse.fl =pyfilelist()
+    
+  def write(ipse, out, filename, itemname, tabchr="  ", tabshft=0) :
+    def f(data, tabshft) :
+      if data['key'] == 'decl' :
+        out.write(tabchr*tabshft + data['data'] + '\n')
+      elif data['key'] == 'line' :
+        out.write(tabchr*(tabshft+1) + data['data'] + '\n')
+      elif 'list' in data :
+        for x in data['list'] :
+          f(x, tabshft+1)
+    out.write('\n')
+    for data in ipse.fl(filename)[itemname] :
+      f(data, tabshft)
+    out.write('\n')
+
+  def ls(ipse, filename) :
+    return tuple(ipse.fl(filename).keys())
+
+  def decl(ipse, filename, itemname) :
+    s =ipse.fl(filename)[itemname][0]['data']
+    return s.rstrip()[:-1].rstrip()
+
+from sys import stdout
+pyitem().write(stdout,__file__, "pyfilelist")
+pyitem().write(stdout,__file__, "pyitem")
+print(pyitem().decl(__file__, "pyitem"))
+print(pyitem().ls(__file__))
+#print(fl(__file__, "pyfilelist"))
 
