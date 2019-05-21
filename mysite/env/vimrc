@@ -39,14 +39,20 @@ endfun
 
 fun! QA_runBuffer(...)
 	":mark s
-	:%s/\t/  /ge
+	":%s/\t/  /ge
+	:retab
 	":`s
 	:wa
 	":!chmod +x %<CR>
 	:let l:count = len(a:000)
 	:let pipe =""
 	:let e =expand("%:e")
-	:if e == "cc" || e == "c"
+	:if e == "vim" 
+	":	source %
+	":	return
+	:	let p =expand("%:p")
+	:	let p ="vim -s ".p
+	:elseif e == "cc" || e == "c"
 	:	let p =expand("%:p:r")
 	:	let p ="make ".p." && ".p
 	:else

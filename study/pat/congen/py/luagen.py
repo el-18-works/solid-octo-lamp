@@ -24,23 +24,36 @@ class stac :
 class argumentista (stac) :
   
   def __init__(ipse, tabchar="  ", debug=0) :
+    super().__init__()
     ipse.tabchar =tabchar
     ipse.debug =debug
+    ipse.push([])
     ipse.lis =[]
     
-  def confun(ipse, nom, lis=None) :
-    ipse.lis.append({"fr" : "function "+nom, "lis" : [{"fr" : l} for l in lis]})
-    ipse.lis.append({"fr" : "end"})
+  def pushfun(ipse, nom) :
+    ipse.top().append({"fr" : "function "+nom, "lis" : []})
+    super().push([])
     if ipse.debug :
-      print(ipse.lis)
+      print(ipse.top())
 
-  def confra(ipse, fr, lis=None) :
-    if lis != None :
-      ipse.lis.append({"fr" : fr, "lis" : [{"fr" : l} for l in lis]})
-    else :
-      ipse.lis.append({"fr" : fr})
+  def pop(ipse) :
+    lis =super().pop()
+    ipse.top()[-1]["lis"] =lis
+    ipse.top().append({"fr" : "end"})
+
+  def confun(ipse, nom, lis=None) :
+    ipse.top().append({"fr" : "function "+nom, "lis" : [{"fr" : l} for l in lis]})
+    ipse.top().append({"fr" : "end"})
     if ipse.debug :
-      print(ipse.lis)
+      print(ipse.top())
+
+  def con(ipse, fr, lis=None) :
+    if lis != None :
+      ipse.top().append({"fr" : fr, "lis" : [{"fr" : l} for l in lis]})
+    else :
+      ipse.top().append({"fr" : fr})
+    if ipse.debug :
+      print(ipse.top())
 
   def gen(ipse, out=None, nivel=0) :
     from sys import stdout
@@ -50,12 +63,15 @@ class argumentista (stac) :
         if "lis" in lin :
           f(lin["lis"], nivel+1)
     ipse.out =out or stdout
-    f(ipse.lis, nivel)
+    f(ipse.top(), nivel)
 
 from os import pipe, fdopen, popen, write
 a =argumentista(debug=0)
-a.confun("helloworld(x)", [ "print('¡hola el mundo, '..x..'!')"])
-a.confra("helloworld('foo')")
-#a.gen()
+a.pushfun("helloworld(x)")
+a.con("print('¡hola el mundo, '..x..'!')")
+a.pop()
+#a.confun("helloworld(x)", [ "print('¡hola el mundo, '..x..'!')"])
+a.con("helloworld('foo')")
+a.gen()
 a.gen(popen("lua", "w"))
 
