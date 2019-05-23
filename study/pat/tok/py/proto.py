@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-class stack :
+class stac :
 
   def __init__(ipse) :
     ipse.a =[]
@@ -87,7 +87,7 @@ class strtoken (token) :
     ipse.i =de
     ipse.ad =ad
 
-class tokenstack(stack) :
+class tokenstac(stac) :
   
   def put(ipse) :
     while len(ipse) :

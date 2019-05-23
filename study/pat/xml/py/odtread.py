@@ -51,8 +51,7 @@ class StateMachine (stac) :
     while ipse.la() :
       c =ipse.ci()
       state =ipse.top()
-      if type(c) == str : ipse.info("[%d] '%c'"%(state,c))
-      elif type(c) == bytes : ipse.info("[%d] '%s'"%(state,c))
+      if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
       else : ipse.info('[%d] "%s"'%(state,token[c]))
       if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
       #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
@@ -217,7 +216,7 @@ class StateMachine (stac) :
       elif state == 3 :
         if c.isalnum() or c == ':' or c == '-' : # *3 alnum  : l.push
           l +=c
-          if ipse.la() == 61 : # ord('='):
+          if ipse.la() in (61, 62) : # ord('='):
             ipse.pop()
             ipse.unget(token.index("key"))
         else : # *3 else <<1 &key
@@ -637,21 +636,25 @@ class inputbuf :
 class fileinputbuf (inputbuf) :
 
   def la(ipse) :
-    return ipse.input.peek()[0]
+    c =ipse.input.peek()
+    if len(c) == 0 or not (c[0]) :
+      return None
+    return c[0]
 
   def get(ipse) :
-    c =ipse.input.peek()[0]
-    if not (c) :
+    c =ipse.input.peek()
+    if len(c) == 0 or not (c[0]) :
       return None
-    elif (c) & 1<<8 == 0 :
+    c =c[0]
+    if (c) & 1<<7 == 0 :
       return ipse.input.read(1).decode()
-    elif (c) & 1<<7 == 0 :
-      ipse.error("utf8 decode error")
     elif (c) & 1<<6 == 0 :
-      return ipse.input.read(2).decode()
+      ipse.error("utf8 decode error")
     elif (c) & 1<<5 == 0 :
-      return ipse.input.read(3).decode()
+      return ipse.input.read(2).decode()
     elif (c) & 1<<4 == 0 :
+      return ipse.input.read(3).decode()
+    elif (c) & 1<<3 == 0 :
       return ipse.input.read(4).decode()
     else :
       ipse.error("utf8 decode error")
@@ -866,7 +869,7 @@ class odtparse (stac) :
       ipse.xmlp(ipse.entresolve)
 
 def odtread(filelst, align=0) :
-  odtp = odtparse(debug=2)
+  odtp = odtparse(debug=1)
   odtp(filelst[1])
   for file_name in reversed(filelst) :
     odtp.pushfile(file_name)
