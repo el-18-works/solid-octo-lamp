@@ -2,24 +2,27 @@
 
 class stac :
   def __init__(ipse) :
-    ipse.a =[]
+    ipse.staca =[]
 
   def push(ipse, i) :
-    ipse.a.append(i)
-    return len(ipse.a)
+    ipse.staca.append(i)
+    return len(ipse.staca)
 
   def pop(ipse, n=1) :
     while n>0 :
-      i =ipse.a[-1]
-      del ipse.a[-1]
+      i =ipse.staca[-1]
+      del ipse.staca[-1]
       n -=1
     return i
 
   def top(ipse) :
-    return ipse.a[-1]
+    return ipse.staca[-1]
 
   def __len__(ipse) :
-    return len(ipse.a)
+    return len(ipse.staca)
+
+  def __iter__(ipse) :
+    return iter(ipse.staca)
 
 class entresolve(stac) :
 
@@ -44,16 +47,19 @@ class StateMachine (stac) :
 
   def __call__(ipse) :
     ipse.push(0)
-    for c in ipse.get() :
+    #for c in ipse.get() :
+    while ipse.la() :
+      c =ipse.ci()
       state =ipse.top()
-      #if type(c) == str : ipse.info("[%d] '%c'"%(state,c))
-      #else : ipse.info('[%d] "%s"'%(state,token[c]))
+      if type(c) == str : ipse.info("[%d] '%c'"%(state,c))
+      elif type(c) == bytes : ipse.info("[%d] '%s'"%(state,c))
+      else : ipse.info('[%d] "%s"'%(state,token[c]))
       if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
       #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
 #negative :
       if state == 0 : # S 0
-        if c == "<" : # 0 < 1
+        if c == '<' : # 0 < 1
           ipse.push(-1)
         elif c == token.index("<") : # 0 "<" 1 
           ipse.push(1)
@@ -211,6 +217,9 @@ class StateMachine (stac) :
       elif state == 3 :
         if c.isalnum() or c == ':' or c == '-' : # *3 alnum  : l.push
           l +=c
+          if ipse.la() == 61 : # ord('='):
+            ipse.pop()
+            ipse.unget(token.index("key"))
         else : # *3 else <<1 &key
           if not c.isspace() :
             ipse.unget(c)
@@ -260,6 +269,9 @@ class StateMachine (stac) :
         if c == 'r' : # *8 n <<2 : l.push \cr
           ipse.pop(2)
           l += "\r"
+        if c == '\\' :
+          ipse.pop(2)
+          l += "\\"
         else : # *8 else <<2 : l.push
           ipse.pop(2)
           l +=c
@@ -509,19 +521,243 @@ class StateMachine (stac) :
 # 27 < <<1 : &frag
 # 27 else : l.push
 
+#
+# eventail
+#
+class glob :
 
-class xmlparse (stac) :
+  def __init__(ipse, pat) :
+    ipse.start =0b1
+    ipse.star =0b0
+    charset =set()
+    for p,i in enumerate(pat) :
+      if i == ',' :
+        ipse.start |=0b10<<p
+      elif i == '*' :
+        ipse.star |=(0b1<<p)
+      else :
+        charset.add(i)
+    ipse.charset =['\0', '\1'] + sorted(charset)
+    ipse.pat =pat+'\0'
+    ipse.subset ={}
+    de =ipse.compat(ipse.start)
+    while de :
+      ad =set()
+      for d in de :
+        ad |=ipse.compat(d)
+      de =ad
+
+  def compat(ipse, r) :
+    star =r & ipse.star
+    s =(r & ~star) | star<<1
+    ipse.subset[r] =[ipse.compati(s, ',') | ipse.compati(s, '\0')]
+    ipse.subset[r] +=[ipse.compati(s, i) | star for i in ipse.charset[1:]]
+    de =set()
+    for d in ipse.subset[r] :
+      if d not in ipse.subset.keys() :
+        de.add(d)
+    return de
+
+  def compati(ipse, r, i, star=False) :
+    t =0
+    for p in range(len(ipse.pat)) :
+      if 0b01<<p & r and ipse.pat[p] == i :
+          t |=0b10<<p
+    return t
+
+  def __call__(ipse, l) :
+    r =ipse.start
+    t =0b0
+    for c in l :
+      for i in range(len(ipse.charset)-1, 0, -1) :
+        if ipse.charset[i] == c : break
+      r =ipse.subset[r][i]
+    return bool(ipse.subset[r][0])
+
+class ail :
+
+  def __init__(ipse) :
+    ipse.aila ={}
+
+  def on(ipse, ev, fan) :
+    if ev not in ipse.aila :
+      ipse.aila[ev] =set()
+    ipse.aila[ev].add(fan)
+
+  def no(ipse, ev, fan) :
+    ipse.aila[ev].discard(fan)
+
+  def __call__(ipse, ev, data) :
+    for a in ipse.aila.values() :
+      a(data)
+
+class eventail (ail) :
+
+  def __init__(ipse) :
+    super().__init__()
+    ipse.eventaila ={}
+
+  def on(ipse, a0, a1, a2=None) :
+    if a2 == None :
+      super().on(a0, a1)
+    else :
+      if a0 not in ipse.eventaila :
+        ipse.eventaila[a0] =ail()
+        ipse.eventaila[a0].match =glob(a0)
+      ipse.eventaila[a0].on(a1, a2)
+
+  def no(ipse, a0, a1, a2=None) :
+    if a2 == None :
+      super().no(a0, a1)
+    elif a0 in ipse.eventaila :
+      ipse.eventaila[a0].no(a1, a2)
+
+  def __call__(ipse, ev, data) :
+    if "name" in data :
+      for a in ipse.eventaila.values() :
+        if a.glob(data["name"]) :
+          a(ev, data)
+    super().__call__(ev, data)
+
+#
+# Input Buffer
+#
+class inputbuf :
+
+  def info(ipse, arg) :
+    print("%s %s"%(ipse.pos(), arg))
+
+  def error(ipse, arg) :
+    print("%s %s"%(ipse.pos(), arg))
+    exit(-1)
+
+  def pos(ipse) :
+    return ""
+
+class fileinputbuf (inputbuf) :
+
+  def la(ipse) :
+    return ipse.input.peek()[0]
+
+  def get(ipse) :
+    c =ipse.input.peek()[0]
+    if not (c) :
+      return None
+    elif (c) & 1<<8 == 0 :
+      return ipse.input.read(1).decode()
+    elif (c) & 1<<7 == 0 :
+      ipse.error("utf8 decode error")
+    elif (c) & 1<<6 == 0 :
+      return ipse.input.read(2).decode()
+    elif (c) & 1<<5 == 0 :
+      return ipse.input.read(3).decode()
+    elif (c) & 1<<4 == 0 :
+      return ipse.input.read(4).decode()
+    else :
+      ipse.error("utf8 decode error")
+
+  def ci(ipse) :
+    i,j =ipse.posij
+    c =ipse.get()
+    while c == '\n' :
+      i,j =i+1,0
+      c =ipse.get()
+    if len(c) == 0 :
+      return None
+    ipse.posij =i,j+1
+    return c
+
+  def pos(ipse) :
+    return ipse.file_name + ":%d:%d:"%ipse.posij
+  
+  def __init__(ipse, file_name, input=None) :
+    ipse.file_name =file_name
+    ipse.input =input or open(file_name)
+    ipse.posij =1,0
+
+class strinputbuf (inputbuf) :
+
+  def put(ipse) :
+    while ipse.i < ipse.ad :
+      ipse.i +=1
+      yield ipse.buf[ipse.i-1]
+
+  def ci(ipse) :
+    if ipse.i+1 > ipse.ad :
+      return None
+    ipse.i +=1
+    return ipse.buf[ipse.i-1]
+
+  def la(ipse) :
+    if ipse.i+1 > ipse.ad :
+      return None
+    return ipse.buf[ipse.i]
+
+  def pos(ipse) :
+    return ipse.file_name + " (%d)"%ipse.i
+  
+  def __init__(ipse, buf, name=None, de=0, ad=-1) :
+    super().__init__()
+    ipse.buf =buf
+    ipse.i =de
+    ipse.ad =ad if ad >= 0 else len(buf)+ad+1
+    ipse.file_name =name or ipse.buf[:12]+ ("..." if len(ipse.buf) > 12 else "")
+
+class inputstac(stac) :
+  
+  def put(ipse) :
+    while len(ipse) :
+      while 1 :
+        print("if start", ipse.unput_buffer)
+        if ipse.unput_buffer != None :
+          yield ipse.unput_buffer 
+          ipse.unput_buffer =None
+        else :
+          c =ipse.top().ci()
+          if c == None :
+            break
+          yield c
+        print("else end")
+      ipse.pop()
+
+  def ci(ipse) :
+    if ipse.unput_buffer != None :
+      c =ipse.unput_buffer 
+      ipse.unput_buffer =None
+      return c
+    c =ipse.top().ci()
+    if c == None :
+      ipse.pop()
+      if len(ipse) == 0 :
+        return None
+    return c
+
+  def la(ipse) :
+    return ipse.top().la()
+
+  def unput(ipse, c) :
+    ipse.unput_buffer =c
+
+  def pos(ipse) :
+    return ipse.top().pos()
+
+  def __init__(ipse) :
+    super().__init__()
+    ipse.unput_buffer =None
+
+#
+# parse
+#
+class xmlparse (inputstac) :
 
   def info(ipse, message) :
-    i,j =ipse.pos
     if ipse.debug >= 2 :
-      input("%s:%d:%d: %s"%(ipse.file_name, i+1, j, message))
+      input("%s: %s"%(ipse.pos(), message))
     else :
-      print("%s:%d:%d: %s"%(ipse.file_name, i+1, j, message))
+      print("%s: %s"%(ipse.pos(), message))
 
   def error(ipse, message) :
-    i,j =ipse.pos
-    print("%s:%d:%d: %s"%(ipse.file_name, i+1, j, message))
+    print("%s: %s"%(ipse.pos(), message))
     exit(1)
 
   debug =0
@@ -535,6 +771,7 @@ class xmlparse (stac) :
   def onentity(ipse, data) : pass
 
   def on(ipse, event, data) :
+  #  ipse.fanout(event, data)
     if event == "emptytag" :
       ipse.onemptytag(data["name"], data["attr"])
     elif event == "opentag" :
@@ -548,6 +785,7 @@ class xmlparse (stac) :
     elif event == "fragment" :
       ipse.onfragment(data)
     elif event == "entity" :
+      ipse.entres[data["name"]] =data["value"]
       ipse.onentity(data)
     if ipse.debug :
       if event == "emptytag" :
@@ -565,127 +803,73 @@ class xmlparse (stac) :
       elif event == "entity" :
         ipse.info("entity %s"%data)
 
-  def unput(ipse, c) :
-    ipse.unput_buffer.push(c)
-
-  def put(ipse) :
-    for i,l in enumerate(ipse.input) :
-      for j,c in enumerate(l.decode() if type(l) != str else l) :
-        ipse.pos =i,j
-        while ipse.unput_buffer :
-          yield ipse.unput_buffer.pop()
-        yield c
-
-  def __call__(ipse, entres=None) :
-    sm =StateMachine(entres)
+  def __call__(ipse) :
+    ipse.fanout =eventail()
+    sm =StateMachine(ipse.entres)
     sm.info =ipse.info
     sm.error =ipse.error
     sm.get =ipse.put
+    sm.ci =ipse.ci
+    sm.la =ipse.la
     sm.unget =ipse.unput
     sm.on =ipse.on
-    ipse.unput_buffer =stac()
+    #ipse.unput_buffer =stac()
     return sm()
+
+  def __init__(ipse) :
+    super().__init__()
+    ipse.entres =entresolve()
+    ipse.push(strinputbuf('<!ENTITY quot    "&#34;"><!ENTITY amp     "&#38;"><!ENTITY lt      "&#60;"><!ENTITY gt      "&#62;"><!ENTITY apos  "&#39;"><!ENTITY OElig   "&#338;"><!ENTITY oelig   "&#339;"><!ENTITY Scaron  "&#352;"><!ENTITY scaron  "&#353;"><!ENTITY Yuml    "&#376;"><!ENTITY circ    "&#710;"><!ENTITY tilde   "&#732;"><!ENTITY ensp    "&#8194;"><!ENTITY emsp    "&#8195;"><!ENTITY thinsp  "&#8201;"><!ENTITY zwnj    "&#8204;"><!ENTITY zwj     "&#8205;"><!ENTITY lrm     "&#8206;"><!ENTITY rlm     "&#8207;"><!ENTITY ndash   "&#8211;"><!ENTITY mdash   "&#8212;"><!ENTITY lsquo   "&#8216;"><!ENTITY rsquo   "&#8217;"><!ENTITY sbquo   "&#8218;"><!ENTITY ldquo   "&#8220;"><!ENTITY rdquo   "&#8221;"><!ENTITY bdquo   "&#8222;"><!ENTITY dagger  "&#8224;"><!ENTITY Dagger  "&#8225;"><!ENTITY permil  "&#8240;"><!ENTITY lsaquo  "&#8249;"><!ENTITY rsaquo  "&#8250;"><!ENTITY euro   "&#8364;">', "xhtml-special.ent"))
+    ipse()
 
 class odtparse (stac) :
   def otag(ipse, name, attr) :
     if name == "office:body" :
       ipse.xmlp.debug =2
-    return
-
-    ns, tn =name.split(":")
-    if ns == "table" :
-      if tn == "table" :
-        if ipse.t != None :
-          ipse.tt[ipse.name] =ipse.t
-        ipse.t =[]
-        for d in attr :
-          if d["name"] == "table:name" :
-            ipse.name =d["value"]
-        if ipse.t != None :
-          ipse.tt[ipse.name] =ipse.t
-      elif tn == "table-cell" :
-        value =None
-        for d in attr :
-          if d["name"] == "office:value-type" :
-            valuetype =d["value"]
-          elif d["name"] == "office:value" :
-            value =d["value"]
-        if valuetype == "string" :
-          value = "" if value == None else "'"+value+"'"
-        ipse.cell.append(value)
-        return
-        if valuetype == "float" :
-          ipse.cell.append(float(value))
-        elif valuetype == "int" :
-          ipse.cell.append(int(value))
-        elif valuetype == "string" :
-          ipse.cell.append(value)
-        else :
-          input("valuetype %s"%valuetype)
 
   def cdata(ipse, data) :
     print("cdata "+data)
 
   def entity(ipse, data) :
-    #print("entity %s"%data)
-    ipse.entresolve[data["name"]] =data["value"]
-    input(ipse.entresolve[data["name"]])
+    print(data)
 
   def ctag(ipse, name, attr) :
     ns, tn =name.split(":")
-    if ns == "table" :
-      if tn == "table-row" :
-        ipse.t.append(ipse.cell)
-        ipse.cell =[]
 
   def __init__(ipse, debug=0) :
     super().__init__()
     ipse.debug =debug
-    ipse.entresolve =entresolve()
+    ipse.xmlp =xmlparse()
+    ipse.xmlp.onopentag =ipse.otag
+    ipse.xmlp.onclosetag =ipse.ctag
+    ipse.xmlp.onfragment =ipse.cdata
+    ipse.xmlp.onentity =ipse.entity
+    ipse.xmlp.debug =ipse.debug
+    #ipse.xmlp.push(fileinputbuf("doc/xhtml-special.ent"))
+    #ipse.xmlp.push(strinputbuf(open("doc/xhtml-special.ent").read(), "xhtml-special.ent"))
+#,"doc/graphe-exo.odt"])
 
   def pushfile(ipse, file_name) :
-    xmlp =xmlparse()
-    xmlp.onopentag =ipse.otag
-    xmlp.onclosetag =ipse.ctag
-    xmlp.onfragment =ipse.cdata
-    xmlp.onentity =ipse.entity
-    xmlp.debug =ipse.debug
-    if file_name[-3:].lower() in ("xml", "ent") :
-      xmlp.file_name =file_name
-      xmlp.input =open(file_name)
-    else :
+    if file_name[-3:].lower() in ("zip", "odt", "ods") :
       from zipfile import ZipFile
       zf =ZipFile(file_name)
-      xmlp.file_name =file_name
-      xmlp.input =zf.open("content.xml")
-    ipse.push(xmlp)
+      ipse.xmlp.push(fileinputbuf(file_name, zf.open("content.xml")))
+    else :
+      ipse.xmlp.push(fileinputbuf(file_name))
 
   def __call__(ipse, file_name) :
-    ipse.tt ={}
-    ipse.t =None
-    ipse.name =None
-    ipse.cell =[]
+    ipse.pushfile(file_name)
+    ipse.xmlp()
+    return
     while len(ipse) :
       ipse.xmlp =ipse.pop()
       ipse.xmlp(ipse.entresolve)
-    return ipse.tt
 
 def odtread(filelst, align=0) :
-  odtp = odtparse(debug=1)
+  odtp = odtparse(debug=2)
+  odtp(filelst[1])
   for file_name in reversed(filelst) :
     odtp.pushfile(file_name)
-  tt = odtp(file_name)
-  #tt = odtparse()(file_name)
-  if align :
-    for t in tt :
-      n =max(len(r) for r in tt[t])
-      u =[]
-      for r in tt[t] :
-        for i in range(len(r), n) :
-          r.append("")
-        u.append(r)
-      tt[t] =u
-  return tt
 from sys import argv
 odtread(["doc/xhtml-special.ent","doc/graphe-exo.odt"])
 
