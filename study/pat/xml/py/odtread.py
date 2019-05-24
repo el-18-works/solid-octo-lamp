@@ -30,11 +30,13 @@ class entresolve(stac) :
     super().__init__()
     ipse.b ={}
 
-  def __setitem__(ipse, c,v) :
-    ipse.b[c] = chr(int(v[2:-1])) if v[1] == '#' else v
+  def __setitem__(ipse, c, v) :
+    ipse.b[c] =v
 
   def __getitem__(ipse, c) :
-    return ipse.b[c]
+    if c in ipse.b :
+      return ipse.b[c]
+    return chr(int(c[1:])) if len(c) and c[0] == '#' else c
 
 
 token =["<", "</", "/>", "xml", "DOCTYPE", "comment", "key", "tag", "attrname", "literal", "PUBLIC", "frag", "ENTITY"]
@@ -47,19 +49,21 @@ class StateMachine (stac) :
 
   def __call__(ipse) :
     ipse.push(0)
-    #for c in ipse.get() :
     while ipse.la() :
       c =ipse.ci()
       state =ipse.top()
-      if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
-      else : ipse.info('[%d] "%s"'%(state,token[c]))
-      if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
+      #if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
+      #else : ipse.info('[%d] "%s"'%(state,token[c]))
+      if  state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
       #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
 #negative :
       if state == 0 : # S 0
         if c == '<' : # 0 < 1
-          ipse.push(-1)
+          if ipse.la() in (33, 63, 47) : # (ord('!'), ord('?'), ord('/')) 
+            ipse.push(-1)
+          else :
+            ipse.push(1)
         elif c == token.index("<") : # 0 "<" 1 
           ipse.push(1)
         elif c == token.index("xml") : # 0 "xml" 9
@@ -72,10 +76,9 @@ class StateMachine (stac) :
           ipse.push(20)
         elif c == token.index("</") : # 0 "</" 23
           ipse.push(23)
-        else : # 0 else error
+        else : #
           ipse.unget(c)
           ipse.push(26)
-          #ipse.error("expected '<'")
       elif state == -1 :
         if c == "/" : # 1 / <<2 
           ipse.pop(1)
@@ -86,7 +89,6 @@ class StateMachine (stac) :
           ipse.push(-11)
         elif c.isalpha() : # 1 alpha <<1 &< : unput
           ipse.pop()
-          ipse.unget(c)
           ipse.unget(token.index("<"))
         else : # 1 else error
           ipse.error("unexpected '%c'"%c)
@@ -201,14 +203,14 @@ class StateMachine (stac) :
         elif c == token.index("/>") :
           ipse.pop(2)
           t["attr"] =a
-          ipse.on("emptytag", t)
+          ipse.onto("emptytag", t)
         elif c.isalpha() : # 1,2,9,11 alpha 3 : l =new lex; l.push
           ipse.push(3)
           l =c
         elif c == ">" :
           ipse.pop(2)
           t['attr'] =a
-          ipse.on("opentag", t)
+          ipse.onto("opentag", t)
         elif c == "/" :
           ipse.push(25)
         else :
@@ -246,6 +248,9 @@ class StateMachine (stac) :
         if c == "'" : # *6 ' <<2 &literal
           ipse.pop()
           ipse.unget(token.index("literal"))
+        elif c == '&' : #
+          ipse.push(28)
+          el =""
 #       elif c == "\\" : # *6 \ 8
 #         ipse.push(8)
         else : # *6 else : l.push
@@ -254,6 +259,9 @@ class StateMachine (stac) :
         if c == '"' :
           ipse.pop()
           ipse.unget(token.index("literal"))
+        elif c == '&' : #
+          ipse.push(28)
+          el =""
 #       elif c == "\\" : # *7 \ 8
 #         ipse.push(8)
         else : # *7 else : l.push
@@ -291,7 +299,7 @@ class StateMachine (stac) :
       elif state == 10 :
         if c == '>' : # *10 > <<3 : def xml-attrset
           ipse.pop(2)
-          ipse.on("xmlattrset", a)
+          ipse.onto("xmlattrset", a)
       elif state == 11 :
         if c == token.index("key") : # 1,11 key &tag  : t =new tag
           ipse.unget(token.index("tag"))
@@ -338,7 +346,7 @@ class StateMachine (stac) :
           ipse.error("expected C")
       elif state == 18 :
         if c == token.index("literal") : # 18 literal 19
-          ipse.on("doctype", l)
+          ipse.onto("doctype", l)
         elif c == "'" : # 5,18 ' 6 : l = new lex
           ipse.push(6)
           l =""
@@ -384,7 +392,7 @@ class StateMachine (stac) :
         if c == '>' : # 24 > <<3 : 
           ipse.pop(2)
           t["attr"] =a
-          ipse.on("closetag", t)
+          ipse.onto("closetag", t)
         else : # 24 else : error
           ipse.error("expected '>'")
       elif state == 25 :
@@ -395,7 +403,7 @@ class StateMachine (stac) :
         if c == token.index("frag") :
           ipse.pop()
           ipse.push(-1)
-          ipse.on("fragment", l)
+          ipse.onto("fragment", l)
           l =""
         else :
           l =c
@@ -438,7 +446,7 @@ class StateMachine (stac) :
         elif c == token.index("literal") :
           ipse.pop()
           e['value'] =l
-          ipse.on("entity", e)
+          ipse.onto("entity", e)
         else :
           ipse.error("a literal expected")
 
@@ -520,10 +528,7 @@ class StateMachine (stac) :
 # 27 < <<1 : &frag
 # 27 else : l.push
 
-#
-# eventail
-#
-class glob :
+class csglob :
 
   def __init__(ipse, pat) :
     ipse.start =0b1
@@ -573,6 +578,9 @@ class glob :
       r =ipse.subset[r][i]
     return bool(ipse.subset[r][0])
 
+#
+# eventail
+#
 class ail :
 
   def __init__(ipse) :
@@ -586,9 +594,14 @@ class ail :
   def no(ipse, ev, fan) :
     ipse.aila[ev].discard(fan)
 
-  def __call__(ipse, ev, data) :
-    for a in ipse.aila.values() :
-      a(data)
+  def onto(ipse, ev, data) :
+    for a,b in ipse.aila.items() :
+    #for a in ipse.aila.values() :
+      if a == ev :
+        for c in b :
+          c(ev,data)
+      #print("A",a,b)
+      #a(data)
 
 class eventail (ail) :
 
@@ -602,7 +615,7 @@ class eventail (ail) :
     else :
       if a0 not in ipse.eventaila :
         ipse.eventaila[a0] =ail()
-        ipse.eventaila[a0].match =glob(a0)
+        ipse.eventaila[a0].match =csglob(a0)
       ipse.eventaila[a0].on(a1, a2)
 
   def no(ipse, a0, a1, a2=None) :
@@ -611,12 +624,15 @@ class eventail (ail) :
     elif a0 in ipse.eventaila :
       ipse.eventaila[a0].no(a1, a2)
 
-  def __call__(ipse, ev, data) :
-    if "name" in data :
+  def onto(ipse, *e) :
+    if len(e) == 3 :
+      tag, ev, data =e
       for a in ipse.eventaila.values() :
-        if a.glob(data["name"]) :
-          a(ev, data)
-    super().__call__(ev, data)
+        if a.match(tag) :
+          a.onto(ev, data)
+    elif len(e) == 2 :
+      ev, data =e
+      super().onto(ev, data)
 
 #
 # Input Buffer
@@ -637,34 +653,33 @@ class fileinputbuf (inputbuf) :
 
   def la(ipse) :
     c =ipse.input.peek()
-    if len(c) == 0 or not (c[0]) :
+    if len(c) == 0 or not c[0] :
       return None
     return c[0]
 
-  def get(ipse) :
-    c =ipse.input.peek()
-    if len(c) == 0 or not (c[0]) :
-      return None
-    c =c[0]
-    if (c) & 1<<7 == 0 :
-      return ipse.input.read(1).decode()
-    elif (c) & 1<<6 == 0 :
-      ipse.error("utf8 decode error")
-    elif (c) & 1<<5 == 0 :
-      return ipse.input.read(2).decode()
-    elif (c) & 1<<4 == 0 :
-      return ipse.input.read(3).decode()
-    elif (c) & 1<<3 == 0 :
-      return ipse.input.read(4).decode()
-    else :
-      ipse.error("utf8 decode error")
-
   def ci(ipse) :
+    def f() :
+      c =ipse.input.peek()
+      if len(c) == 0 or not (c[0]) :
+        return None
+      c =c[0]
+      if (c) & 1<<7 == 0 :
+        return ipse.input.read1(1).decode()
+      elif (c) & 1<<6 == 0 :
+        ipse.error("utf8 decode error")
+      elif (c) & 1<<5 == 0 :
+        return ipse.input.read1(2).decode()
+      elif (c) & 1<<4 == 0 :
+        return ipse.input.read1(3).decode()
+      elif (c) & 1<<3 == 0 :
+        return ipse.input.read1(4).decode()
+      else :
+        ipse.error("utf8 decode error")
     i,j =ipse.posij
-    c =ipse.get()
+    c =f()
     while c == '\n' :
       i,j =i+1,0
-      c =ipse.get()
+      c =f()
     if len(c) == 0 :
       return None
     ipse.posij =i,j+1
@@ -680,11 +695,6 @@ class fileinputbuf (inputbuf) :
 
 class strinputbuf (inputbuf) :
 
-  def put(ipse) :
-    while ipse.i < ipse.ad :
-      ipse.i +=1
-      yield ipse.buf[ipse.i-1]
-
   def ci(ipse) :
     if ipse.i+1 > ipse.ad :
       return None
@@ -694,7 +704,7 @@ class strinputbuf (inputbuf) :
   def la(ipse) :
     if ipse.i+1 > ipse.ad :
       return None
-    return ipse.buf[ipse.i]
+    return ipse.buf[ipse.i].encode('utf8')[0]
 
   def pos(ipse) :
     return ipse.file_name + " (%d)"%ipse.i
@@ -702,26 +712,10 @@ class strinputbuf (inputbuf) :
   def __init__(ipse, buf, name=None, de=0, ad=-1) :
     super().__init__()
     ipse.buf =buf
-    ipse.i =de
-    ipse.ad =ad if ad >= 0 else len(buf)+ad+1
+    ipse.i, ipse.ad =de, ad if ad >= 0 else len(buf)+ad+1
     ipse.file_name =name or ipse.buf[:12]+ ("..." if len(ipse.buf) > 12 else "")
 
 class inputstac(stac) :
-  
-  def put(ipse) :
-    while len(ipse) :
-      while 1 :
-        print("if start", ipse.unput_buffer)
-        if ipse.unput_buffer != None :
-          yield ipse.unput_buffer 
-          ipse.unput_buffer =None
-        else :
-          c =ipse.top().ci()
-          if c == None :
-            break
-          yield c
-        print("else end")
-      ipse.pop()
 
   def ci(ipse) :
     if ipse.unput_buffer != None :
@@ -751,16 +745,16 @@ class inputstac(stac) :
 #
 # parse
 #
-class xmlparse (inputstac) :
+class xmlparse (eventail) :
 
   def info(ipse, message) :
     if ipse.debug >= 2 :
-      input("%s: %s"%(ipse.pos(), message))
+      input("%s: %s"%(ipse.inputs.pos(), message))
     else :
-      print("%s: %s"%(ipse.pos(), message))
+      print("%s: %s"%(ipse.inputs.pos(), message))
 
   def error(ipse, message) :
-    print("%s: %s"%(ipse.pos(), message))
+    print("%s: %s"%(ipse.inputs.pos(), message))
     exit(1)
 
   debug =0
@@ -773,60 +767,72 @@ class xmlparse (inputstac) :
   def onfragment(ipse, data) : pass
   def onentity(ipse, data) : pass
 
-  def on(ipse, event, data) :
-  #  ipse.fanout(event, data)
-    if event == "emptytag" :
-      ipse.onemptytag(data["name"], data["attr"])
-    elif event == "opentag" :
-      ipse.onopentag(data["name"], data["attr"])
-    elif event == "closetag" :
-      ipse.onclosetag(data["name"], data["attr"])
-    elif event == "xmlattrset" :
-      ipse.onxmlattrset(data)
-    elif event == "doctype" :
-      ipse.ondoctype(data)
-    elif event == "fragment" :
-      ipse.onfragment(data)
-    elif event == "entity" :
-      ipse.entres[data["name"]] =data["value"]
-      ipse.onentity(data)
+  def onto(ipse, event, data) :
+    if event[-3:] == "tag" :
+      super().onto(data["name"], event, data["attr"])
+    else :
+      super().onto(event, data)
+
+#    if event == "emptytag" :
+#      ipse.onemptytag(data["name"], data["attr"])
+#    elif event == "opentag" :
+#      ipse.onopentag(data["name"], data["attr"])
+#    elif event == "closetag" :
+#      ipse.onclosetag(data["name"], data["attr"])
+#    elif event == "xmlattrset" :
+#      ipse.onxmlattrset(data)
+#    elif event == "doctype" :
+#      ipse.ondoctype(data)
+#    elif event == "fragment" :
+#      ipse.onfragment(data)
+#    elif event == "entity" :
+#      ipse.entres[data["name"]] =data["value"]
+#      ipse.onentity(data)
+
     if ipse.debug :
-      if event == "emptytag" :
-        ipse.info("emptytag %s"%data)
-      elif event == "opentag" :
-        ipse.info("opentag %s %s"%(data["name"],data["attr"]))
-      elif event == "closetag" :
-        ipse.info("closetag %s %s"%(data["name"],data["attr"]))
-      elif event == "xmlattrset" :
-        ipse.info("xmlattrset %s"%data)
-      elif event == "doctype" :
-        ipse.info("doctype %s"%data)
-      elif event == "fragment" :
-        ipse.info("fragment %s"%data)
-      elif event == "entity" :
-        ipse.info("entity %s"%data)
+      if event[-3:] == "tag" :
+        ipse.info("%s %s %s"%(event, data["name"],data["attr"]))
+      else :
+        ipse.info("%s %s"%(event, data))
+#      if event == "emptytag" :
+#        ipse.info("emptytag %s"%data)
+#      elif event == "opentag" :
+#        ipse.info("opentag %s %s"%(data["name"],data["attr"]))
+#      elif event == "closetag" :
+#        ipse.info("closetag %s %s"%(data["name"],data["attr"]))
+#      elif event == "xmlattrset" :
+#        ipse.info("xmlattrset %s"%data)
+#      elif event == "doctype" :
+#        ipse.info("doctype %s"%data)
+#      elif event == "fragment" :
+#        ipse.info("fragment %s"%data)
+#      elif event == "entity" :
+#        ipse.info("entity %s"%data)
 
   def __call__(ipse) :
-    ipse.fanout =eventail()
     sm =StateMachine(ipse.entres)
     sm.info =ipse.info
     sm.error =ipse.error
-    sm.get =ipse.put
-    sm.ci =ipse.ci
-    sm.la =ipse.la
-    sm.unget =ipse.unput
-    sm.on =ipse.on
-    #ipse.unput_buffer =stac()
+    sm.ci =ipse.inputs.ci
+    sm.la =ipse.inputs.la
+    sm.unget =ipse.inputs.unput
+    sm.onto =ipse.onto
     return sm()
 
   def __init__(ipse) :
     super().__init__()
+    ipse.inputs =inputstac()
     ipse.entres =entresolve()
-    ipse.push(strinputbuf('<!ENTITY quot    "&#34;"><!ENTITY amp     "&#38;"><!ENTITY lt      "&#60;"><!ENTITY gt      "&#62;"><!ENTITY apos  "&#39;"><!ENTITY OElig   "&#338;"><!ENTITY oelig   "&#339;"><!ENTITY Scaron  "&#352;"><!ENTITY scaron  "&#353;"><!ENTITY Yuml    "&#376;"><!ENTITY circ    "&#710;"><!ENTITY tilde   "&#732;"><!ENTITY ensp    "&#8194;"><!ENTITY emsp    "&#8195;"><!ENTITY thinsp  "&#8201;"><!ENTITY zwnj    "&#8204;"><!ENTITY zwj     "&#8205;"><!ENTITY lrm     "&#8206;"><!ENTITY rlm     "&#8207;"><!ENTITY ndash   "&#8211;"><!ENTITY mdash   "&#8212;"><!ENTITY lsquo   "&#8216;"><!ENTITY rsquo   "&#8217;"><!ENTITY sbquo   "&#8218;"><!ENTITY ldquo   "&#8220;"><!ENTITY rdquo   "&#8221;"><!ENTITY bdquo   "&#8222;"><!ENTITY dagger  "&#8224;"><!ENTITY Dagger  "&#8225;"><!ENTITY permil  "&#8240;"><!ENTITY lsaquo  "&#8249;"><!ENTITY rsaquo  "&#8250;"><!ENTITY euro   "&#8364;">', "xhtml-special.ent"))
+    def onentity (ev, data) : 
+      ipse.entres[data["name"]] =data["value"]
+    ipse.on("entity", onentity)
+    ipse.inputs.push(strinputbuf('<!ENTITY quot    "&#34;"><!ENTITY amp     "&#38;"><!ENTITY lt      "&#60;"><!ENTITY gt      "&#62;"><!ENTITY apos  "&#39;"><!ENTITY OElig   "&#338;"><!ENTITY oelig   "&#339;"><!ENTITY Scaron  "&#352;"><!ENTITY scaron  "&#353;"><!ENTITY Yuml    "&#376;"><!ENTITY circ    "&#710;"><!ENTITY tilde   "&#732;"><!ENTITY ensp    "&#8194;"><!ENTITY emsp    "&#8195;"><!ENTITY thinsp  "&#8201;"><!ENTITY zwnj    "&#8204;"><!ENTITY zwj     "&#8205;"><!ENTITY lrm     "&#8206;"><!ENTITY rlm     "&#8207;"><!ENTITY ndash   "&#8211;"><!ENTITY mdash   "&#8212;"><!ENTITY lsquo   "&#8216;"><!ENTITY rsquo   "&#8217;"><!ENTITY sbquo   "&#8218;"><!ENTITY ldquo   "&#8220;"><!ENTITY rdquo   "&#8221;"><!ENTITY bdquo   "&#8222;"><!ENTITY dagger  "&#8224;"><!ENTITY Dagger  "&#8225;"><!ENTITY permil  "&#8240;"><!ENTITY lsaquo  "&#8249;"><!ENTITY rsaquo  "&#8250;"><!ENTITY euro   "&#8364;">', "xhtml-special.ent"))
     ipse()
 
 class odtparse (stac) :
   def otag(ipse, name, attr) :
+    print(name,attr)
+    input("otag")
     if name == "office:body" :
       ipse.xmlp.debug =2
 
@@ -848,31 +854,34 @@ class odtparse (stac) :
     ipse.xmlp.onfragment =ipse.cdata
     ipse.xmlp.onentity =ipse.entity
     ipse.xmlp.debug =ipse.debug
-    #ipse.xmlp.push(fileinputbuf("doc/xhtml-special.ent"))
-    #ipse.xmlp.push(strinputbuf(open("doc/xhtml-special.ent").read(), "xhtml-special.ent"))
-#,"doc/graphe-exo.odt"])
+    ipse.zipglob =csglob("zip,od*")
+
+    def openbody (ev,data) : 
+      input("OPENBODY")
+      ipse.xmlp.debug =2
+    ipse.xmlp.on("*:body", "opentag", openbody)
+    def openoffice (ev,data) : 
+      input("OPENOFFICE")
+    ipse.xmlp.on("office:*", "opentag", openoffice)
+    def openstyle (ev,data) : 
+      input("OPENSTYLE")
+
+    ipse.xmlp.on("style:style" "opentag", openstyle)
 
   def pushfile(ipse, file_name) :
-    if file_name[-3:].lower() in ("zip", "odt", "ods") :
+    if ipse.zipglob(file_name[-3:].lower()) :
       from zipfile import ZipFile
-      zf =ZipFile(file_name)
-      ipse.xmlp.push(fileinputbuf(file_name, zf.open("content.xml")))
+      ipse.xmlp.inputs.push(fileinputbuf(file_name, ZipFile(file_name).open("content.xml")))
     else :
-      ipse.xmlp.push(fileinputbuf(file_name))
+      ipse.xmlp.inputs.push(fileinputbuf(file_name))
 
   def __call__(ipse, file_name) :
     ipse.pushfile(file_name)
     ipse.xmlp()
-    return
-    while len(ipse) :
-      ipse.xmlp =ipse.pop()
-      ipse.xmlp(ipse.entresolve)
 
-def odtread(filelst, align=0) :
+def odtread(file_name, align=0) :
   odtp = odtparse(debug=1)
-  odtp(filelst[1])
-  for file_name in reversed(filelst) :
-    odtp.pushfile(file_name)
+  odtp(file_name)
 from sys import argv
-odtread(["doc/xhtml-special.ent","doc/graphe-exo.odt"])
+odtread("doc/graphe-exo.odt")
 
