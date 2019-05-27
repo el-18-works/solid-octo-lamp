@@ -830,7 +830,7 @@ class xmlparse (eventail) :
     ipse.inputs.push(strinputbuf('<!ENTITY quot    "&#34;"><!ENTITY amp     "&#38;"><!ENTITY lt      "&#60;"><!ENTITY gt      "&#62;"><!ENTITY apos  "&#39;"><!ENTITY OElig   "&#338;"><!ENTITY oelig   "&#339;"><!ENTITY Scaron  "&#352;"><!ENTITY scaron  "&#353;"><!ENTITY Yuml    "&#376;"><!ENTITY circ    "&#710;"><!ENTITY tilde   "&#732;"><!ENTITY ensp    "&#8194;"><!ENTITY emsp    "&#8195;"><!ENTITY thinsp  "&#8201;"><!ENTITY zwnj    "&#8204;"><!ENTITY zwj     "&#8205;"><!ENTITY lrm     "&#8206;"><!ENTITY rlm     "&#8207;"><!ENTITY ndash   "&#8211;"><!ENTITY mdash   "&#8212;"><!ENTITY lsquo   "&#8216;"><!ENTITY rsquo   "&#8217;"><!ENTITY sbquo   "&#8218;"><!ENTITY ldquo   "&#8220;"><!ENTITY rdquo   "&#8221;"><!ENTITY bdquo   "&#8222;"><!ENTITY dagger  "&#8224;"><!ENTITY Dagger  "&#8225;"><!ENTITY permil  "&#8240;"><!ENTITY lsaquo  "&#8249;"><!ENTITY rsaquo  "&#8250;"><!ENTITY euro   "&#8364;">', "xhtml-special.ent"))
     ipse()
 
-class odtparse (stac) :
+class legodt (stac) :
   def otag(ipse, name, attr) :
     print(name,attr)
     input("otag")
@@ -855,61 +855,10 @@ class odtparse (stac) :
     ipse.xmlp.onfragment =ipse.cdata
     ipse.xmlp.onentity =ipse.entity
     ipse.xmlp.debug =ipse.debug
+    ipse.on =ipse.xmlp.on
+    ipse.no =ipse.xmlp.no
+    ipse.onto =ipse.xmlp.onto
     ipse.zipglob =csglob("zip,od*")
-
-    class styledefs :
-      def __init__(ipse) :
-        ipse.fontface ={}
-        ipse.autostyle ={}
-      def __call__(ipse, data) :
-        print(data)
-    styledefs =styledefs()
-
-
-    def openbody (ev,data) : 
-      print("OPENBODY")
-      ipse.xmlp.debug =2
-    ipse.xmlp.on("*:body", "opentag", openbody)
-    def openoffice (ev,data) : 
-      print("OPENOFFICE")
-      ipse.xmlp.debug =2
-    ipse.xmlp.on("office:*", "opentag", openoffice)
-
-    def styletags (ev,data) : 
-      def f(ev, data) :
-        d ={}
-        for i in data :
-          if i["name"] == "style:name" :
-            name =i["value"]
-          else :
-            d[i["name"]] =i["value"]
-        styledefs.autostyle[name] =d
-      if ev == "opentag" :
-        ipse.xmlp.on("style:style", "emptytag", f)
-        ipse.xmlp.no("office:automatic-styles", "opentag", styletags)
-        ipse.xmlp.on("office:automatic-styles", "closetag", styletags)
-      elif ev == "closetag" :
-        ipse.xmlp.no("style:style", "emptytag", f)
-        ipse.xmlp.no("office:automatic-styles", "closetag", styletags)
-    def fonttags (ev,data) : 
-      def f(ev, data) :
-        d ={}
-        for i in data :
-          if i["name"] == "style:name" :
-            name =i["value"]
-          else :
-            d[i["name"]] =i["value"]
-        styledefs.fontface[name] =d
-      if ev == "opentag" :
-        ipse.xmlp.on("style:font-face", "emptytag", f)
-        ipse.xmlp.no("office:font-face-decls", "opentag", fonttags)
-        ipse.xmlp.on("office:font-face-decls", "closetag", fonttags)
-      elif ev == "closetag" :
-        ipse.xmlp.no("style:font-face", "emptytag", f)
-        ipse.xmlp.no("office:font-face-decls", "opentag", fonttags)
-        ipse.xmlp.on("office:automatic-styles", "opentag", styletags)
-    ipse.xmlp.on("office:font-face-decls", "opentag", fonttags)
-
 
   def pushfile(ipse, file_name) :
     if ipse.zipglob(file_name[-3:].lower()) :
@@ -922,9 +871,102 @@ class odtparse (stac) :
     ipse.pushfile(file_name)
     ipse.xmlp()
 
-def odtread(file_name, align=0) :
-  odtp = odtparse(debug=1)
-  odtp(file_name)
+class odtstyledefs :
+
+  @staticmethod
+  def listdata(data) :
+    d ={}
+    for i in data :
+      d[i["name"]] =i["value"]
+    return d
+
+  @staticmethod
+  def dicdata(data) :
+    d ={}
+    for i in data :
+      if i["name"] == "style:name" :
+        name =i["value"]
+      else :
+        d[i["name"]] =i["value"]
+    return name, d
+
+  def __init__(ipse, lodt) :
+    ipse.lodt =lodt
+    ipse.fontface ={}
+    ipse.style ={}
+    ipse.lodt.on("office:font-face-decls", "opentag", ipse.fonttags)
+    ipse.lodt.on("office:automatic-styles", "opentag", ipse.styletags)
+
+  def curr(ipse, ev, data) :
+    ipse.currstyle.update(ipse.listdata(data))
+
+  def aper(ipse, ev, data) :
+    ipse.lodt.on("*", "emptytag", ipse.curr)
+    nom, dic =ipse.dicdata(data)
+    ipse.currstylenom =nom
+    ipse.currstyle =dic
+
+  def ferm(ipse, ev, data) :
+    ipse.style[ipse.currstylenom] =ipse.currstyle
+    del ipse.currstylenom
+    del ipse.currstyle
+    ipse.lodt.no("*", "emptytag", ipse.curr)
+
+  def styletags (ipse, ev,data) : 
+    def em(ev, data) :
+      nom, dic =ipse.dicdata(data)
+      ipse.style[nom] =dic
+    if ev == "opentag" :
+      ipse.lodt.on("style:style", "emptytag", em)
+      ipse.lodt.on("style:style", "opentag", ipse.aper)
+      ipse.lodt.on("style:style", "closetag", ipse.ferm)
+      ipse.lodt.no("office:automatic-styles", "opentag", ipse.styletags)
+      ipse.lodt.on("office:automatic-styles", "closetag", ipse.styletags)
+    elif ev == "closetag" :
+      ipse.lodt.no("style:style", "emptytag", em)
+      ipse.lodt.no("style:style", "opentag", ipse.aper)
+      ipse.lodt.no("style:style", "closetag", ipse.ferm)
+      ipse.lodt.no("office:automatic-styles", "closetag", ipse.styletags)
+      
+  def fonttags (ipse, ev, data) : 
+    def em(ev, data) :
+      nom, dic =ipse.dicdata(data)
+      ipse.fontface[nom] =dic
+    if ev == "opentag" :
+      ipse.lodt.on("style:font-face", "emptytag", em)
+      ipse.lodt.no("office:font-face-decls", "opentag", ipse.fonttags)
+      ipse.lodt.on("office:font-face-decls", "closetag", ipse.fonttags)
+    elif ev == "closetag" :
+      ipse.lodt.no("style:font-face", "emptytag", em)
+      ipse.lodt.no("office:font-face-decls", "closetag", ipse.fonttags)
+
+  def __call__(ipse, data) :
+    print(data)
+
+class scribextern :
+
+  def __init__(ipse) :
+    ipse.lodt = legodt(debug=1)
+    ipse.lodt.on("*:body", "opentag", ipse.openbody)
+    ipse.lodt.on("office:*", "opentag", ipse.openoffice)
+    ipse.styl =odtstyledefs(ipse.lodt)
+
+  def openbody (ipse, ev, data) : 
+    print("OPENBODY")
+    ipse.lodt.debug =2
+
+  def openoffice (ipse, ev,data) : 
+    print("OPENOFFICE")
+    ipse.lodt.debug =0
+
+  def __call__(ipse, fnom) :
+    ipse.lodt(fnom)
+
+def odtread(file_name) :
+  se =scribextern()
+  se(file_name)
+  #lodt = legodt(debug=1)
+  #lodt(file_name)
 from sys import argv
 odtread("doc/graphe-exo.odt")
 
