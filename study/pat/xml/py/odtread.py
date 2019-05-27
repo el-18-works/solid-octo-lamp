@@ -589,19 +589,20 @@ class ail :
   def on(ipse, ev, fan) :
     if ev not in ipse.aila :
       ipse.aila[ev] =set()
+    print("ADD!", ev, fan)
+    print("ADD!", ipse.aila[ev])
+    input(ev)
     ipse.aila[ev].add(fan)
+    print("ADD!", ipse.aila[ev])
 
   def no(ipse, ev, fan) :
     ipse.aila[ev].discard(fan)
 
   def onto(ipse, ev, data) :
-    for a,b in ipse.aila.items() :
-    #for a in ipse.aila.values() :
+    for a,b in ipse.aila.copy().items() :
       if a == ev :
-        for c in b :
+        for c in b.copy() :
           c(ev,data)
-      #print("A",a,b)
-      #a(data)
 
 class eventail (ail) :
 
@@ -627,7 +628,7 @@ class eventail (ail) :
   def onto(ipse, *e) :
     if len(e) == 3 :
       tag, ev, data =e
-      for a in ipse.eventaila.values() :
+      for a in ipse.eventaila.copy().values() :
         if a.match(tag) :
           a.onto(ev, data)
     elif len(e) == 2 :
@@ -856,17 +857,59 @@ class odtparse (stac) :
     ipse.xmlp.debug =ipse.debug
     ipse.zipglob =csglob("zip,od*")
 
+    class styledefs :
+      def __init__(ipse) :
+        ipse.fontface ={}
+        ipse.autostyle ={}
+      def __call__(ipse, data) :
+        print(data)
+    styledefs =styledefs()
+
+
     def openbody (ev,data) : 
-      input("OPENBODY")
+      print("OPENBODY")
       ipse.xmlp.debug =2
     ipse.xmlp.on("*:body", "opentag", openbody)
     def openoffice (ev,data) : 
-      input("OPENOFFICE")
+      print("OPENOFFICE")
+      ipse.xmlp.debug =2
     ipse.xmlp.on("office:*", "opentag", openoffice)
-    def openstyle (ev,data) : 
-      input("OPENSTYLE")
 
-    ipse.xmlp.on("style:style" "opentag", openstyle)
+    def styletags (ev,data) : 
+      def f(ev, data) :
+        d ={}
+        for i in data :
+          if i["name"] == "style:name" :
+            name =i["value"]
+          else :
+            d[i["name"]] =i["value"]
+        styledefs.autostyle[name] =d
+      if ev == "opentag" :
+        ipse.xmlp.on("style:style", "emptytag", f)
+        ipse.xmlp.no("office:automatic-styles", "opentag", styletags)
+        ipse.xmlp.on("office:automatic-styles", "closetag", styletags)
+      elif ev == "closetag" :
+        ipse.xmlp.no("style:style", "emptytag", f)
+        ipse.xmlp.no("office:automatic-styles", "closetag", styletags)
+    def fonttags (ev,data) : 
+      def f(ev, data) :
+        d ={}
+        for i in data :
+          if i["name"] == "style:name" :
+            name =i["value"]
+          else :
+            d[i["name"]] =i["value"]
+        styledefs.fontface[name] =d
+      if ev == "opentag" :
+        ipse.xmlp.on("style:font-face", "emptytag", f)
+        ipse.xmlp.no("office:font-face-decls", "opentag", fonttags)
+        ipse.xmlp.on("office:font-face-decls", "closetag", fonttags)
+      elif ev == "closetag" :
+        ipse.xmlp.no("style:font-face", "emptytag", f)
+        ipse.xmlp.no("office:font-face-decls", "opentag", fonttags)
+        ipse.xmlp.on("office:automatic-styles", "opentag", styletags)
+    ipse.xmlp.on("office:font-face-decls", "opentag", fonttags)
+
 
   def pushfile(ipse, file_name) :
     if ipse.zipglob(file_name[-3:].lower()) :
