@@ -2,40 +2,40 @@
 
 class stac :
   def __init__(ipse) :
-    ipse.staca =[]
+    ipse.__a =[]
 
   def push(ipse, i) :
-    ipse.staca.append(i)
-    return len(ipse.staca)
+    ipse.__a.append(i)
+    return len(ipse.__a)
 
   def pop(ipse, n=1) :
     while n>0 :
-      i =ipse.staca[-1]
-      del ipse.staca[-1]
+      i =ipse.__a[-1]
+      del ipse.__a[-1]
       n -=1
     return i
 
   def top(ipse) :
-    return ipse.staca[-1]
+    return ipse.__a[-1]
 
   def __len__(ipse) :
-    return len(ipse.staca)
+    return len(ipse.__a)
 
   def __iter__(ipse) :
-    return iter(ipse.staca)
+    return iter(ipse.__a)
 
 class entresolve(stac) :
 
   def __init__(ipse) :
     super().__init__()
-    ipse.b ={}
+    ipse.__a ={}
 
   def __setitem__(ipse, c, v) :
-    ipse.b[c] =v
+    ipse.__a[c] =v
 
   def __getitem__(ipse, c) :
-    if c in ipse.b :
-      return ipse.b[c]
+    if c in ipse.__a :
+      return ipse.__a[c]
     return chr(int(c[1:])) if len(c) and c[0] == '#' else c
 
 
@@ -58,7 +58,7 @@ class StateMachine (stac) :
       #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
 #negative :
-      if state == 0 : # S 0
+      if state == (0) : # S 0
         if c == '<' : # 0 < 1
           if ipse.la() in (33, 63, 47) : # (ord('!'), ord('?'), ord('/')) 
             ipse.push(-1)
@@ -79,7 +79,7 @@ class StateMachine (stac) :
         else : #
           ipse.unget(c)
           ipse.push(26)
-      elif state == -1 :
+      elif state == (-1) :
         if c == "/" : # 1 / <<2 
           ipse.pop(1)
           ipse.unget(token.index("</"))
@@ -92,23 +92,23 @@ class StateMachine (stac) :
           ipse.unget(token.index("<"))
         else : # 1 else error
           ipse.error("unexpected '%c'"%c)
-      elif state == -11 :
+      elif state == (-11) :
         if c == 'x' : # *11 x 12
           ipse.push(-12)
         else :
           ipse.error("expected 'x'")
-      elif state == -12 :
+      elif state == (-12) :
         if c == 'm' : # *12 m 13
           ipse.push(-13)
         else :
           ipse.error("expected 'm'")
-      elif state == -13 :
+      elif state == (-13) :
         if c == 'l' : # *13 l <<5
           ipse.pop(4)
           ipse.unget(token.index('xml'))
         else :
           ipse.error("expected 'l'")
-      elif state == -2 :
+      elif state == (-2) :
         if c == 'D' :  # *2 D 3
           ipse.push(-3)
         elif c == ('E') :
@@ -117,64 +117,64 @@ class StateMachine (stac) :
           ipse.push(-10)
         else :
           ipse.error("expected 'D' or '-'")
-      elif state == -3 :
+      elif state == (-3) :
         if c == 'O' :  # *2 O 3
           ipse.push(-4)
         else :
           ipse.error("expected 'O'")
-      elif state == -4 :
+      elif state == (-4) :
         if c == 'C' :  # *2 C 3
           ipse.push(-5)
         else :
           ipse.error("expected 'C'")
-      elif state == -5 :
+      elif state == (-5) :
         if c == 'T' :  # *2 T 3
           ipse.push(-6)
         else :
           ipse.error("expected 'T'")
-      elif state == -6 :
+      elif state == (-6) :
         if c == 'Y' :  # *2 Y 3
           ipse.push(-7)
         else :
           ipse.error("expected 'Y'")
-      elif state == -7 :
+      elif state == (-7) :
         if c == 'P' :  # *2 P 3
           ipse.push(-8)
         else :
           ipse.error("expected 'P'")
-      elif state == -8 :
+      elif state == (-8) :
         if c == 'E' :  # *2 P 3
           ipse.pop(8)
           ipse.unget(token.index("DOCTYPE"))
         else :
           ipse.error("expected 'E'")
-      elif state == -10 : # *10 - <<4
+      elif state == (-10) : # *10 - <<4
         if c == '-' :
           ipse.pop(3)
           ipse.unget(token.index("comment"))
         else :
           ipse.error("expected '-'")
-      elif state == -14 :
+      elif state == (-14) :
         if c == 'N' :
           ipse.push(-15)
         else :
           ipse.error("expected 'N'")
-      elif state == -15 :
+      elif state == (-15) :
         if c == 'T' :
           ipse.push(-16)
         else :
           ipse.error("expected 'T'")
-      elif state == -16 :
+      elif state == (-16) :
         if c == 'I' :
           ipse.push(-17)
         else :
           ipse.error("expected 'I'")
-      elif state == -17 :
+      elif state == (-17) :
         if c == 'T' :
           ipse.push(-18)
         else :
           ipse.error("expected 'T'")
-      elif state == -18 :
+      elif state == (-18) :
         if c == 'Y' :
           ipse.pop(7)
           ipse.unget(token.index("ENTITY"))
@@ -182,7 +182,7 @@ class StateMachine (stac) :
           ipse.error("expected 'Y'")
 
 #positive :
-      elif state == 1 :
+      elif state == (1) :
         if c == token.index("tag") : # 1 tag 2  : a =new attrset
           ipse.push(2)
           a =[]
@@ -194,7 +194,7 @@ class StateMachine (stac) :
           l =c
         else :
           ipse.error("expected tag name")
-      elif state == 2 : # 2 > <<3 : def tag-attrset 
+      elif state == (2) : # 2 > <<3 : def tag-attrset 
         if c == token.index("key") : # 2,9 key &attrname  : a =new attr; a.name=attrname
           ipse.unget(token.index("attrname"))
         elif c == token.index("attrname") : # 2,9 attrname 4
@@ -215,7 +215,7 @@ class StateMachine (stac) :
           ipse.push(25)
         else :
           ipse.error("expected attrname or '>'")
-      elif state == 3 :
+      elif state == (3) :
         if c.isalnum() or c == ':' or c == '-' : # *3 alnum  : l.push
           l +=c
           if ipse.la() in (61, 62) : # ord('='):
@@ -226,12 +226,12 @@ class StateMachine (stac) :
             ipse.unget(c)
           ipse.pop()
           ipse.unget(token.index("key"))
-      elif state == 4 :
+      elif state == (4) :
         if c == '=' : # 4 = 5
           ipse.push(5)
         else :
           ipse.error("expected '='")
-      elif state == 5 : # 5,18 ' 6 : l = new lex
+      elif state == (5) : # 5,18 ' 6 : l = new lex
         if c == "'" :
           ipse.push(6)
           l =""
@@ -244,7 +244,7 @@ class StateMachine (stac) :
           #ipse.info("atr %s='%s'"%(a[-1]["name"], a[-1]["value"]))
         else :
           ipse.error("a literal expected")
-      elif state == 6 :
+      elif state == (6) :
         if c == "'" : # *6 ' <<2 &literal
           ipse.pop()
           ipse.unget(token.index("literal"))
@@ -255,7 +255,7 @@ class StateMachine (stac) :
 #         ipse.push(8)
         else : # *6 else : l.push
           l +=c
-      elif state == 7 : # *7 " <<2 &literal
+      elif state == (7) : # *7 " <<2 &literal
         if c == '"' :
           ipse.pop()
           ipse.unget(token.index("literal"))
@@ -266,7 +266,7 @@ class StateMachine (stac) :
 #         ipse.push(8)
         else : # *7 else : l.push
           l +=c
-      elif state == 8 :
+      elif state == (8) :
         if c == 't' : # *8 t <<2 : l.push \tab
           ipse.pop(2)
           l += "\t"
@@ -282,7 +282,7 @@ class StateMachine (stac) :
         else : # *8 else <<2 : l.push
           ipse.pop(2)
           l +=c
-      elif state == 9 : 
+      elif state == (9) : 
         if c == token.index("key") : # 2,9 key &attrname  : a =new attr; a.name=attrname
           ipse.unget(token.index("attrname"))
           a =[]
@@ -296,11 +296,11 @@ class StateMachine (stac) :
           l =c
         else :
           ipse.error("expected attrname or '?'")
-      elif state == 10 :
+      elif state == (10) :
         if c == '>' : # *10 > <<3 : def xml-attrset
           ipse.pop(2)
           ipse.onto("xmlattrset", a)
-      elif state == 11 :
+      elif state == (11) :
         if c == token.index("key") : # 1,11 key &tag  : t =new tag
           ipse.unget(token.index("tag"))
           t ={'name':l}
@@ -311,40 +311,40 @@ class StateMachine (stac) :
           l =c
         else :
           ipse.error("expected tag name")
-      elif state == 12 :
+      elif state == (12) :
         if c == token.index('PUBLIC') : # 12 PUBLIC 18
           ipse.push(18)
         elif c == 'P' :
           ipse.push(13)
         else :
           ipse.error("expected PUBLIC")
-      elif state == 13 :
+      elif state == (13) :
         if c == 'U' : # 12 P 13
           ipse.push(14)
         else :
           ipse.error("expected U")
-      elif state == 14 :
+      elif state == (14) :
         if c == 'B' : # *13 U 14
           ipse.push(15)
         else :
           ipse.error("expected B")
-      elif state == 15 :
+      elif state == (15) :
         if c == 'L' : # *14 B 15
           ipse.push(16)
         else :
           ipse.error("expected L")
-      elif state == 16 :
+      elif state == (16) :
         if c == 'I' : # *15 L 16
           ipse.push(17)
         else :
           ipse.error("expected I")
-      elif state == 17 :
+      elif state == (17) :
         if c == 'C' : # *16 I 17
           ipse.pop(6)
           ipse.push(18)
         else :
           ipse.error("expected C")
-      elif state == 18 :
+      elif state == (18) :
         if c == token.index("literal") : # 18 literal 19
           ipse.onto("doctype", l)
         elif c == "'" : # 5,18 ' 6 : l = new lex
@@ -357,27 +357,27 @@ class StateMachine (stac) :
           ipse.pop(2)
         else :
           ipse.error("expected C")
-#     elif state == 19 :
+#     elif state == (19) :
 #       if c == '>' : # 19 > <<5
 #         ipse.pop(5)
 #       else : # 19 else : error
 #         ipse.error("expected '>'")
-      elif state == 20 : # 20 - 21 
+      elif state == (20) : # 20 - 21 
         if c == '-' :
           ipse.push(21)
         else : 
           pass
-      elif state == 21 :
+      elif state == (21) :
         if c == '-' : # 21 - 22 
           ipse.push(22)
         else :# << 1
           ipse.pop()
-      elif state == 22 :
+      elif state == (22) :
         if c == '>' : # 22 >  << 3
           ipse.pop(3)
         else : # << 2
           ipse.pop(2)
-      elif state == 23 :
+      elif state == (23) :
         if c == token.index("key") : # 1,11 key &tag  : t =new tag
           ipse.unget(token.index("tag"))
           t ={'name':l}
@@ -388,18 +388,18 @@ class StateMachine (stac) :
           l =c
         else :
           ipse.error("expected tag name")
-      elif state == 24 :
+      elif state == (24) :
         if c == '>' : # 24 > <<3 : 
           ipse.pop(2)
           t["attr"] =a
           ipse.onto("closetag", t)
         else : # 24 else : error
           ipse.error("expected '>'")
-      elif state == 25 :
+      elif state == (25) :
         if c == '>' : # 25 > <<3 :
           ipse.pop()
           ipse.unget(token.index("/>"))
-      elif state == 26 :
+      elif state == (26) :
         if c == token.index("frag") :
           ipse.pop()
           ipse.push(-1)
@@ -408,7 +408,7 @@ class StateMachine (stac) :
         else :
           l =c
           ipse.push(27)
-      elif state == 27 :
+      elif state == (27) :
         if c == '<' : #
           ipse.pop()
           ipse.unget(token.index("frag"))
@@ -418,14 +418,14 @@ class StateMachine (stac) :
         else :
           l +=c
 # --- ENTITY ---
-      elif state == 28 :
+      elif state == (28) :
         if c == ';' :
           ipse.pop()
           l +=ipse.entres[el]
         else :
           el +=c
 # --- DTD ---
-      elif state == 29 :
+      elif state == (29) :
         if c == '>' : #
           ipse.pop()
         elif c == token.index("key") : #
@@ -436,7 +436,7 @@ class StateMachine (stac) :
           l =c
         else :
           ipse.error("expected tag name")
-      elif state == 30 :
+      elif state == (30) :
         if c == "'" :
           ipse.push(6)
           l =""
@@ -589,11 +589,7 @@ class ail :
   def on(ipse, ev, fan) :
     if ev not in ipse.aila :
       ipse.aila[ev] =set()
-    print("ADD!", ev, fan)
-    print("ADD!", ipse.aila[ev])
-    input(ev)
     ipse.aila[ev].add(fan)
-    print("ADD!", ipse.aila[ev])
 
   def no(ipse, ev, fan) :
     ipse.aila[ev].discard(fan)
