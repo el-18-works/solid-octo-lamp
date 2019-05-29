@@ -9,7 +9,7 @@ my_noscriptalert();
 ?>
 <?php
 $localdate =localtime()[3];
-if ($localdate == 29) {
+if ($localdate == 0) {
 	$today_body_css = "filter : sepia(100%) blur(1px); font-size : 22px; font-weight : bold";
 	$today_css = "transform: rotate(2deg); filter : sepia(100%); filter : blur(1px);";
 	$today_fukidashi = '<a href="javascript:void(0)" onclick="todayvideo();"><text style="font-family:gothic;font-size:25px;text-shadow:3px 3px 4px grey;fill:#fee" transform="rotate(-12 20,40)"><tspan x=2px y=55px>今日は</tspan><tspan x=70px y=80px>昭和の日。</tspan>';
@@ -23,6 +23,7 @@ if ($localdate == 29) {
 	$today_video ="";
 }
 ?>
+<script> function osc(vol, freq, duration) { var a =new AudioContext(); a.resume(); let v =a.createOscillator(); let u =a.createGain(); v.connect(u); v.type ="square"; v.transition ="sudden"; v.frequency.value =freq; u.connect(a.destination); u.gain.value =vol*0.01; v.start(a.currentTime); v.stop(a.currentTime + duration * 0.001); } </script>
 <script>
 function todayvideo() {
 	document.querySelector("#video").innerHTML ='<iframe width="168" height="105" src="https://www.youtube.com/embed/5q2xypgPm3k?autoplay=1&loop=1&playlist=5q2xypgPm3k" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:fixed;top:20px;horizontal-align:center;box-shadow:5px 5px 100px black" id=today_video></iframe>';
@@ -44,7 +45,7 @@ function scrolltobot() {
 }
 @font-face {
 	font-family : 'Bandal';
-	src : url('https://ens.l18.work/res/fonts/Bandal.woff') format('woff'), url('https://ens.l18.work/res/fonts/Bandal.svg#Bandal') format('svg');
+	src : url('/res/fonts/Bandal.woff') format('woff'), url('/res/fonts/Bandal.svg#Bandal') format('svg');
 /*
 	src : url('xxxtmpdata/Bandal.woff') format('woff'), url('xxxtmpdata/Bandal.svg#Bandal') format('svg');
 */
@@ -76,8 +77,8 @@ if ($MOBILE) {
 }
 ?>
 	background-color : white;
-/*
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
+/*
 */
 	line-height : 40px;
 	box-shadow : 5px 5px 10px #ead
@@ -193,15 +194,8 @@ myNowloadingInit();
 <img src=xxxtmpdata/miku_400x400.jpg height=40px id=mikuicon class="titleicon"> 
 <?php
 	echo $today_titleicon;
-	//echo '<img src="https://lh3.ggpht.com/PuX267np0Yv8bO7-qFnstVb8nOp4UxLEdXwaeZvx3ZFkAIMefh5_QYBe1gov_G4MufA=s180-rw" height=80px id=sakuraicon class="titleicon">';
-//else
-	//echo '<img src=xxxtmpdata/stamp.png height=80px id=sakuraicon1 class="titleicon"> ';
 ?>
 <h1 class="titleicon">my<ruby>流華<rt>るか</rt></ruby>日記</h1>
-<!--
-<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon class="titleicon"> 
-<img src=xxxtmpdata/sakura.svg height=40px id=sakuraicon1 class="titleicon"> 
--->
 <svg id=jumpsvg class=titleicon width=180px height=80px>
  <polygon points="50,3 40,20  60,20" style="fill:lightblue" />
  <rect width=180px height=60px x=0 y=20 rx=20 ry=20 style="fill:lightblue" />

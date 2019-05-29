@@ -6,6 +6,12 @@ FLGS=$(foreach i,$(WORKS),cache/$(i).flg)
 .IMPORT : MYSHARE
 .PHONY : clean genko niki
 
+niki :
+	cd niki && make
+
+genko :
+	cd genko && make
+
 all : $(FLGS)
 
 clean :
@@ -21,11 +27,4 @@ cache/insert-init.flg :
 	read x
 	sudo MYSQL_PWD=@ mysql -u l18 l18 -sB <cache/insert.sql
 	touch $@	
-
-genko :
-	cd genko && make
-
-niki :
-	echo niki
-	cd niki && make
 

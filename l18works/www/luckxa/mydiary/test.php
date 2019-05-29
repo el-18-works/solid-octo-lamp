@@ -1,5 +1,6 @@
 <html lang="ja"> 
 <head> 
+<base target="_blank"/>
 <meta charset="utf-8"/> 
 <?php
 require_once "host/javascript.php";
@@ -44,7 +45,7 @@ function scrolltobot() {
 }
 @font-face {
 	font-family : 'Bandal';
-	src : url('https://ens.l18.work/res/fonts/Bandal.woff') format('woff'), url('https://ens.l18.work/res/fonts/Bandal.svg#Bandal') format('svg');
+	src : url('/res/fonts/Bandal.woff') format('woff'), url('/res/fonts/Bandal.svg#Bandal') format('svg');
 /*
 	src : url('xxxtmpdata/Bandal.woff') format('woff'), url('xxxtmpdata/Bandal.svg#Bandal') format('svg');
 */
@@ -76,8 +77,8 @@ if ($MOBILE) {
 }
 ?>
 	background-color : white;
-/*
 	font-family : 'Alice', "Yu Gothic", "Hiragino Kaku Gothic ProN", "メイリオ", "Ume Gothic S4", sans-serif;
+/*
 */
 	line-height : 40px;
 	box-shadow : 5px 5px 10px #ead
@@ -107,6 +108,7 @@ a:hover {
 
 .normal {
 	text-indent : 12px;
+	text-shadow : 0.5px 0.5px 1.5px gray;
 }
 
 code {

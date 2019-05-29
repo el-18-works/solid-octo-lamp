@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+from os import makedirs
+from os.path import dirname, exists
+
+opt_force =False
+missing =[]
+todo =[]
+
+for l in open("prj/d.lst") :
+	de, ad =l.split()
+	if not exists(de) :
+		missing.append(de)
+	else :
+		todo.append((de,ad))
+
+if missing :
+	print("one of the following file(s) is missing :")
+	for m in missing :
+		print(m)
+	if not opt_force :
+		exit(1)
+
+for de,ad in todo :
+	if not exists(dirname(ad)) :
+		makedirs(dirname(ad))
+	buf =open(de, "rb").read()
+	print("deliver %s -> %s (%d)"%(de,ad,len(buf)))
+	open(ad, "wb").write(buf)
+		

@@ -78,7 +78,7 @@ function foot_minimum() {
 		$SITE["SIGNATURE"]["de"].'<br>'.
 		$SITE["SIGNATURE"]["ad"].'<br>'.
 		"Powered by <a href=https://www.bodhilinux.com>Bodhi Linux</a>, <a href=http://sagemath.org>SageMath</a>;<br>".
-		"Copyleft & Lisence Free;<br>".
+		"Copyleft & License Free;<br>".
 		'<a href="'.$SITE["AKALI_DOMAIN"].'/about.php">L18 WORKS</a>.'.
 		"</div>";
 }

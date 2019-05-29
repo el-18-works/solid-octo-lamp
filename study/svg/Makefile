@@ -2,6 +2,7 @@ PYLIB=svgpath
 PYLIBFLAGS=$(foreach i,$(PYLIB),cache/$i.flg)
 
 JOBS=card_data.py wireframe.flg suite-light.flg suite-real.flg suite-web.flg suite-medium.flg
+JOBS+=bdf.flg
 
 all : $(foreach i,$(JOBS),cache/$(i)) $(PYLIBFLAGS)
 
@@ -49,6 +50,11 @@ cache/suite-real.flg : cache/card_data.py makecard.py py/card.py
 
 cache/suite-web.flg : cache/card_data.py makecard.py py/card.py
 	./makecard.py suite-web
+	touch $@
+
+cache/bdf.flg : py/bdfread.py
+	./makecard.py suite-web
+	$< makejs cache/bdf.js k8x12
 	touch $@
 
 SUITEDIR=/var/www/html/ens/res/misc/baraja

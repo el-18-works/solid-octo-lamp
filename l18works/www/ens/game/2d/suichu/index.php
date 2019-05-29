@@ -1,9 +1,29 @@
 <!DOCTYPE html> 
 <html> 
-<body style="background-color:#3635bb"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+	color : white;
+	background-color : #3635bb; 
+}
+a {
+	color : white;
+	font-weight : bold;
+}
+a:visited {
+	color : #fefefe;
+	font-weight : bold;
+}
+video {
+	max-width : 100%;
+	height :auto;
+}
+</style>
+<body> 
 
 <center>
-<video height="90%" style="height:90%;position:relative;top:2px;" controls>
+<video height="90%" style="height:90%;position:relative;top:2px;" poster="suichu.jpg" controls>
+  <source src="suichu.ogv" type="video/ogg">
   <source src="suichu.mp4" type="video/mp4">
   Your browser does not support HTML5 video.
 </video>

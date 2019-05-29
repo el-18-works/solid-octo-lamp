@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 
+
+#
+#
+#  optionium parsitio
+#
+#
+
 OPTARGS =[
 	("-f,--file,--makefile", "+f"),
 	("-n,--just-print,--dry-run,--recon", "n"),
@@ -187,6 +194,66 @@ class GenMakeOptParse :
 		out.write("def makeoptparse() :\n")
 		out.write("\tmop =MakeOptParse()\n")
 		out.write("\treturn mop()\n")
+
+
+
+#
+#
+#  fixurae parsitio
+#
+#
+
+trm =[
+	("uif", "ifdef,ifndef"),
+	("bif", "ifeq,ifneq"),
+	("els", "else"),
+	("fi", "endif"),
+	("(", "("),
+	(")", ")"),
+	(",", ","),
+	("+", " +"),
+	("-", " *"),
+	(".", ""),
+]
+rel =[
+	("BLO", "COND|REGL|ASSGN|TAG"),
+	("COND", "I BLO E BLO F | I BLO F"),
+	("I", "uif + VAR"),
+	("I", "bif + ( - TRM - , - TRM - )"),
+	("I", "bif + LIT + LIT"),
+	("E", "els"),
+	("F", "fi"),
+	("TRM", " REFLIT | REFVAR"),
+	("REGL", "TOP GCPL GDEP*"),
+	("GDEP", "ASSGN|TAG|TRM"),
+	("TOP", "TRM+"),
+	("REFLIT", "' LIT* '"),
+	("REFLIT", '" LIT* "'),
+	("REFVAR", '$ ( - VAR - )'),
+	("REFVAR", '$ { - VAR - }'),
+	("LIT", 'REFVAR|FRAG'),
+	("FRAG", '.*'),
+	("VAR", ''),
+]
+
+LINEA =[
+	("linea", 
+		"regula, assignatio, directiva, conditio", 
+	""),
+	("regula", 
+		"topos geodep prerequisitum#assignatio*", 
+	""),
+	("assignatio", 
+		"terminus arithmodep characteristica"
+	""),
+	("directiva", 
+		"tagos tagma", 
+	""),
+	("conditio", 
+		"hetu", 
+	""),
+]
+
 
 if __name__ == "__main__" :
 	gmop =GenMakeOptParse(debug=1)

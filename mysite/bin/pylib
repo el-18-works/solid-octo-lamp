@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+from sys import argv
+from my import pylibdb, pylibcon
+
+if __name__ == "__main__" :
+  if len(argv) == 1 :
+    print("%s ls fi | decl fi def | write fi def | info [fi[def]] | mkpylib path... | remove fi"%argv[0])
+    exit()
+  pi =pylibcon.pyitem()
+  if "ls" in argv :
+    idx =argv.index("ls")
+    if idx<len(argv)-1 : 
+      print('\n'.join(pi.ls(argv[idx+1])))
+  if "decl" in argv :
+    idx =argv.index("decl")
+    if idx<len(argv)-2 : 
+      print(pi.decl(argv[idx+1], argv[idx+2]))
+  if "write" in argv :
+    idx =argv.index("write")
+    if idx<len(argv)-2 : 
+      from sys import stdout
+      pi.write(stdout, argv[idx+1], argv[idx+2])
+  if "info" in argv :
+    idx =argv.index("info")
+    if idx<len(argv)-2 : 
+      pylibdb.info(argv[idx+1], argv[idx+2])
+    elif idx<len(argv)-1 : 
+      pylibdb.info(argv[idx+1])
+    else : 
+      pylibdb.info()
+  if "mkpylib" in argv :
+    idx =argv.index("mkpylib")
+    if idx<len(argv)-1 : 
+      pylibdb.mkpylib(argv[idx+1])
+  if "remove" in argv :
+    idx =argv.index("remove")
+    if idx<len(argv)-1 : 
+      pylibdb.remove(argv[idx+1])
+

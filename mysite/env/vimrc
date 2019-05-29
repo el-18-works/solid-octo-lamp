@@ -3,10 +3,15 @@ au BufWinLeave *.* mkview
 au BufWinEnter *.* silent loadview
 :syntax enable
 :set autoindent
-:set tabstop=4
-:set shiftwidth=4
+:set smartindent
+:set tabstop=2
+:set expandtab
+:set smarttab
+:set shiftwidth=2
 :set encoding=utf-8
 :let QA_make_target="undefined"
+
+:retab
 
 " E124 E125 E853 E884
 fun! QA_make(...)
@@ -14,27 +19,40 @@ fun! QA_make(...)
 	:let l:count = len(a:000)
 	:if l:count == 0
 	:	if g:QA_make_target != "undefined"
-	:		let s=g:QA_make_target
+	:		let s =g:QA_make_target
 	:		exe "!make ".s
 	:	else
-	:		exe "!make $(cat ~/.vim/run/qa_make-target || true)"
+	:   let path =getcwd()
+	:		exe "!make $(python3 -c \"from my.vimrc import get; get('".path."')\")"
+	":		exe "!make $(cat ~/.vim/run/qa_make-target || true)"
 	:	endif
 	:else
 	:	let s =join(a:000, " ")
 	:	let g:QA_make_target=s
-	:	exe "!echo ".s." > ~/.vim/run/qa_make-target && make ".s
+	: let path =getcwd()
+	:		exe "!python3 -c \"from my.vimrc import put; put('".path."', '".s."')\" && make ".s
+	":	exe "!echo ".s." > ~/.vim/run/qa_make-target && make ".s
 	endif
 endfun
 :com! -nargs=* ZQAmake call QA_make(<f-args>)
 :map zq :call QA_make()<CR>
 
 fun! QA_runBuffer(...)
+	":mark s
+	":%s/\t/  /ge
+	:retab
+	":`s
 	:wa
 	":!chmod +x %<CR>
 	:let l:count = len(a:000)
 	:let pipe =""
 	:let e =expand("%:e")
-	:if e == "cc" || e == "c"
+	:if e == "vim" 
+	":	source %
+	":	return
+	:	let p =expand("%:p")
+	:	let p ="vim -s ".p
+	:elseif e == "cc" || e == "c"
 	:	let p =expand("%:p:r")
 	:	let p ="make ".p." && ".p
 	:else
@@ -63,4 +81,7 @@ endfun
 :map zr :call QA_runBuffer()<CR>
 :map zd :call QA_runBuffer("debug")<CR>
 :map zl :call QA_runBuffer("less")<CR>
+
+:map zt :mark s<CR>:%s/\t/  /ge<CR>:'s<CR>:<CR>
+
 
