@@ -1,6 +1,6 @@
 .*.swp
-.*.ogv
-.*.mp4
+*.ogv
+*.mp4
 __pycache__
 ext
 cache
