@@ -13,6 +13,11 @@ PYLIBFILES=pylibdb pylibcon pyvimrc
 PYLIBFLGS=$(foreach f,$(PYLIBFILES),cache/$f.flg)
 CLEANFLGS=$(foreach f,$(BINFILES),cache/$(f).clean.flg)
 
+BASHRC = $(wildcard ~/.bash_profile)
+ifeq ($(BASHRC),)
+BASHRC = $(wildcard  ~/.bashrc)
+endif
+
 vpath %.sql sql
 vpath %.py py
 
@@ -35,8 +40,8 @@ cache/%.bin.flg : bin/%
 	touch $@
 
 cache/myenv.flg : env/myenv.sh
-	cat $(HOME)/.bashrc | grep $(PWD)/$(<) || \
-		echo ". $(PWD)/$(<)" >> $(HOME)/.bashrc
+	cat $(BASHRC) | grep $(PWD)/$(<) || \
+		echo ". $(PWD)/$(<)" >> $(BASHRC)
 	touch $@
 
 cache/vimrc.flg : env/vimrc
@@ -75,17 +80,22 @@ cache/packme.flg : bin/packme
 		ln -sf $(PWD)/$< $(MYHOME)/bin/$(<F)
 	touch $@
 
-cache/pylibdb.flg : py/pylibdb.py bin/pylib
+cache/pylibdb.flg : py/pylibdb.py bin/pylib $(MYSITE)/lib/python3/my/pylibcon.py 
 	bin/pylib mkpylib $<
 	touch $@
 
-cache/pylibcon.flg : py/pylibcon.py bin/pylib
+cache/pylibcon.flg : py/pylibcon.py bin/pylib $(MYSITE)/lib/python3/my/pylibcon.py 
 	bin/pylib mkpylib $<
 	touch $@
 
-cache/pyvimrc.flg : vimrc.py bin/pylib
+cache/pyvimrc.flg : vimrc.py bin/pylib $(MYSITE)/lib/python3/my/pylibcon.py 
 	bin/pylib mkpylib $<
 	touch $@
+
+$(MYSITE)/lib/python3/my/pylibcon.py :
+	mkdir -p $(@D)
+	cp py/pylibcon.py $@
+	cp py/pylibdb.py $(@D)/pylibdb.py
 
 cache/packop.py : cache/pylibcon.flg
 	python3 -c "from my.pylibcon import gengetopt; gengetopt('$@', [('-m,--mini','m'),],0)"
