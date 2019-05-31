@@ -54,7 +54,7 @@ class StateMachine (stac) :
       state =ipse.top()
       #if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
       #else : ipse.info('[%d] "%s"'%(state,token[c]))
-      if  state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
+      if  state not in [0,-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,26,27] and type(c) == str and c.isspace() :
       #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
 #negative :
@@ -404,6 +404,11 @@ class StateMachine (stac) :
           ipse.pop()
           ipse.push(-1)
           ipse.onto("fragment", l)
+          l =""
+        elif c == '&' : #
+          ipse.push(27)
+          ipse.push(28)
+          el =""
           l =""
         else :
           l =c
@@ -770,41 +775,11 @@ class xmlparse (eventail) :
     else :
       super().onto(event, data)
 
-#    if event == "emptytag" :
-#      ipse.onemptytag(data["name"], data["attr"])
-#    elif event == "opentag" :
-#      ipse.onopentag(data["name"], data["attr"])
-#    elif event == "closetag" :
-#      ipse.onclosetag(data["name"], data["attr"])
-#    elif event == "xmlattrset" :
-#      ipse.onxmlattrset(data)
-#    elif event == "doctype" :
-#      ipse.ondoctype(data)
-#    elif event == "fragment" :
-#      ipse.onfragment(data)
-#    elif event == "entity" :
-#      ipse.entres[data["name"]] =data["value"]
-#      ipse.onentity(data)
-
     if ipse.debug :
       if event[-3:] == "tag" :
         ipse.info("%s %s %s"%(event, data["name"],data["attr"]))
       else :
-        ipse.info("%s %s"%(event, data))
-#      if event == "emptytag" :
-#        ipse.info("emptytag %s"%data)
-#      elif event == "opentag" :
-#        ipse.info("opentag %s %s"%(data["name"],data["attr"]))
-#      elif event == "closetag" :
-#        ipse.info("closetag %s %s"%(data["name"],data["attr"]))
-#      elif event == "xmlattrset" :
-#        ipse.info("xmlattrset %s"%data)
-#      elif event == "doctype" :
-#        ipse.info("doctype %s"%data)
-#      elif event == "fragment" :
-#        ipse.info("fragment %s"%data)
-#      elif event == "entity" :
-#        ipse.info("entity %s"%data)
+        ipse.info("%s '%s'"%(event, data))
 
   def __call__(ipse) :
     sm =StateMachine(ipse.entres)
@@ -826,30 +801,12 @@ class xmlparse (eventail) :
     ipse.inputs.push(strinputbuf('<!ENTITY quot    "&#34;"><!ENTITY amp     "&#38;"><!ENTITY lt      "&#60;"><!ENTITY gt      "&#62;"><!ENTITY apos  "&#39;"><!ENTITY OElig   "&#338;"><!ENTITY oelig   "&#339;"><!ENTITY Scaron  "&#352;"><!ENTITY scaron  "&#353;"><!ENTITY Yuml    "&#376;"><!ENTITY circ    "&#710;"><!ENTITY tilde   "&#732;"><!ENTITY ensp    "&#8194;"><!ENTITY emsp    "&#8195;"><!ENTITY thinsp  "&#8201;"><!ENTITY zwnj    "&#8204;"><!ENTITY zwj     "&#8205;"><!ENTITY lrm     "&#8206;"><!ENTITY rlm     "&#8207;"><!ENTITY ndash   "&#8211;"><!ENTITY mdash   "&#8212;"><!ENTITY lsquo   "&#8216;"><!ENTITY rsquo   "&#8217;"><!ENTITY sbquo   "&#8218;"><!ENTITY ldquo   "&#8220;"><!ENTITY rdquo   "&#8221;"><!ENTITY bdquo   "&#8222;"><!ENTITY dagger  "&#8224;"><!ENTITY Dagger  "&#8225;"><!ENTITY permil  "&#8240;"><!ENTITY lsaquo  "&#8249;"><!ENTITY rsaquo  "&#8250;"><!ENTITY euro   "&#8364;">', "xhtml-special.ent"))
     ipse()
 
-class legodt (stac) :
-  def otag(ipse, name, attr) :
-    print(name,attr)
-    input("otag")
-    if name == "office:body" :
-      ipse.xmlp.debug =2
-
-  def cdata(ipse, data) :
-    print("cdata "+data)
-
-  def entity(ipse, data) :
-    print(data)
-
-  def ctag(ipse, name, attr) :
-    ns, tn =name.split(":")
+class legodoc (stac) :
 
   def __init__(ipse, debug=0) :
     super().__init__()
     ipse.debug =debug
     ipse.xmlp =xmlparse()
-    ipse.xmlp.onopentag =ipse.otag
-    ipse.xmlp.onclosetag =ipse.ctag
-    ipse.xmlp.onfragment =ipse.cdata
-    ipse.xmlp.onentity =ipse.entity
     ipse.xmlp.debug =ipse.debug
     ipse.on =ipse.xmlp.on
     ipse.no =ipse.xmlp.no
@@ -867,7 +824,7 @@ class legodt (stac) :
     ipse.pushfile(file_name)
     ipse.xmlp()
 
-class odtstyledefs :
+class odocstyledefs :
 
   @staticmethod
   def listdata(data) :
@@ -942,10 +899,10 @@ class odtstyledefs :
 class scribextern :
 
   def __init__(ipse) :
-    ipse.lodt = legodt(debug=1)
+    ipse.lodt = legodoc(debug=1)
     ipse.lodt.on("*:body", "opentag", ipse.openbody)
     ipse.lodt.on("office:*", "opentag", ipse.openoffice)
-    ipse.styl =odtstyledefs(ipse.lodt)
+    ipse.styl =odocstyledefs(ipse.lodt)
 
   def openbody (ipse, ev, data) : 
     print("OPENBODY")
@@ -961,7 +918,7 @@ class scribextern :
 #def odtread(file_name) :
   #se =scribextern()
   #se(file_name)
-  #lodt = legodt(debug=1)
+  #lodt = legodoc(debug=1)
   #lodt(file_name)
 #from sys import argv
 #odtread("doc/graphe-exo.odt")
