@@ -29,6 +29,8 @@ class calcmissex :
   def style(ipse, data) :
     for d in data :
       if d["name"].split(":")[1] == "style-name" :
+        if d["value"] == "Default" :
+          return {}
         return ipse.sdefs.style[d["value"]]
     return {}
 
@@ -103,7 +105,7 @@ if __name__ == "__main__" :
   from sys import argv
   if len(argv) < 3 :
     print("modus : miss *.ods */   italicis-commentatae csv.")
-  print("%s -> %s"%(argv[1], argv[2]))
+  input("%s -> %s"%(argv[1], argv[2]))
   de,ad =argv[1:]
   if de[-3:].lower() == "ods" :
     cm =calcmissex()

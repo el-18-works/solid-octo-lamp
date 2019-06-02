@@ -3,19 +3,21 @@
 class stac :
 
   def __init__(ipse) :
-    ipse.a =[]
-    ipse.__len__ =ipse.a.__len__  
+    ipse.__a =[]
+
+  def __len__(ipse) :
+    return len(ipse.__a)
 
   def push(ipse, x) :
-    ipse.a.append(x)
+    ipse.__a.append(x)
 
   def pop(ipse) :
-    x =ipse.a[-1]
-    del ipse.a[-1]
+    x =ipse.__a[-1]
+    del ipse.__a[-1]
     return x
 
   def top(ipse) :
-    return ipse.a[-1]
+    return ipse.__a[-1]
 
 class csglob :
 
