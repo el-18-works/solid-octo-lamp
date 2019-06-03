@@ -69,172 +69,8 @@ class csglob :
       r =ipse.subset[r][i]
     return bool(ipse.subset[r][0])
 
-#
-#
-# Input Buffer
-#
-#
-class inputbuf :
 
-  def info(ipse, arg) :
-    print("%s %s"%(ipse.pos(), arg))
-
-  def error(ipse, arg) :
-    print("%s %s"%(ipse.pos(), arg))
-    exit(-1)
-
-  def pos(ipse) :
-    return ""
-
-class fileinputbuf (inputbuf) :
-
-  def la(ipse) :
-    c =ipse.input.peek()
-    if len(c) == 0 or not c[0] :
-      return None
-    return c[0]
-
-  def ci(ipse) :
-    def f() :
-      c =ipse.input.peek()
-      if len(c) == 0 or not (c[0]) :
-        return None
-      c =c[0]
-      if (c) & 1<<7 == 0 :
-        return ipse.input.read1(1).decode()
-      elif (c) & 1<<6 == 0 :
-        ipse.error("utf8 decode error")
-      elif (c) & 1<<5 == 0 :
-        return ipse.input.read1(2).decode()
-      elif (c) & 1<<4 == 0 :
-        return ipse.input.read1(3).decode()
-      elif (c) & 1<<3 == 0 :
-        return ipse.input.read1(4).decode()
-      else :
-        ipse.error("utf8 decode error")
-    i,j =ipse.posij
-    c =f()
-    while c == '\n' :
-      i,j =i+1,0
-      c =f()
-    if len(c) == 0 :
-      return None
-    ipse.posij =i,j+1
-    return c
-
-  def pos(ipse) :
-    return ipse.file_nom + ":%d:%d:"%ipse.posij
-  
-  def __init__(ipse, file_nom, input=None) :
-    ipse.file_nom =file_nom
-    ipse.input =input or open(file_nom)
-    ipse.posij =1,0
-
-class strinputbuf (inputbuf) :
-
-  def ci(ipse) :
-    if ipse.i+1 > ipse.ad :
-      return None
-    ipse.i +=1
-    return ipse.buf[ipse.i-1]
-
-  def la(ipse) :
-    if ipse.i+1 > ipse.ad :
-      return None
-    return ipse.buf[ipse.i].encode('utf8')[0]
-
-  def pos(ipse) :
-    return ipse.file_nom + " (%d)"%ipse.i
-  
-  def __init__(ipse, buf, nom=None, de=0, ad=-1) :
-    super().__init__()
-    ipse.buf =buf
-    ipse.i, ipse.ad =de, ad if ad >= 0 else len(buf)+ad+1
-    ipse.file_nom =nom or ipse.buf[:12]+ ("..." if len(ipse.buf) > 12 else "")
-
-class inputstac(stac) :
-
-  def ci(ipse) :
-    if ipse.unput_buffer != None :
-      c =ipse.unput_buffer 
-      ipse.unput_buffer =None
-      return c
-    c =ipse.top().ci()
-    if c == None :
-      ipse.pop()
-      if len(ipse) == 0 :
-        return None
-    return c
-
-  def la(ipse) :
-    return ipse.top().la()
-
-  def unput(ipse, c) :
-    ipse.unput_buffer =c
-
-  def pos(ipse) :
-    return ipse.top().pos()
-
-  def __init__(ipse) :
-    super().__init__()
-    ipse.unput_buffer =None
-
-
-#
-# eventail
-#
-class ail :
-
-  def __init__(ipse) :
-    ipse.aila ={}
-
-  def on(ipse, ev, fan) :
-    if ev not in ipse.aila :
-      ipse.aila[ev] =set()
-    ipse.aila[ev].add(fan)
-
-  def no(ipse, ev, fan) :
-    ipse.aila[ev].discard(fan)
-
-  def onto(ipse, ev, data) :
-    for a,b in ipse.aila.items() :
-      if a == ev :
-        for c in b :
-          c(ev,data)
-
-class eventail (ail) :
-
-  def __init__(ipse) :
-    super().__init__()
-    ipse.eventaila ={}
-
-  def on(ipse, a0, a1, a2=None) :
-    if a2 == None :
-      super().on(a0, a1)
-    else :
-      if a0 not in ipse.eventaila :
-        ipse.eventaila[a0] =ail()
-        ipse.eventaila[a0].match =csglob(a0)
-      ipse.eventaila[a0].on(a1, a2)
-
-  def no(ipse, a0, a1, a2=None) :
-    if a2 == None :
-      super().no(a0, a1)
-    elif a0 in ipse.eventaila :
-      ipse.eventaila[a0].no(a1, a2)
-
-  def onto(ipse, *e) :
-    if len(e) == 3 :
-      tag, ev, data =e
-      for a in ipse.eventaila.values() :
-        if a.match(tag) :
-          a.onto(ev, data)
-    elif len(e) == 2 :
-      ev, data =e
-      super().onto(ev, data)
-
-
-class trunit (stac) :
+class stacarbor (stac) :
 
   def __init__(ipse, comment=None) :
     super().__init__()
@@ -244,58 +80,106 @@ class trunit (stac) :
     print(msg)
     exit(1)
 
-  def __call__(ipse, unitnom, cb) :
+  def __call__(ipse, unitnom, fasc, pos) :
     def resettabs(l) :
       for i in range(len(l)) :
         if not l[i].isspace() :
           return l[:i], l[i:]
       return l,""
+    fragcont =None
     for i,l in enumerate(open(unitnom)) :
+      pos(i+1)
+      if len(l)>1 and l[-2] == '\\' :
+        fragcont =l
+        continue
+      if fragcont != None :
+        l =fragcont + l
+        fragcont =None
       if i == 0 :
         ipse.push('')
-        cb("pushunit", None)
-        cb("push", l.strip())
-        continue
+        fasc("pushunit", None)
+        fasc("push", "")
       tabs,frag =resettabs(l.rstrip())
-      if ipse.comment != None and (not frag or ipse.comment(frag) and tabs != ipse.top()) :
-        cb("comment", frag)
+      if not frag or ipse.comment != None and ipse.comment(frag) and (len(tabs) == 0 or tabs != ipse.top()) :
+        fasc("comment", frag)
       else :
         while len(tabs) < len(ipse.top()) :
           if ipse.top()[:len(tabs)] != tabs :
-            ipse.error("%d : '%s' : (pop) inconsistent shift spaces/tabs"%(i+1, l))
+            ipse.error("%d : '%s' : (pop) inconsistentes numeri tablationum"%(i+1, l))
           ipse.pop()
-          cb("pop", None)
+          fasc("pop", None)
         if tabs != ipse.top() :
           if len(tabs) > len(ipse.top()) :
             if tabs[:len(ipse.top())] != ipse.top() :
-              ipse.error("%d : '%s' : (push) inconsistent shift spaces/tabs"%(i+1, l))
+              ipse.error("%d : '%s' : (push) inconsistentes numeri tablationum"%(i+1, l))
             ipse.push(tabs)
-            cb("push", frag)
+            fasc("push", frag)
           else :
-            ipse.error("%d : '%s' : inconsistent shift spaces/tabs"%(i+1, l))
+            ipse.error("%d : '%s' : inconsistentes numeri tablationum"%(i+1, l))
         else :
-          cb("frag", frag)
+          fasc("frag", frag)
 
     while len(ipse) :
       ipse.pop()
-      cb("pop", None)
-    cb("popunit", None)
+      fasc("pop", None)
+    fasc("popunit", None)
     
 class blocarbor(stac) :
 
   def error(ipse, msg) :
-    print(msg)
+    print("%s:%d: %s"%(ipse.unitnom, ipse.lnum, msg))
     exit(1)
 
-  def __call__(ipse, unitnom) :
+  def pos(ipse, lnum) :
+    ipse.lnum =lnum
+
+  def arbor(ipse, unitnom, comment="") :
     ipse.unitnom =unitnom
-    tf =trunit(comment=csglob("#*,//*"))
-    tf(unitnom, ipse.arbor)
+    stacarbor(comment=csglob(comment))(unitnom, ipse.fasc, ipse.pos)
     return ipse.radix
 
-  def arbor(ipse, e, data) :
+class mkarbor(blocarbor) :
+
+  def __call__(ipse, unitnom) :
+    return ipse.arbor(unitnom, "#*,--*")
+
+  def fasc(ipse, e, data) :
     if e == "pushunit" :
-      ipse.push({"clav" : "", "bloc":[{'clav':'decl', 'data':"unit :"}]})
+      ipse.push({"clav" : "", "bloc":[{'clav':'cap', 'data':"unit :"}]})
+    elif e == "push" :
+      clav =value =""
+      udata =ipse.top()["bloc"][-1]['data']
+      if udata :
+        i =0
+        while udata[i] not in ('(', ':') and not udata[i].isspace() :
+          i +=1
+        clav =udata[:i]
+        if clav in ("unit", "define", "endef", "ifeq", "ifneq", "ifdef", "else", "endif") :
+          value =""
+        else :
+          clav ="dep"
+          value =udata
+      ipse.push({"clav":clav, "nom":value, "bloc":[{'clav':'cap', 'data':udata}, {'clav':'frag', 'data':data}]})
+    elif e == "frag" :
+      ipse.top()["bloc"].append({'clav':'frag', 'data':data})
+    elif e == "pop" :
+      data =ipse.pop()
+      if data["clav"] == "unit" :
+        ipse.radix =data
+      ipse.top()["bloc"][-1] =data
+    elif e == "comment" :
+      pass
+    elif e == "popunit" :
+      ipse.pop()
+
+class pyarbor(blocarbor) :
+
+  def __call__(ipse, unitnom) :
+    return ipse.arbor(unitnom, "#*,//*")
+
+  def fasc(ipse, e, data) :
+    if e == "pushunit" :
+      ipse.push({"clav" : "", "bloc":[{'clav':'cap', 'data':"unit :"}]})
     elif e == "push" :
       clav =value =""
       udata =ipse.top()["bloc"][-1]['data']
@@ -317,7 +201,7 @@ class blocarbor(stac) :
           value =ipse.unitnom
         else :
           ipse.error("irrecognita clavis '%s'"%clav)
-      ipse.push({"clav":clav, "nom":value, "bloc":[{'clav':'decl', 'data':udata}, {'clav':'frag', 'data':data}]})
+      ipse.push({"clav":clav, "nom":value, "bloc":[{'clav':'cap', 'data':udata}, {'clav':'frag', 'data':data}]})
     elif e == "frag" :
       ipse.top()["bloc"].append({'clav':'frag', 'data':data})
     elif e == "pop" :
@@ -330,55 +214,130 @@ class blocarbor(stac) :
     elif e == "popunit" :
       ipse.pop()
 
-class pyunitbloc :
+class unitbloc :
+
+  def __init__(ipse, ba) :
+    ipse.__unit ={}
+    ipse.ba =ba
+
+  def radix(ipse, nom) :
+    if nom not in ipse.__unit :
+      ipse.__unit[nom] =ipse.ba(nom)
+    return ipse.__unit[nom]
+
+class mkunitbloc (unitbloc) :
 
   def __init__(ipse) :
-    ipse.unit ={}
-    ipse.bt =blocarbor()
+    super().__init__(mkarbor())
+    ipse.__unit ={}
 
-  def __call__(ipse, nom) :
-    if nom not in ipse.unit :
-      ipse.unit[nom] ={}
-      for l in ipse.bt(nom)["bloc"][1:] :
+  def item(ipse, nom) :
+    if nom not in ipse.__unit :
+      ipse.__unit[nom] ={}
+      for l in ipse.radix(nom)["bloc"][1:] :
+        if l["clav"] == "dep" :
+          ipse.__unit[nom][l["nom"]] =l["bloc"]
+    return ipse.__unit[nom].items()
+
+class pyunitbloc (unitbloc) :
+
+  def __init__(ipse) :
+    super().__init__(pyarbor())
+    ipse.__unit ={}
+
+  def item(ipse, nom) :
+    if nom not in ipse.__unit :
+      ipse.__unit[nom] ={}
+      for l in ipse.radix(nom)["bloc"][1:] :
         if l["clav"] in ("class", "def") :
-          ipse.unit[nom][l["nom"]] =l["bloc"]
-    return ipse.unit[nom]
+          ipse.__unit[nom][l["nom"]] =l["bloc"]
+    return ipse.__unit[nom].items()
 
-class pyitem :
+class pmunit :
 
-  def __init__(ipse, tabchr="  ", tabshft=0) :
-    ipse.fl =pyunitbloc()
-    ipse.tabchr =tabchr
-    ipse.tabshft =tabshft
-    
-  def write(ipse, out, unitnom, itnom, tabshft=0) :
-    itglob =csglob(itnom)
+  def write(ipse, out, data, tabshft) :
     def f(data, tabshft) :
-      if data['clav'] == 'decl' :
-        out.write(ipse.tabchr*(ipse.tabshft+tabshft) + data['data'] + '\n')
+      if data['clav'] == 'cap' :
+        if tabshft >= 0 :
+          out.write(ipse.tabchr*(ipse.tabshft+tabshft) + data['data'] + '\n')
       elif data['clav'] == 'frag' :
         out.write(ipse.tabchr*(ipse.tabshft+tabshft+1) + data['data'] + '\n')
       elif 'bloc' in data :
+        if data['clav'] in ipse.spatpre :
+          if ipse.tabshft == tabshft :
+            out.write('\n')
         for x in data['bloc'] :
           f(x, tabshft+1)
-    out.write('\n')
-    for clav,blc in ipse.fl(unitnom).items() :
+      #if ipse.tabshft == tabshft+1 :
+        #out.write('\n')
+      if data['clav'] in ipse.spatpost :
+        out.write('\n\n')
+    f(data, tabshft)
+    
+  def writeradix(ipse, out, unitnom) :
+    ipse.write( out, ipse.ub.radix(unitnom), -2 )
+
+  def writeitem(ipse, out, unitnom, itnom, tabshft=0) :
+    itglob =csglob(itnom)
+    for clav,blc in ipse.ub.item(unitnom) :
       if itglob(clav) :
         for data in blc :
-          f(data, tabshft)
-    out.write('\n')
+          ipse.write(out, data, tabshft)
+        out.write('\n\n')
 
   def ls(ipse, unitnom) :
-    return tuple(ipse.fl(unitnom).keys())
+    return tuple(k for k,v in ipse.ub.item(unitnom))
 
-  def decl(ipse, unitnom, itnom) :
-    s =ipse.fl(unitnom)[itnom][0]['data']
-    return s.rstrip()[:-1].rstrip()
+  def cap(ipse, unitnom, itnom) :
+    for k,v in ipse.ub.item(unitnom) :
+      if k == itnom :
+        s =v[0]['data']
+        return s.rstrip()[:-1].rstrip()
 
-from sys import stdout
-pyitem().write(stdout,__file__, "pyunitbloc")
-pyitem().write(stdout,__file__, "pyitem")
-print(pyitem().decl(__file__, "pyitem"))
-print(pyitem().ls(__file__))
-#print(fl(__file__, "pyfilebloc"))
+class pyunit (pmunit) :
+
+  def __init__(ipse, tabchr="  ", tabshft=0) :
+    ipse.ub =pyunitbloc()
+    ipse.tabchr =tabchr
+    ipse.tabshft =tabshft
+    ipse.spatpre ="def", "class",
+    ipse.spatpost ="class",
+
+class mkunit (pmunit) :
+
+  def __init__(ipse, tabchr="\t", tabshft=0) :
+    ipse.ub =mkunitbloc()
+    ipse.tabchr =tabchr
+    ipse.tabshft =tabshft
+    ipse.spatpre =[] # "dep", 
+    ipse.spatpost =[] #"dep",
+
+from sys import stdout, argv
+from os.path import basename
+if len(argv) not in (2,3) or not argv[1] :
+  print("bloc infile [itemglob]")
+  exit(1)
+unit =argv[1]
+if len(argv) == 2 :
+  if basename(unit)[0].isupper() :
+    mkunit().writeradix(stdout, argv[1])
+  else :
+    pyunit().writeradix(stdout, argv[1])
+elif len(argv) == 3 :
+  if basename(unit)[0].isupper() :
+    mkunit().writeitem(stdout, argv[1], argv[2])
+  else :
+    pyunit().writeitem(stdout, argv[1], argv[2])
+
+exit()
+while 1 :
+  print("\n".join(pyunit().ls(__file__)))
+  it =input(">> ")
+  if it :
+    print(pyunit().cap(__file__, it))
+    input(">> ")
+    pyunit().writeitem(stdout,__file__, it)
+  else :
+    pyunit().writeradix(stdout,__file__)
+  input(">> ")
 
