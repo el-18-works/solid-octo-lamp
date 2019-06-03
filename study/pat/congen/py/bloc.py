@@ -312,32 +312,17 @@ class mkunit (pmunit) :
     ipse.spatpre =[] # "dep", 
     ipse.spatpost =[] #"dep",
 
-from sys import stdout, argv
-from os.path import basename
-if len(argv) not in (2,3) or not argv[1] :
-  print("bloc infile [itemglob]")
-  exit(1)
-unit =argv[1]
-if len(argv) == 2 :
-  if basename(unit)[0].isupper() :
-    mkunit().writeradix(stdout, argv[1])
-  else :
-    pyunit().writeradix(stdout, argv[1])
-elif len(argv) == 3 :
-  if basename(unit)[0].isupper() :
-    mkunit().writeitem(stdout, argv[1], argv[2])
-  else :
-    pyunit().writeitem(stdout, argv[1], argv[2])
-
-exit()
-while 1 :
-  print("\n".join(pyunit().ls(__file__)))
-  it =input(">> ")
-  if it :
-    print(pyunit().cap(__file__, it))
-    input(">> ")
-    pyunit().writeitem(stdout,__file__, it)
-  else :
-    pyunit().writeradix(stdout,__file__)
-  input(">> ")
+if __name__ == "__main__" :
+  from sys import stdout, argv
+  if len(argv) == 2 and argv[1] == "test" :
+    while 1 :
+      print("\n".join(pyunit().ls(__file__)))
+      it =input(">> ")
+      if it :
+        print(pyunit().cap(__file__, it))
+        input(">> ")
+        pyunit().writeitem(stdout,__file__, it)
+      else :
+        pyunit().writeradix(stdout,__file__)
+      input(">> ")
 

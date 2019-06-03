@@ -22,3 +22,5 @@ test : cache/bin/tes
 	echo ok
 	xdotool key "super+Tab"
 
+ogv :  cache/bin/tes
+	./cache/bin/tes && rm -f funparam-lisse.ogv && ffmpeg -i cache/funparam/%04d.png -codec:v libtheora -qscale:v 7 -codec:a libvorbis -qscale:a 5 funparam-lisse.ogv

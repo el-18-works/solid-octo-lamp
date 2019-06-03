@@ -48,6 +48,7 @@ class StateMachine (stac) :
     ipse.entres =entres
 
   def __call__(ipse) :
+    token =["<", "</", "/>", "xml", "DOCTYPE", "comment", "key", "tag", "attrname", "literal", "PUBLIC", "frag", "ENTITY"]
     ipse.push(0)
     while ipse.la() :
       c =ipse.ci()
@@ -55,7 +56,7 @@ class StateMachine (stac) :
       #if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
       #else : ipse.info('[%d] "%s"'%(state,token[c]))
       if  state not in [0,-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,26,27] and type(c) == str and c.isspace() :
-      #if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
+#      if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
 #negative :
       if state == (0) : # S 0
@@ -218,7 +219,7 @@ class StateMachine (stac) :
       elif state == (3) :
         if c.isalnum() or c == ':' or c == '-' : # *3 alnum  : l.push
           l +=c
-          if ipse.la() in (61, 62) : # ord('='):
+          if ipse.la() in (47, 61, 62) : # ord('/'), ord('='):
             ipse.pop()
             ipse.unget(token.index("key"))
         else : # *3 else <<1 &key

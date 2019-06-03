@@ -1,0 +1,175 @@
+#!/usr/bin/python3
+
+class OptParse :
+	def __init__(ipse) :
+		import sys
+		ipse.argv =sys.argv[1:]
+		if len(ipse.argv) == 0 :
+			ipse.la ='$'
+		elif len(ipse.argv[0]) == 0 :
+			ipse.la =''
+		else :
+			ipse.la =ipse.argv[0][0]
+		ipse.argi =0
+		ipse.argj =0
+
+	def getc(ipse) :
+		c =ipse.la
+		if len(ipse.argv[ipse.argi]) == ipse.argj+1 :
+			ipse.argi +=1; ipse.argj =0
+			if len(ipse.argv) == ipse.argi :
+				ipse.la ='$'
+			else :
+				ipse.la ='' if len(ipse.argv[ipse.argi]) == 0 else ipse.argv[ipse.argi][0]
+		else :
+			ipse.argj +=1
+			ipse.la =ipse.argv[ipse.argi][ipse.argj]
+		return c
+
+	def getl(ipse, noinc=0) :
+		if noinc == 1 and ipse.argj == 0 :
+			return ''
+		if ipse.la == '$' :
+			return '$'
+		else :
+			l =ipse.argv[ipse.argi][ipse.argj:]
+		ipse.argi +=1; ipse.argj =0
+		if len(ipse.argv) == ipse.argi :
+			ipse.la ='$'
+		else :
+			ipse.la ='' if len(ipse.argv[ipse.argi]) == 0 else ipse.argv[ipse.argi][0]
+		return l
+
+	def error(ipse, msg='error') :
+		print('optparse : %s'%msg)
+
+	def __call__(ipse, opt={'flgs':'','args':[],'c':[]}) :
+		lex =ipse
+		error =ipse.error
+		st =0
+		while st != 0 or lex.la != '$' :
+			if st == -2 :
+				if setoptf[0] == 'arg' :
+					if lex.la == '=' :
+						l =lex.getl()
+						opt[setoptf[1]].append(l[1:])
+					else :
+						opt['flgs'] +=setoptf[1]
+				st =0
+			elif st == -1 :
+				if setoptf[0] == 'arg' :
+					l =lex.getl()
+					opt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)
+				elif setoptf[0] == 'flg' :
+					opt['flgs'] +=setoptf[1]
+					opt['flgs'] +=lex.getl(noinc=1)
+				st =0
+			elif st == 0 :
+				if lex.la == '-' :
+					st =1
+					lex.getc()
+				else :
+					setoptf =('arg', 'args')
+					st =-1
+			elif st == 1 :
+				if lex.la == 'c' :
+					st =2
+					lex.getc()
+				elif lex.la == '-' :
+					st =3
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 2 :
+				st =-1
+				setoptf =('arg', 'c')
+			elif st == 3 :
+				if lex.la == 'c' :
+					st =4
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 4 :
+				if lex.la == 'd' :
+					st =5
+					lex.getc()
+				elif lex.la == 'h' :
+					st =6
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 5 :
+				st =-1
+				setoptf =('arg', 'c')
+			elif st == 6 :
+				if lex.la == 'a' :
+					st =7
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 7 :
+				if lex.la == 'n' :
+					st =8
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 8 :
+				if lex.la == 'g' :
+					st =9
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 9 :
+				if lex.la == 'e' :
+					st =10
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 10 :
+				if lex.la == '-' :
+					st =11
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 11 :
+				if lex.la == 'd' :
+					st =12
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 12 :
+				if lex.la == 'i' :
+					st =13
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 13 :
+				if lex.la == 'r' :
+					st =14
+					lex.getc()
+				else :
+					error('non exspectato uso aborto')
+					return
+			elif st == 14 :
+				st =-1
+				setoptf =('arg', 'c')
+		return opt
+
+def optutendi(nomen='') :
+	
+	print('Modus utendi %s :'%nomen)
+	print('  -c=a, --cd=a, --change-dir=a')
+
+def optparse() :
+	mop =OptParse()
+	return mop()
