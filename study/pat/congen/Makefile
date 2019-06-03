@@ -1,0 +1,10 @@
+
+MYBIN=/usr/local/my/bin
+install : cache/bin/zuo
+	cp $<  $(MYBIN)
+distclean :
+	rm -f $(MYBIN)/zuo
+cache/bin/zuo : py/bloc.py
+	cp $< $@
+Makefile : Zuo
+	py/bloc.py $< > $@
