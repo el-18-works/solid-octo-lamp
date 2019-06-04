@@ -151,7 +151,7 @@ class mkarbor(blocarbor) :
       udata =ipse.top()["bloc"][-1]['data']
       if udata :
         i =0
-        while udata[i] not in ('(', ':') and not udata[i].isspace() :
+        while len(udata)>i and udata[i] not in ('(', ':') and not udata[i].isspace() :
           i +=1
         clav =udata[:i]
         if clav in ("unit", "define", "endef", "ifeq", "ifneq", "ifdef", "else", "endif") :

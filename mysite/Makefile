@@ -2,7 +2,7 @@
 .IMPORT : MYHOME
 MYSITE=$(MYHOME)
 MYSITE?=/usr/local/my
-SQLFILES=pylib.sql vimrc.sql
+SQLFILES=create-user.sql create-schema.sql create-pylib.sql create-vimrc.sql luckxa-create-txt.sql
 SQLFLGS=$(foreach f,$(SQLFILES),cache/$(f).flg)
 ODSFILES=doc/myhost-sql.ods
 ODSFLGS=$(foreach f,$(ODSFILES),cache/$(f).flg)
@@ -17,7 +17,7 @@ BASHRC = $(wildcard ~/.bash_profile)
 ifeq ($(BASHRC),)
 BASHRC = $(wildcard  ~/.bashrc)
 endif
-vpath %.sql sql
+vpath %.sql cache/sql
 vpath %.py py
 .PHONY : all clean distclean
 clean :
@@ -31,14 +31,29 @@ cache/%.bin.flg : bin/%
 	chmod +x $(PWD)/$(<)
 	sudo ln -s $(PWD)/$(<) $(MYSITE)/$(<) || true
 	touch $@
-all :  $(SQLFLGS)
+.PHONY : sql
+sql :  $(SQLFLGS)
+all :  sql
 cache/myhost-sql.ods.flg : doc/myhost-sql.ods
-	miss $< cache
-cache/pylib.sql.flg : pylib.sql
-	mysql -u l18 -p@ -sB < $<
+	mkdir -p cache/sql
+	miss $< cache/sql
 	touch $@
-cache/vimrc.sql.flg : vimrc.sql
-	mysql -u l18 -p@ -sB < $<
+$(SQLFLGS) : cache/myhost-sql.ods.flg
+cache/sql/create-user.sql : cache/myhost-sql.ods.flg
+cache/create-user.sql.flg : cache/sql/create-user.sql
+	@mysql -u root -pMayLily -sB < $<
+	touch $@
+cache/create-schema.sql.flg : cache/sql/create-schema.sql
+	@mysql -u root -pMayLily -sB < $<
+	touch $@
+cache/luckxa-create-txt.sql.flg : luckxa-create-txt.sql
+	@mysql -u luckxa -pMyLinka -sB < $<
+	touch $@
+cache/create-pylib.sql.flg : create-pylib.sql
+	@mysql -u l18 -p@ -sB < $<
+	touch $@
+cache/create-vimrc.sql.flg : create-vimrc.sql
+	@mysql -u l18 -p@ -sB < $<
 	touch $@
 all : $(ENVFLGS)
 cache/myenv.flg : env/myenv.sh

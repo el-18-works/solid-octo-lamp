@@ -2,10 +2,18 @@
 MYBIN=/usr/local/my/bin
 .PHONY : install
 install : $(MYBIN)/zuo
+uname=$(shell uname)
 $(MYBIN)/zuo : cache/bin/zuo
-	cp $<  $@
-distclean :
-	rm -f $(MYBIN)/zuo
+	sudo cp $<  $@
+	sudo chown root $@
+ifeq ($(uname),Darwin)
+	sudo chgrp wheel $@
+else
+	sudo chgrp root $@
+endif
+	sudo chmod 0755 $@
+.PHONY : distclean
+distclean : ; sudo rm -f $(MYBIN)/zuo
 cache/bin/zuo : py/zuo.py py/bloc.py
 	echo "#!/usr/bin/env python3" > $@
 	$< py/bloc.py "*" >> $@
@@ -13,4 +21,4 @@ cache/bin/zuo : py/zuo.py py/bloc.py
 	echo "main()" >> $@
 	echo "" >> $@
 Makefile : Zuo
-	py/bloc.py $< > $@
+	py/zuo.py $< > $@

@@ -4,12 +4,15 @@ all : install
 all : deliver
 .PHONY : install
 .PHONY : deliver
-distclean :
-	sudo rm -f $(MYBIN)/miss
+distclean : ; sudo rm -f $(MYBIN)/miss
 install : $(MYBIN)/miss
 $(MYBIN)/miss : cache/bin/miss
 	sudo cp $< $@
+ifeq ($(shell uname),Darwin)
+	sudo chgrp wheel $@
+else
 	sudo chgrp root $@
+endif
 	sudo chown root $@
 	sudo chmod 0755 $@
 cache/bin/miss : py/miss.py py/myxml.py
