@@ -124,7 +124,7 @@ class stacarbor (stac) :
       fasc("pop", None)
     fasc("popunit", None)
     
-class blocarbor(stac) :
+class unitblocarbor(stac) :
 
   def error(ipse, msg) :
     print("%s:%d: %s"%(ipse.unitnom, ipse.lnum, msg))
@@ -138,7 +138,7 @@ class blocarbor(stac) :
     stacarbor(comment=csglob(comment))(unitnom, ipse.fasc, ipse.pos)
     return ipse.radix
 
-class mkarbor(blocarbor) :
+class unitmkarbor(unitblocarbor) :
 
   def __call__(ipse, unitnom) :
     return ipse.arbor(unitnom, "#*,*##,--*")
@@ -172,7 +172,7 @@ class mkarbor(blocarbor) :
     elif e == "popunit" :
       ipse.pop()
 
-class pyarbor(blocarbor) :
+class unitpyarbor(unitblocarbor) :
 
   def __call__(ipse, unitnom) :
     return ipse.arbor(unitnom, "#*,*##,//*")
@@ -226,10 +226,10 @@ class unitbloc :
       ipse.__unit[nom] =ipse.ba(nom)
     return ipse.__unit[nom]
 
-class mkunitbloc (unitbloc) :
+class unitmkbloc (unitbloc) :
 
   def __init__(ipse) :
-    super().__init__(mkarbor())
+    super().__init__(unitmkarbor())
     ipse.__unit ={}
 
   def item(ipse, nom) :
@@ -240,10 +240,10 @@ class mkunitbloc (unitbloc) :
           ipse.__unit[nom][l["nom"]] =l["bloc"]
     return ipse.__unit[nom].items()
 
-class pyunitbloc (unitbloc) :
+class unitpybloc (unitbloc) :
 
   def __init__(ipse) :
-    super().__init__(pyarbor())
+    super().__init__(unitpyarbor())
     ipse.__unit ={}
 
   def item(ipse, nom) :
@@ -310,20 +310,20 @@ class pmunit :
         s =v[0]['data']
         return s.rstrip()[:-1].rstrip()
 
-class pyunit (pmunit) :
+class unitpy (pmunit) :
 
   def __init__(ipse, tabchr="  ", tabshft=0) :
-    ipse.ub =pyunitbloc()
+    ipse.ub =unitpybloc()
     ipse.tabchr =tabchr
     ipse.tabshft =tabshft
     ipse.spatpre ="def", "class",
     ipse.spatpost ="class",
     ipse.pyecho =pyecho("#echo *", 6)
 
-class mkunit (pmunit) :
+class unitmk (pmunit) :
 
   def __init__(ipse, tabchr="\t", tabshft=0) :
-    ipse.ub =mkunitbloc()
+    ipse.ub =unitmkbloc()
     ipse.tabchr =tabchr
     ipse.tabshft =tabshft
     ipse.spatpre =[] # "dep", 
@@ -334,13 +334,13 @@ if __name__ == "__main__" :
   from sys import stdout, argv
   if len(argv) == 2 and argv[1] == "test" :
     while 1 :
-      print("\n".join(pyunit().ls(__file__)))
+      print("\n".join(unitpy().ls(__file__)))
       it =input(">> ")
       if it :
-        print(pyunit().cap(__file__, it))
+        print(unitpy().cap(__file__, it))
         input(">> ")
-        pyunit().writeitem(stdout,__file__, it)
+        unitpy().writeitem(stdout,__file__, it)
       else :
-        pyunit().writeradix(stdout,__file__)
+        unitpy().writeradix(stdout,__file__)
       input(">> ")
 

@@ -11,14 +11,14 @@ def main() :
   unit =argv[1]
   if len(argv) == 2 :
     if basename(unit)[0].isupper() :
-      mkunit().writeradix(stdout, argv[1])
+      unitmk().writeradix(stdout, argv[1])
     else :
-      pyunit().writeradix(stdout, argv[1])
+      unitpy().writeradix(stdout, argv[1])
   elif len(argv) == 3 :
     if basename(unit)[0].isupper() :
-      mkunit().writeitem(stdout, argv[1], argv[2])
+      unitmk().writeitem(stdout, argv[1], argv[2])
     else :
-      pyunit().writeitem(stdout, argv[1], argv[2])
+      unitpy().writeitem(stdout, argv[1], argv[2])
 
 if __name__ == "__main__" :
   main()
