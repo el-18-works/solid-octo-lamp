@@ -18,7 +18,6 @@ endif
 .PHONY : distclean
 distclean : ; sudo rm -f $(MYBIN)/zuo
 
-
 cache/bin/zuo : py/zuo.py py/bloc.py
   echo "#!/usr/bin/env python3" > $@
   $< py/bloc.py "*" >> $@

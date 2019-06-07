@@ -24,14 +24,12 @@ fun! QA_make(...)
 	:	else
 	:   let path =getcwd()
 	:		exe "!make $(python3 -c \"from my.vimrc import get; get('".path."')\")"
-	":		exe "!make $(cat ~/.vim/run/qa_make-target || true)"
 	:	endif
 	:else
 	:	let s =join(a:000, " ")
 	:	let g:QA_make_target=s
 	: let path =getcwd()
 	:		exe "!python3 -c \"from my.vimrc import put; put('".path."', '".s."')\" && make ".s
-	":	exe "!echo ".s." > ~/.vim/run/qa_make-target && make ".s
 	endif
 endfun
 :com! -nargs=* ZQAmake call QA_make(<f-args>)
@@ -40,8 +38,8 @@ endfun
 fun! QA_runBuffer(...)
 	":mark s
 	":%s/\t/  /ge
-	:retab
 	":`s
+	:retab
 	:wa
 	":!chmod +x %<CR>
 	:let l:count = len(a:000)

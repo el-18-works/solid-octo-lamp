@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-from sys import path
-from os.path import dirname
-path.append(dirname(__file__))
-from bloc import *
+from py.bloc import *
 
 def main() :
   from sys import stdout, argv
@@ -23,4 +20,6 @@ def main() :
     else :
       pyunit().writeitem(stdout, argv[1], argv[2])
 
-main()
+if __name__ == "__main__" :
+  main()
+

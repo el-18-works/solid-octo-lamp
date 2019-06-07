@@ -53,8 +53,8 @@ class StateMachine (stac) :
     while ipse.la() :
       c =ipse.ci()
       state =ipse.top()
-      #if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
-      #else : ipse.info('[%d] "%s"'%(state,token[c]))
+#      if type(c) in ( str, bytes) : ipse.info("[%d] '%s'"%(state,c))
+#      else : ipse.info('[%d] "%s"'%(state,token[c]))
       if  state not in [0,-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,6,7,8,10,12,13,26,27] and type(c) == str and c.isspace() :
 #      if state not in [-2,-3,-4,-5,-6,-7,-8,-10,-11,-12,-13,3,4,5,6,7,8,10,12,13,27] and type(c) == str and c.isspace() :
         continue
@@ -77,7 +77,7 @@ class StateMachine (stac) :
           ipse.push(20)
         elif c == token.index("</") : # 0 "</" 23
           ipse.push(23)
-        else : #
+        else : 
           ipse.unget(c)
           ipse.push(26)
       elif state == (-1) :
@@ -249,7 +249,7 @@ class StateMachine (stac) :
         if c == "'" : # *6 ' <<2 &literal
           ipse.pop()
           ipse.unget(token.index("literal"))
-        elif c == '&' : #
+        elif c == '&' : 
           ipse.push(28)
           el =""
 #       elif c == "\\" : # *6 \ 8
@@ -260,7 +260,7 @@ class StateMachine (stac) :
         if c == '"' :
           ipse.pop()
           ipse.unget(token.index("literal"))
-        elif c == '&' : #
+        elif c == '&' : 
           ipse.push(28)
           el =""
 #       elif c == "\\" : # *7 \ 8
@@ -406,7 +406,7 @@ class StateMachine (stac) :
           ipse.push(-1)
           ipse.onto("fragment", l)
           l =""
-        elif c == '&' : #
+        elif c == '&' : 
           ipse.push(27)
           ipse.push(28)
           el =""
@@ -415,10 +415,10 @@ class StateMachine (stac) :
           l =c
           ipse.push(27)
       elif state == (27) :
-        if c == '<' : #
+        if c == '<' : 
           ipse.pop()
           ipse.unget(token.index("frag"))
-        elif c == '&' : #
+        elif c == '&' : 
           ipse.push(28)
           el =""
         else :
@@ -432,12 +432,12 @@ class StateMachine (stac) :
           el +=c
 # --- DTD ---
       elif state == (29) :
-        if c == '>' : #
+        if c == '>' : 
           ipse.pop()
-        elif c == token.index("key") : #
+        elif c == token.index("key") : 
           e ={'name':l}
           ipse.push(30)
-        elif c.isalpha() : #
+        elif c.isalpha() : 
           ipse.push(3)
           l =c
         else :

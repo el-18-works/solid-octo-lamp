@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 
-from os.path import dirname
-from sys import path
-path.append(dirname(__file__))
-from myxml import legodoc, odocstyledefs
+from py.myxml import legodoc, odocstyledefs
+
 
 class textmissex :
 
   def __init__(ipse) :
-    ipse.lodoc = legodoc(debug=1)
+    ipse.lodoc = legodoc(debug=1) ##
     ipse.lodoc.on("*:body", "opentag", ipse.openbody)
     ipse.lodoc.on("office:*", "opentag", ipse.openoffice)
     ipse.styl =odocstyledefs(ipse.lodoc)
 
   def openbody (ipse, ev, data) : 
-    print("OPENBODY")
+    print("OPENBODY") ##
     ipse.lodoc.debug =2
 
   def openoffice (ipse, ev,data) : 
-    print("OPENOFFICE")
+    print("OPENOFFICE") ##
     ipse.lodoc.debug =0
 
   def __call__(ipse, fnom) :
@@ -129,6 +127,7 @@ class calcmissex :
     return ipse.tt
 
 def main() :
+  #echo ",".join(dir())
   from sys import argv
   if len(argv) < 3 :
     print("modus : miss *.ods */   italicis-commentatae csv.")

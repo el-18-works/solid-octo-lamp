@@ -100,7 +100,7 @@ class stacarbor (stac) :
         fasc("pushunit", None)
         fasc("push", "")
       tabs,frag =resettabs(l.rstrip())
-      if not frag or ipse.comment != None and ipse.comment(frag) and (len(tabs) == 0 or tabs != ipse.top()) :
+      if not frag or ipse.comment != None and ipse.comment(l) and (len(tabs) == 0 or tabs != ipse.top()) :
         fasc("comment", frag)
       else :
         while len(tabs) < len(ipse.top()) :
@@ -141,7 +141,7 @@ class blocarbor(stac) :
 class mkarbor(blocarbor) :
 
   def __call__(ipse, unitnom) :
-    return ipse.arbor(unitnom, "#*,--*")
+    return ipse.arbor(unitnom, "#*,*##,--*")
 
   def fasc(ipse, e, data) :
     if e == "pushunit" :
@@ -175,14 +175,15 @@ class mkarbor(blocarbor) :
 class pyarbor(blocarbor) :
 
   def __call__(ipse, unitnom) :
-    return ipse.arbor(unitnom, "#*,//*")
+    return ipse.arbor(unitnom, "#*,*##,//*")
 
   def fasc(ipse, e, data) :
     if e == "pushunit" :
       ipse.push({"clav" : "", "bloc":[{'clav':'cap', 'data':"unit :"}]})
     elif e == "push" :
       clav =value =""
-      udata =ipse.top()["bloc"][-1]['data']
+      try : udata =ipse.top()["bloc"][-1]['data']
+      except Exception as e : ipse.error(e)
       if udata :
         i =0
         while udata[i] not in ('(', ':') and not udata[i].isspace() :
@@ -253,6 +254,21 @@ class pyunitbloc (unitbloc) :
           ipse.__unit[nom][l["nom"]] =l["bloc"]
     return ipse.__unit[nom].items()
 
+class pyecho :
+  def __init__(ipse, pat, de ,ad=None) :
+    ipse.glob =csglob(pat)
+    ipse.de =de
+    ipse.ad =ad
+
+  def __call__(ipse, s) :
+    if ipse.glob(s) :
+      if ipse.ad == None :
+        return eval(s[ipse.de:], {})
+      else :
+        return eval(s[ipse.de:ipse.ad], {})
+    else :
+      return s
+
 class pmunit :
 
   def write(ipse, out, data, tabshft) :
@@ -261,15 +277,15 @@ class pmunit :
         if tabshft >= 0 :
           out.write(ipse.tabchr*(ipse.tabshft+tabshft) + data['data'] + '\n')
       elif data['clav'] == 'frag' :
-        out.write(ipse.tabchr*(ipse.tabshft+tabshft+1) + data['data'] + '\n')
+        out.write(ipse.tabchr*(ipse.tabshft+tabshft+1) + ipse.pyecho(data['data']) + '\n')
       elif 'bloc' in data :
         if data['clav'] in ipse.spatpre :
           if ipse.tabshft == tabshft :
             out.write('\n')
         for x in data['bloc'] :
           f(x, tabshft+1)
-      #if ipse.tabshft == tabshft+1 :
-        #out.write('\n')
+#      if ipse.tabshft == tabshft+1 :
+#        out.write('\n')
       if data['clav'] in ipse.spatpost :
         out.write('\n\n')
     f(data, tabshft)
@@ -302,6 +318,7 @@ class pyunit (pmunit) :
     ipse.tabshft =tabshft
     ipse.spatpre ="def", "class",
     ipse.spatpost ="class",
+    ipse.pyecho =pyecho("#echo *", 6)
 
 class mkunit (pmunit) :
 
@@ -311,6 +328,7 @@ class mkunit (pmunit) :
     ipse.tabshft =tabshft
     ipse.spatpre =[] # "dep", 
     ipse.spatpost =[] #"dep",
+    ipse.pyecho =pyecho("#echo *", 6)
 
 if __name__ == "__main__" :
   from sys import stdout, argv
