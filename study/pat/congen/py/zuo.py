@@ -16,9 +16,9 @@ def main() :
       unitpy().writeradix(stdout, argv[1])
   elif len(argv) == 3 :
     if basename(unit)[0].isupper() :
-      unitmk().writeitem(stdout, argv[1], argv[2])
+      unitmk().writeitem(stdout, argv[2], argv[1])
     else :
-      unitpy().writeitem(stdout, argv[1], argv[2])
+      unitpy().writeitem(stdout, argv[2], argv[1])
 
 if __name__ == "__main__" :
   main()

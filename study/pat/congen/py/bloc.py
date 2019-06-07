@@ -80,22 +80,24 @@ class stacarbor (stac) :
     print(msg)
     exit(1)
 
-  def __call__(ipse, unitnom, fasc, pos) :
+  def __call__(ipse, inputiter, fasc, pos) :
     def resettabs(l) :
       for i in range(len(l)) :
         if not l[i].isspace() :
           return l[:i], l[i:]
       return l,""
     fragcont =None
-    for i,l in enumerate(open(unitnom)) :
-      pos(i+1)
+    i =0
+    for l in inputiter :
+      i +=1
+      pos(i)
       if len(l)>1 and l[-2] == '\\' :
         fragcont =l
         continue
       if fragcont != None :
         l =fragcont + l
         fragcont =None
-      if i == 0 :
+      if i == 1 :
         ipse.push('')
         fasc("pushunit", None)
         fasc("push", "")
@@ -124,7 +126,7 @@ class stacarbor (stac) :
       fasc("pop", None)
     fasc("popunit", None)
     
-class unitblocarbor(stac) :
+class blocarbor(stac) :
 
   def error(ipse, msg) :
     print("%s:%d: %s"%(ipse.unitnom, ipse.lnum, msg))
@@ -133,15 +135,21 @@ class unitblocarbor(stac) :
   def pos(ipse, lnum) :
     ipse.lnum =lnum
 
-  def arbor(ipse, unitnom, comment="") :
-    ipse.unitnom =unitnom
-    stacarbor(comment=csglob(comment))(unitnom, ipse.fasc, ipse.pos)
+  def arbor(ipse, iterinput, comment="") :
+    stacarbor(comment=csglob(comment))(iterinput, ipse.fasc, ipse.pos)
     return ipse.radix
 
-class unitmkarbor(unitblocarbor) :
+  def unitarbor(ipse, unitnom, comment="") :
+    ipse.unitnom =unitnom
+    return ipse.arbor(open(unitnom), comment)
 
-  def __call__(ipse, unitnom) :
-    return ipse.arbor(unitnom, "#*,*##,--*")
+class mkarbor(blocarbor) :
+
+  def __call__(ipse, iterinput) :
+    return ipse.arbor(iterinput)
+
+  def unit(ipse, unitnom) :
+    return ipse.unitarbor(unitnom, "#*,*##,--*")
 
   def fasc(ipse, e, data) :
     if e == "pushunit" :
@@ -172,10 +180,13 @@ class unitmkarbor(unitblocarbor) :
     elif e == "popunit" :
       ipse.pop()
 
-class unitpyarbor(unitblocarbor) :
+class pyarbor(blocarbor) :
 
-  def __call__(ipse, unitnom) :
-    return ipse.arbor(unitnom, "#*,*##,//*")
+  def __call__(ipse, iterinput) :
+    return ipse.arbor(iterinput, "#*,*##,//*")
+
+  def unit(ipse, unitnom) :
+    return ipse.unitarbor(unitnom, "#*,*##,//*")
 
   def fasc(ipse, e, data) :
     if e == "pushunit" :
@@ -221,21 +232,24 @@ class unitbloc :
     ipse.__unit ={}
     ipse.ba =ba
 
-  def radix(ipse, nom) :
+  def radix(ipse, nom, iterinput=None) :
     if nom not in ipse.__unit :
-      ipse.__unit[nom] =ipse.ba(nom)
+      if iterinput == None :
+        ipse.__unit[nom] =ipse.ba.unit(nom)
+      else :
+        ipse.__unit[nom] =ipse.ba(iterinput)
     return ipse.__unit[nom]
 
 class unitmkbloc (unitbloc) :
 
   def __init__(ipse) :
-    super().__init__(unitmkarbor())
+    super().__init__(mkarbor())
     ipse.__unit ={}
 
-  def item(ipse, nom) :
+  def item(ipse, nom, iterinput=None) :
     if nom not in ipse.__unit :
       ipse.__unit[nom] ={}
-      for l in ipse.radix(nom)["bloc"][1:] :
+      for l in ipse.radix(nom, iterinput)["bloc"][1:] :
         if l["clav"] == "dep" :
           ipse.__unit[nom][l["nom"]] =l["bloc"]
     return ipse.__unit[nom].items()
@@ -243,13 +257,13 @@ class unitmkbloc (unitbloc) :
 class unitpybloc (unitbloc) :
 
   def __init__(ipse) :
-    super().__init__(unitpyarbor())
+    super().__init__(pyarbor())
     ipse.__unit ={}
 
-  def item(ipse, nom) :
+  def item(ipse, nom, iterinput=None) :
     if nom not in ipse.__unit :
       ipse.__unit[nom] ={}
-      for l in ipse.radix(nom)["bloc"][1:] :
+      for l in ipse.radix(nom, iterinput)["bloc"][1:] :
         if l["clav"] in ("class", "def") :
           ipse.__unit[nom][l["nom"]] =l["bloc"]
     return ipse.__unit[nom].items()
@@ -280,32 +294,28 @@ class pmunit :
         out.write(ipse.tabchr*(ipse.tabshft+tabshft+1) + ipse.pyecho(data['data']) + '\n')
       elif 'bloc' in data :
         if data['clav'] in ipse.spatpre :
-          if ipse.tabshft == tabshft :
-            out.write('\n')
+          out.write('\n')
         for x in data['bloc'] :
           f(x, tabshft+1)
-#      if ipse.tabshft == tabshft+1 :
-#        out.write('\n')
       if data['clav'] in ipse.spatpost :
-        out.write('\n\n')
+        out.write('\n')
     f(data, tabshft)
     
-  def writeradix(ipse, out, unitnom) :
-    ipse.write( out, ipse.ub.radix(unitnom), -2 )
+  def writeradix(ipse, out, unitnom, inputiter=None) :
+    ipse.write( out, ipse.ub.radix(unitnom, inputiter), -2 )
 
-  def writeitem(ipse, out, unitnom, itnom, tabshft=0) :
+  def writeitem(ipse, out, itnom, unitnom, inputiter=None, tabshft=0) :
     itglob =csglob(itnom)
-    for clav,blc in ipse.ub.item(unitnom) :
+    for clav,blc in ipse.ub.item(unitnom, inputiter) :
       if itglob(clav) :
         for data in blc :
           ipse.write(out, data, tabshft)
-        out.write('\n\n')
 
-  def ls(ipse, unitnom) :
-    return tuple(k for k,v in ipse.ub.item(unitnom))
+  def ls(ipse, unitnom, inputiter=None) :
+    return tuple(k for k,v in ipse.ub.item(unitnom, inputiter))
 
-  def cap(ipse, unitnom, itnom) :
-    for k,v in ipse.ub.item(unitnom) :
+  def cap(ipse, itnom, unitnom, inputiter=None) :
+    for k,v in ipse.ub.item(unitnom, inputiter) :
       if k == itnom :
         s =v[0]['data']
         return s.rstrip()[:-1].rstrip()
@@ -337,10 +347,10 @@ if __name__ == "__main__" :
       print("\n".join(unitpy().ls(__file__)))
       it =input(">> ")
       if it :
-        print(unitpy().cap(__file__, it))
+        print(unitpy().cap(it, __file__))
         input(">> ")
-        unitpy().writeitem(stdout,__file__, it)
+        unitpy().writeitem(stdout, it, __file__)
       else :
-        unitpy().writeradix(stdout,__file__)
+        unitpy().writeradix(stdout, __file__)
       input(">> ")
 

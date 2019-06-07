@@ -1,12 +1,6 @@
 #!/usr/bin/python3
 
-from py.bloc import pyarbor
-#
-#
-#  optionium parsitio
-#
-#
-
+from py.bloc import unitpy
 
 class OptParseSM :
 	def error(ipse, msg) :
