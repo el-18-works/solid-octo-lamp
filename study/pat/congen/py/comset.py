@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from py.bloc import unitpy
 
@@ -11,11 +11,11 @@ class unit :
       ipse.__a.append(a)
 
   def radix(ipse, out) :
-    unitpy().writeradix(out, "subcmd", ipse.__a)
+    unitpy().writeradix(out, "comopt", ipse.__a)
 
-class subcmdaux :
+class comoptaux :
   def error(ipse, msg) :
-    print("genoptparse :" + msg)
+    print("comopt :" + msg)
     exit(1)
 
   def __init__(ipse, debug=False) :
@@ -100,16 +100,16 @@ class subcmdaux :
         yield "   error('non exspectato uso aborto')"
         yield "   return"
 
-class subcmd :
+class comopt :
 
-  def __init__(ipse, optargs,debug=False) :
+  def __init__(ipse, optargs, debug=False) :
     ipse.optargs =optargs
     ipse.debug =debug
 
   def __call__(ipse) :
     u =unit()
 
-    u("class subcmd :")
+    u("class comopt :")
 
     u(" def __init__(ipse) :")
     u("  import sys")
@@ -151,9 +151,9 @@ class subcmd :
     u("  return l")
 
     u(" def error(ipse, msg='error') :")
-    u("  print('optparse : %s'%msg)")
+    u("  print('comopt : %s'%msg)")
 
-    aux =subcmdaux(ipse.debug)
+    aux =comoptaux(ipse.debug)
     ls =[]
     lutendi =[]
     for cmd,f in ipse.optargs :
@@ -189,18 +189,18 @@ class subcmd :
     for i in lutendi :
       u(" print('%s')"%i)
 
-    u("def optparse() :")
-    u(" sc =subcmd()")
-    u(" return sc()")
+    u("def comset() :")
+    u(" co =comopt()")
+    u(" return co()")
 
     return u
 
 def gengetopt(output, optargs, debug=1) :
-  sc =subcmd(optargs=optargs, debug=debug)
   libout =open(output, "w") if type(output) == str else output
   if libout.seekable() and libout.tell() == 0 :
-    libout.write("#!/usr/bin/python3")
-  sc().radix(libout)
+    libout.write("#!/usr/bin/env python3")
+  co =comopt(optargs=optargs, debug=debug)
+  co().radix(libout)
 
 def main() :
   from sys import stdout, argv
