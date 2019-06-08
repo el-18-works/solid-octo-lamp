@@ -127,7 +127,6 @@ class calcmissex :
     return ipse.tt
 
 def main() :
-  #echo ",".join(dir())
   from sys import argv
   if len(argv) < 3 :
     print("modus : miss *.ods */   italicis-commentatae csv.")
