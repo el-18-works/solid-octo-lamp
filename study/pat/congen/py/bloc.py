@@ -136,6 +136,7 @@ class blocarbor(stac) :
     ipse.lnum =lnum
 
   def arbor(ipse, iterinput, comment="") :
+    ipse.unitnom ="*"
     stacarbor(comment=csglob(comment))(iterinput, ipse.fasc, ipse.pos)
     return ipse.radix
 
