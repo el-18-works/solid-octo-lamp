@@ -2,7 +2,7 @@
 
 from py.bloc import *
 
-def main() :
+def zuo_main(arg) :
   from sys import stdout, argv
   from os.path import basename
   if len(argv) not in (2,3) or not argv[1] :
@@ -21,5 +21,15 @@ def main() :
       unitpy().writeitem(stdout, argv[2], argv[1])
 
 if __name__ == "__main__" :
-  main()
+  from py.comset import gencomopt
+  from sys import stdout, argv
+  COMS ={"--":"main", "make":"make", "zuo":"zuo"}
+  OPTARGS =[
+  ("-f,--file,--makefile", "+f", "makefile"),
+  ("-n,--just-print,--dry-run,--recon", "n"),
+  ("-s,--silent,--quiet", "s"),
+  ("-j,--jobs=n", "*j"),
+  ("-t,--touch", "t"),
+  ]
+  gencomopt(COMS, OPTARGS, "zuo")
 

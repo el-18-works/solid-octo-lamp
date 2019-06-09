@@ -11,17 +11,18 @@ class unit :
       ipse.__a.append(a)
 
   def radix(ipse, out) :
-    unitpy().writeradix(out, "comopt", ipse.__a)
+    unitpy().writeradix(out, "concomopt", ipse.__a)
 
-class comoptaux :
+class concomoptaux :
   def error(ipse, msg) :
-    print("comopt :" + msg)
+    print("concomopt :" + msg)
     exit(1)
 
-  def __init__(ipse, debug=False) :
+  def __init__(ipse, comset =[], debug=0) :
     ipse.debug =debug
     ipse.autoinc =0
     ipse.trans ={0:{}}
+    ipse.comset =repr(list(comset))
 
   def prim(ipse) :
     ipse.autoinc +=1
@@ -44,6 +45,9 @@ class comoptaux :
   def __iter__(ipse) :
     preactst =-2
     actst =-1
+    yield "curcom ='--'"
+    yield "initopt =opt.copy()"
+    yield "com ={}"
     yield "st =0"
     yield "while st != 0 or lex.la != '$' :"
     if ipse.debug :
@@ -60,7 +64,15 @@ class comoptaux :
       yield "   error('internalis error')"
     yield "  st =0"
     yield " elif st == %d :"%actst
-    yield "  if setoptf[0] == 'arg' :"
+    yield "  if setoptf[0] == 'comarg' :"
+    yield "   l =lex.getl()"
+    yield "   if l in %s :"%ipse.comset
+    yield "    com[curcom] =opt"
+    yield "    curcom =l"
+    yield "    opt =initopt.copy()"
+    yield "   else :"
+    yield "    opt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)"
+    yield "  elif setoptf[0] == 'arg' :"
     yield "   l =lex.getl()"
     yield "   opt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)"
     yield "  elif setoptf[0] == 'flg' :"
@@ -94,19 +106,21 @@ class comoptaux :
         yield "   lex.getc()"
       yield "  else :"
       if st == 0 :
-        yield "   setoptf =('arg', 'args')"
+        yield "   setoptf =('comarg', 'args')"
         yield "   st =%d"%actst
       else :
         yield "   error('non exspectato uso aborto')"
         yield "   return"
+    yield "com[curcom] =opt"
 
-class comopt :
+class concomopt :
 
-  def __init__(ipse, optargs, debug=False) :
+  def __init__(ipse, coms, optargs, debug=False) :
+    ipse.coms =coms
     ipse.optargs =optargs
     ipse.debug =debug
 
-  def __call__(ipse) :
+  def unit(ipse) :
     u =unit()
 
     u("class comopt :")
@@ -153,22 +167,21 @@ class comopt :
     u(" def error(ipse, msg='error') :")
     u("  print('comopt : %s'%msg)")
 
-    aux =comoptaux(ipse.debug)
+    aux =concomoptaux(ipse.coms, ipse.debug)
+
     ls =[]
     lutendi =[]
-    for cmd,f in ipse.optargs :
-      arg ="a"
-      if "=" in cmd :
-        cmd,arg =cmd.split("=")
-      utendi ="  "
-      if f[0] == "+" :
-        utendi +=", ".join(c+"="+arg for c in cmd.split(","))
-      elif f[0] == "*" :
-        utendi +=", ".join(c+"[="+arg+"]" for c in cmd.split(","))
+    for a in ipse.optargs :
+      if len(a) == 2 :
+        cmd,f =a
+        if "=" in cmd :
+          cmd,param =cmd.split("=")
+        else :
+          param ='a'
+      elif len(a) == 3 :
+        cmd,f,param =a
       else :
-        utendi +=", ".join(cmd.split(","))
-      lutendi.append(utendi)
-
+        ipse.error("imprevisum optarg : %s"%repr(a))
       for c in cmd.split(",") :
         aux(c, f)
       if f[0] in ("*", "+") :
@@ -182,36 +195,89 @@ class comopt :
     for i in aux :
       u ("  "+i)
 
-    u("  return opt")
+    u("  return com")
 
-    u("def optutendi(nomen='') :")
-    u(" print('Modus utendi %s :'%nomen)")
+    #
+    # optutendi
+    #
+    u("def optutendi(nomen='', optargs=%s, subcom=%s) :" % (repr(ipse.optargs), repr(list(ipse.coms.keys()))))
+    u(' lutendi =[]')
+    u(' for a in optargs :')
+    u('   if len(a) == 2 :')
+    u('     cmd,f =a')
+    u('     if "=" in cmd :')
+    u('       cmd,param =cmd.split("=")')
+    u('     else :')
+    u('       param ="a"')
+    u('   elif len(a) == 3 :')
+    u('     cmd,f,param =a')
+    u('   else :')
+    u('     raise Exception("imprevisum optarg : %s" % repr(a))')
+    u('   utendi ="  "')
+    u('   if f[0] == "+" :')
+    u('     utendi +=", ".join(c+"="+param for c in cmd.split(","))')
+    u('   elif f[0] == "*" :')
+    u('     utendi +=", ".join(c+"[="+param+"]" for c in cmd.split(","))')
+    u('   else :')
+    u('     utendi +=", ".join(cmd.split(","))')
+    u('   lutendi.append(utendi)')
+    u(" print('Modus utendi %s :' % nomen)")
     for i in lutendi :
       u(" print('%s')"%i)
+    u(" if subcom :")
+    u("  print('  <%s> ' % ', '.join(subcom))")
 
+    #
+    # comset
+    #
     u("def comset() :")
     u(" co =comopt()")
     u(" return co()")
 
+    u("comset =comset()")
+    for i,c in enumerate(list(ipse.coms.keys())) : 
+      rc =repr(c)
+      u("%sif %s in comset :"%('' if i == 0 else 'el', rc))
+      if ipse.coms[c] != None :
+        u(" "+ipse.coms[c]+"(comset["+rc+"])")
+      else :
+        u(" print(%s + ' :')"%(rc))
+        u(" for k in comset[%s] :"%(rc))
+        u("  print('  ' + k + ' : ' + repr(comset["+rc+"][k]))")
+
     return u
 
-def gengetopt(output, optargs, debug=1) :
-  libout =open(output, "w") if type(output) == str else output
+  def radix(ipse, out) :
+    ipse.unit().radix(out)
+
+def gencomopt(coms, optargs, ns=None, out=None, debug=0) :
+  if type(coms) != dict :
+    coms ={k:k for k in coms}
+  if ns != None :
+    coms ={k:coms[k].__name__ if callable(coms[k]) else "_".join([ns, str(coms[k])]) for k in coms}
+  if out == None :
+    from sys import stdout
+    libout =stdout
+  else :
+    libout =open(out, "w") if type(out) == str else out
   if libout.seekable() and libout.tell() == 0 :
-    libout.write("#!/usr/bin/env python3")
-  co =comopt(optargs=optargs, debug=debug)
-  co().radix(libout)
+    libout.write("#!/usr/bin/env python3\n\n")
+  co =concomopt(coms =coms, optargs=optargs, debug=debug)
+  co.radix(libout)
 
-def main() :
-  from sys import stdout, argv
-  OPTARGS =[
-    ("-f,--file,--makefile", "+f"),
-    ("-n,--just-print,--dry-run,--recon", "n"),
-    ("-s,--silent,--quiet", "s"),
-    ("-j,--jobs", "*j"),
-    ("-t,--touch", "t"),
-  ]
-  gengetopt(stdout, OPTARGS)
 
-main()
+if __name__ == "__main__" :
+  def main() :
+    from sys import stdout, argv
+    COMS =["make", "zuo"]
+    OPTARGS =[
+      ("-f,--file,--makefile", "+f", "makefile"),
+      ("-n,--just-print,--dry-run,--recon", "n"),
+      ("-s,--silent,--quiet", "s"),
+      ("-j,--jobs=n", "*j"),
+      ("-t,--touch", "t"),
+    ]
+    gencomopt(COMS, OPTARGS, "main")
+
+  main()
 

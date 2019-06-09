@@ -14,11 +14,14 @@ endif
 	sudo chmod 0755 $@
 .PHONY : distclean
 distclean : ; sudo rm -f $(MYBIN)/zuo
-cache/bin/zuo : py/zuo.py py/bloc.py
+cache/bin/zuo : py/zuo.py py/bloc.py py/zuocom.py py/comset.py
 	echo "#!/usr/bin/env python3" > $@
+	echo "" >> $@
 	$< py/bloc.py "*" >> $@
-	$< py/zuo.py "*" >> $@
-	echo "main()" >> $@
+	echo "" >> $@
+	$< py/zuocom.py "*" >> $@
+	echo "" >> $@
+	py/zuocom.py  >> $@
 	echo "" >> $@
 Makefile : Zuo
 	py/zuo.py $< > $@
