@@ -274,13 +274,14 @@ class pyecho :
     ipse.glob =csglob(pat)
     ipse.de =de
     ipse.ad =ad
+    ipse.globals ={}
 
   def __call__(ipse, s) :
     if ipse.glob(s) :
       if ipse.ad == None :
-        return eval(s[ipse.de:], {})
+        return exec(s[ipse.de:], ipse.globals)
       else :
-        return eval(s[ipse.de:ipse.ad], {})
+        return exec(s[ipse.de:ipse.ad], ipse.globals)
     else :
       return s
 

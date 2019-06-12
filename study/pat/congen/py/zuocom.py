@@ -2,30 +2,36 @@
 
 from py.bloc import *
 
-def zuo_main(arg) :
-  from sys import stdout, argv
-  from os.path import basename
-  if len(argv) not in (2,3) or not argv[1] :
-    print("zuo infile [itemglob]")
-    exit(1)
-  unit =argv[1]
-  if len(argv) == 2 :
-    if basename(unit)[0].isupper() :
-      unitmk().writeradix(stdout, argv[1])
+def zuo_vim(opt) :
+  pass
+
+def zuo_py(opt) :
+  from sys import stdout
+  def fpy(fnom) :
+    if len(opt['args']) == 0 :
+      unitpy().writeradix(stdout, fnom)
     else :
-      unitpy().writeradix(stdout, argv[1])
-  elif len(argv) == 3 :
-    if basename(unit)[0].isupper() :
-      unitmk().writeitem(stdout, argv[2], argv[1])
+      for a in opt['args'] :
+        unitpy().writeitem(stdout, fnom, a)
+  for a in opt['f'] if len(opt['f']) else ['Zuo'] :
+    fmk(a)
+
+def zuo_main(opt) :
+  from sys import stdout
+  def fmk(fnom) :
+    if len(opt['args']) == 0 :
+      unitmk().writeradix(stdout, fnom)
     else :
-      unitpy().writeitem(stdout, argv[2], argv[1])
+      for a in opt['args'] :
+        unitmk().writeitem(stdout, fnom, a)
+  for a in opt['f'] if len(opt['f']) else ['Zuo'] :
+    fmk(a)
 
 if __name__ == "__main__" :
   from py.comset import gencomopt
-  from sys import stdout, argv
-  COMS ={"--":"main", "make":"make", "zuo":"zuo"}
+  COMS ={"--":"main", "python":"py", "vim":"vim"}
   OPTARGS =[
-  ("-f,--file,--makefile", "+f", "makefile"),
+  ("-f,--file,--makefile", "+f", "Zuo"),
   ("-n,--just-print,--dry-run,--recon", "n"),
   ("-s,--silent,--quiet", "s"),
   ("-j,--jobs=n", "*j"),

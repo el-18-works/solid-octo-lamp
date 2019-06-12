@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Shotwell
+Comment=Image Viewer
+Icon=
+Exec=/usr/bin/shotwell
