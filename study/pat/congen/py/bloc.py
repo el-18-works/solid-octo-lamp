@@ -288,19 +288,30 @@ class pyecho :
 class pmunit :
 
   def write(ipse, out, data, tabshft) :
-    def f(data, tabshft) :
+
+    def f(data, tabshft, spatpre=0) :
+
+      if data['clav'] in ipse.spatpost :
+        spatpost =ipse.spatpost[data['clav']]
+      else :
+        spatpost =0
+      if data['clav'] in ipse.spatpre :
+        spatpre =max(spatpre, ipse.spatpre[data['clav']])
+      if 'bloc' not in data and spatpre != 0 :
+        out.write('\n' * spatpre)
+
       if data['clav'] == 'cap' :
         if tabshft >= 0 :
           out.write(ipse.tabchr*(ipse.tabshft+tabshft) + data['data'] + '\n')
       elif data['clav'] == 'frag' :
         out.write(ipse.tabchr*(ipse.tabshft+tabshft+1) + ipse.pyecho(data['data']) + '\n')
       elif 'bloc' in data :
-        if data['clav'] in ipse.spatpre :
-          out.write('\n')
-        for x in data['bloc'] :
-          f(x, tabshft+1)
-      if data['clav'] in ipse.spatpost :
-        out.write('\n')
+        for i,x in enumerate(data['bloc']) :
+          if i == len(data['bloc']) - 1 :
+            spatpost =max(spatpost, f(x, tabshft+1, spatpre))
+          else :
+            spatpre =f(x, tabshft+1, spatpre)
+      return spatpost
     f(data, tabshft)
     
   def writeradix(ipse, out, unitnom, inputiter=None) :
@@ -328,8 +339,8 @@ class unitpy (pmunit) :
     ipse.ub =unitpybloc()
     ipse.tabchr =tabchr
     ipse.tabshft =tabshft
-    ipse.spatpre ="def", "class",
-    ipse.spatpost ="class",
+    ipse.spatpre ={"def":2, "class":3}
+    ipse.spatpost ={"def":1, "class":2}
     ipse.pyecho =pyecho("#echo *", 6)
 
 class unitmk (pmunit) :
@@ -338,8 +349,8 @@ class unitmk (pmunit) :
     ipse.ub =unitmkbloc()
     ipse.tabchr =tabchr
     ipse.tabshft =tabshft
-    ipse.spatpre =[] # "dep", 
-    ipse.spatpost =[] #"dep",
+    ipse.spatpre ={} # "dep", 
+    ipse.spatpost ={} #"dep",
     ipse.pyecho =pyecho("#echo *", 6)
 
 if __name__ == "__main__" :
