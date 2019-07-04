@@ -1,67 +1,9 @@
 #!/usr/bin/env python3
 
-class Path :
+from util import *
 
-  def __init__(ipse, x=0, y=0, k=1, att="") :
-    ipse.x, ipse.y, ipse.k =x, y, k
-    ipse.d =[]
-    ipse.att=att
-
-  def xy(ipse, a) :
-    for i,x in enumerate(a) :
-      if i%2 :
-        ipse.d.append(str(x * ipse.k))
-      else :
-        ipse.d.append(str(x * ipse.k))
-
-  def XY(ipse, a) :
-    for i,x in enumerate(a) :
-      if i%2 :
-        ipse.d.append(str((x + ipse.y) * ipse.k))
-      else :
-        ipse.d.append(str((x + ipse.x) * ipse.k))
-
-  def M(ipse, *a) :
-    ipse.d.append('M')
-    ipse.XY(a)
-
-  def L(ipse, *a) :
-    ipse.d.append('L')
-    ipse.XY(a)
-
-  def l(ipse, *a) :
-    ipse.d.append('l')
-    ipse.xy(a)
-
-  def C(ipse, *a) :
-    ipse.d.append('C')
-    ipse.XY(a)
-
-  def c(ipse, *a) :
-    ipse.d.append('c')
-    ipse.xy(a)
-
-  def S(ipse, *a) :
-    ipse.d.append('S')
-    ipse.XY(a)
-
-  def Q(ipse, *a) :
-    ipse.d.append('Q')
-    ipse.XY(a)
-
-  def T(ipse, *a) :
-    ipse.d.append('T')
-    ipse.XY(a)
-
-  def Z(ipse) :
-    ipse.d.append('Z')
-
-  def __str__(ipse) :
-    return '<path d="%s" %s />'%(' '.join(ipse.d), ipse.att)
-
-def apath(fd, m, l) :
-  s ='stroke="rgba(10,200,10,0.3)" stroke-width="0.6" fill="rgba(255,100,100,0.2)"'
-  p =Path(70+m/l, 70+m/l, l, s)
+def alicepath() :
+  p =Path()
   p.M(26, 3.75)
   p.C(22.5, 4.25, 20.15, 6.5, 18.75, 11.5)
   p.S(16,    21,   12.5, 23.75)
@@ -152,53 +94,7 @@ def apath(fd, m, l) :
   p.S(24.33, 38.25, 24.45, 38.5)
   p.S(24.5, 39.75, 24.25, 40.125)
   p.Z()
-  print(str(p))
-  fd.write(str(p))
-
-def main(imfnom, ofnom, m=20) :
-  from PIL import Image
-  with Image.open(imfnom) as im :
-    w,h =im.size
-  fd =open(ofnom, 'w')
-  fd.write('''<svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  xmlns:xlink="http://www.w3.org/1999/xlink"
-  width="%s" height="%s" >'''%(w+m*2, h+m*2))
-  fd.write('''<rect x="1" y="1" width="%s" height="%s" 
-  fill="white" stroke="rgba(200,10,10,10)" 
-  stroke-width="2" />'''%(w+m*2-2, h+m*2-2))
-  fd.write('<g>')
-  l =5
-  style='style="stroke:rgba(200,10,10,0.5); stroke-width:0.2"'
-  style5='style="stroke:rgba(200,10,10,0.5); stroke-width:0.5"'
-  style10='style="stroke:rgba(10,10,200,0.5); stroke-width:1"'
-  for i in range(int(w/l)) :
-    if i%10 == 0 :
-      s ='fill="rgba(10,100,10,20)" font-size="11px"'
-      fd.write('<text x="%s" y="%s" %s>%s</text>'%(m+i*l, 15, s, i))
-    if i%10 == 0 : s =style10
-    elif i%5 == 0 : s =style5
-    else : s =style
-    fd.write('<line x1="%s" y1="%s" x2="%s" y2="%s" %s />'%(m+i*l, m, m+i*l, h+m, s))
-  fd.write('</g>')
-  fd.write('<g>')
-  for i in range(int(h/l)) :
-    if i%10 == 0 :
-      s ='fill="rgba(10,100,10,20)" font-size="11px" transform="rotate(-90 %s,%s)"'%(15,m+i*l)
-      fd.write('<text x="%s" y="%s" %s>%s</text>'%(15, m+i*l, s, i))
-    if i%10 == 0 : s =style10
-    elif i%5 == 0 : s =style5
-    else : s =style
-    fd.write('<line x1="%s" y1="%s" x2="%s" y2="%s" %s />'%(m, m+i*l, w+m, m+i*l, s))
-  fd.write('</g>')
-  with open(imfnom, 'br') as fp :
-    from base64 import b64encode
-    bdata =b64encode(fp.read()).decode()
-    url ='data:image/png;base64,' + bdata
-    fd.write('<image x="%s" y="%s" height="%s" width="%s"'%(m/2, m/2, w, h) + 
-    ' xlink:href="%s" />'%url)
-  apath(fd, m, l)
-  fd.write('</svg>')
+  return p
 
 
 if __name__ == "__main__" :
@@ -209,6 +105,20 @@ if __name__ == "__main__" :
   if len(argv) > 2 :
     imfnom, ofnom =argv[1:3]
     print(imfnom,ofnom)
-  main(imfnom, ofnom)
+  m =20
+  l =5
+  w,h =size(imfnom)
+  e ={'stroke':"rgba(10,200,10,0.3)",
+  'stroke-width':0.8,
+  'fill':"rgba(10,10,10,0.8)"}
+  #'fill':"rgba(255,100,100,0.2)"}
+  #e ='stroke="rgba(10,200,10,0.3)" stroke-width="0.6" fill="rgba(255,100,100,0.2)"'
+
+  path =alicepath()
+  svg =svg(w+m, h+m)
+  svg[1].append(('g', calc(imfnom, m=m, l=l, opacity=0.2)))
+  e['d'] =path.d(350+m, 350+m, l)
+  svg[1].append(('path', e))
+  echosvg(svg, ofnom)
 
 
