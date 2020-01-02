@@ -41,6 +41,28 @@ distclean : $(CLEANFLGS)
 
 
 #
+-- env
+#
+.PHONY : env
+env : $(ENVFLGS)
+all :  env
+cache/myenv.flg : env/myenv.sh
+	cat $(BASHRC) | grep $(PWD)/$(<) || \
+		echo ". $(PWD)/$(<)" >> $(BASHRC)
+	touch $@
+
+cache/vimrc.flg : env/vimrc
+	test -f $(HOME)/.vimrc || \
+		ln -sf $(PWD)/$(<) $(HOME)/.vimrc
+	mkdir -p $(HOME)/.vim/run
+	touch $@
+
+cache/my.mk.flg : env/my.mk
+	test -f $(MYHOME)/share/$< || \
+		ln -sf $(PWD)/$< $(MYHOME)/share/$(<F)
+	touch $@
+	
+#
 -- bin
 #
 all :  $(BINFLGS)
@@ -85,26 +107,6 @@ cache/create-vimrc.sql.flg : create-vimrc.sql
 	touch $@
 
 
-#
--- env
-#
-all : $(ENVFLGS)
-cache/myenv.flg : env/myenv.sh
-	cat $(BASHRC) | grep $(PWD)/$(<) || \
-		echo ". $(PWD)/$(<)" >> $(BASHRC)
-	touch $@
-
-cache/vimrc.flg : env/vimrc
-	test -f $(HOME)/.vimrc || \
-		ln -sf $(PWD)/$(<) $(HOME)/.vimrc
-	mkdir -p $(HOME)/.vim/run
-	touch $@
-
-cache/my.mk.flg : env/my.mk
-	test -f $(MYHOME)/share/$< || \
-		ln -sf $(PWD)/$< $(MYHOME)/share/$(<F)
-	touch $@
-	
 cache/packme.mk.flg : env/packme.mk
 	test -f $(MYHOME)/share/$< || \
 		ln -sf $(PWD)/$< $(MYHOME)/share/$(<F)
@@ -148,4 +150,5 @@ cache/packop.py : cache/pylibcon.flg
 	python3 -c "from my.pylibcon import gengetopt; gengetopt('$@', [('-m,--mini','m'),],0)"
 
 Makefile : Zuo
-  zuo $< > $@
+  zuo -f $< > $@
+
