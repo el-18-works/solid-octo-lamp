@@ -195,13 +195,15 @@ while 1 :
 	if c == "u" :
 		md =nikidir+u.md()
 		copy_clipboard(md)
-		paste_clipboard("vi ")
+		paste_clipboard("leafpad ")
+		#paste_clipboard("vi ")
 	elif c == "h" :
 		md =nikidir+h.md()
 		txt =mc.hodie(h)
 		open(md, "w").write("\n".join([h.mdheader(), txt]))
 		copy_clipboard(md)
-		paste_clipboard("vi ")
+		paste_clipboard("leafpad ")
+		#paste_clipboard("vi ")
 	else :
 		print("u continuare ultimum")
 		print("h separare hodie")
