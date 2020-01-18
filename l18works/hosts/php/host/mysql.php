@@ -24,7 +24,7 @@ function my_data_servatio() {
 		var $res;
 	}
 
-	$mysqli =new mysqli("localhost", $c->user, $c->pass, $c->schema);
+	$mysqli =new mysqli("127.0.0.1", $c->user, $c->pass, $c->schema);
 	$mysqli->set_charset("utf8");
 	//$mysqli =new mysqli("localhost", "luckxa", "my", "sys");
 	$r =new resclass();

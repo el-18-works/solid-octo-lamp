@@ -1,0 +1,22 @@
+[ 
+{
+	"lang":"la",
+	"author":"Genesis",
+	"ref":"Vulgata Genesis 3:6.",
+	"text" : [
+	"Vidit igitur mulier quod bonum esset lignum ad vescendum",
+	" et pulchrum oculis aspectuque delectabile",
+	" et tulit de fructu illius",
+	" et comedit deditque viro suo qui comedit"]
+},
+{
+	"lang":"la",
+	"author":"Nicolaus de Cusa",
+	"ref":"Trialogus de possest, 2-3.",
+	"text" : ["BERNARDUS: Miramur abbas et ego quod invisibilia conspiciuntur.",
+	"CARDINALIS: Conspiciuntur invisibiliter, sicut intellectus invisibilem veritatem,",
+	"quae latet sub littera, quando intelligit quae invisibiliter videt.",
+	"*",
+	"Id, quod video sensibiliter, scio ex se non esse."]
+}
+]

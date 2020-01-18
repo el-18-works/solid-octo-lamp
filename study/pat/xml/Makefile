@@ -18,12 +18,12 @@ endif
 cache/bin/miss : py/miss.py py/myxml.py
 	echo "#!/usr/bin/env python3" > $@
 	echo "" >> $@
-	zuo py/myxml.py "*" >> $@
-	zuo py/miss.py "*" >> $@
+	zuo python -f py/myxml.py  >> $@
+	zuo python -f py/miss.py  >> $@
 	echo "main()" >> $@
 deliver : ~/sol/mysite/doc/myhost-sql.ods
 ~/sol/mysite/doc/myhost-sql.ods : doc/myhost-sql.ods
 	mkdir -p `dirname $@`
 	cp $< $@
 Makefile : Zuo
-	zuo $< > $@
+	zuo -f $< > $@

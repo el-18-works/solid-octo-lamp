@@ -1,0 +1,38 @@
+body {
+	font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', sans-serif;
+	color : rgba(255, 200, 200, 50);
+	background-color : MediumSeaGreen;
+	padding : 10px 0px 10px 0px;
+}
+#all {
+	position : relative;
+	background-color : white;
+	padding : 10px 10% 10px 10%;
+	border : solid 2px black;
+
+}
+body:hover {
+	text-decoration : None;
+	color : rgba(5, 2, 2, 100%);
+}
+a {
+	text-decoration : None;
+	color : rgba(200, 50, 200, 155);
+}
+a:hover {
+	text-decoration : underline overline;
+	color : rgba(200, 250, 200, 55);
+}
+#time {
+    text-align : left;
+    font-size : 13pt;
+    color : navy;
+}
+#startdash {
+	border : solid 2px rgba(255, 200, 200, 255);
+	padding : 8px;
+}
+#my {
+	border : solid 2px rgba(255, 200, 255, 255);
+	padding : 8px;
+}

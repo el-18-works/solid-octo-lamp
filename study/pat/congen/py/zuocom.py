@@ -14,7 +14,7 @@ def zuo_py(opt) :
       for a in opt['args'] :
         unitpy().writeitem(stdout, fnom, a)
   for a in opt['f'] if len(opt['f']) else ['Zuo'] :
-    fmk(a)
+    fpy(a)
 
 def zuo_main(opt) :
   from sys import stdout

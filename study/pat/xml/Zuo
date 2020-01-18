@@ -21,8 +21,10 @@ endif
 cache/bin/miss : py/miss.py py/myxml.py
   echo "#!/usr/bin/env python3" > $@
   echo "" >> $@
-  zuo py/myxml.py "*" >> $@
-  zuo py/miss.py "*" >> $@
+  zuo python -f py/myxml.py  >> $@
+  zuo python -f py/miss.py  >> $@
+#  zuo py/myxml.py "*" >> $@
+#  zuo py/miss.py "*" >> $@
   echo "main()" >> $@
 
 deliver : ~/sol/mysite/doc/myhost-sql.ods
@@ -31,6 +33,6 @@ deliver : ~/sol/mysite/doc/myhost-sql.ods
   cp $< $@
 
 Makefile : Zuo
-  zuo $< > $@
+  zuo -f $< > $@
 
 

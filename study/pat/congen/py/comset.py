@@ -67,9 +67,13 @@ class concomoptaux :
     yield "  if setoptf[0] == 'comarg' :"
     yield "   l =lex.getl()"
     yield "   if l in %s :"%ipse.comset
-    yield "    com[curcom] =opt"
+    yield "    if opt != initopt :"
+    yield "     com[curcom] =opt"
     yield "    curcom =l"
-    yield "    opt =initopt.copy()"
+    yield "    if curcom in com :"
+    yield "     opt =com[curcom]"
+    yield "    else :"
+    yield "     opt =initopt.copy()"
     yield "   else :"
     yield "    opt[setoptf[1]].append(l[1:] if len(l) and l[0] == '=' else l)"
     yield "  elif setoptf[0] == 'arg' :"
@@ -237,7 +241,8 @@ class concomopt :
     u("comset =comset()")
     for i,c in enumerate(list(ipse.coms.keys())) : 
       rc =repr(c)
-      u("%sif %s in comset :"%('' if i == 0 else 'el', rc))
+      u("if %s in comset :"%(rc)) # ....
+      #u("%sif %s in comset :"%('' if i == 0 else 'el', rc))
       if ipse.coms[c] != None :
         u(" "+ipse.coms[c]+"(comset["+rc+"])")
       else :

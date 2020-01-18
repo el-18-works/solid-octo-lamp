@@ -1,3 +1,6 @@
+augroup filetypedetect
+  au BufNewFile,BufRead Zuo	setf make
+augroup END
 
 au BufWinLeave *.* mkview
 au BufWinEnter *.* silent loadview

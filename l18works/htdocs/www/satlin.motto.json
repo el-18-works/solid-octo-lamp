@@ -1,0 +1,18 @@
+[ 
+{
+	"lang":"es",
+	"author":"Miguel de Unamuno",
+	"ref":"Poesías (1907), Introducción, «Denso, denso».",
+	"text":[ "&nbsp;&nbsp;Mira, amigo, cuando libres",
+		"al mundo tu pensamiento,",
+		"cuida que sea ante todo", 
+		"denso, denso." ]
+},
+{
+	"lang":"gr",
+	"author":"Euclide",
+	"ref":"Elementorum I, definitio 8.",
+	"text" : ["η'. &nbsp;&nbsp;&nbsp; Ἐπίπεδος δὲ γωνία ἐστὶν", " ἡ ἐν ἐπιπέδῳ δύο γϱαμμῶν ἁπτομένων ἀλλήλων καὶ",
+		" μὴ ἐπ’ εὐϑείας κειμένων πϱὸς αλλήλας τῶν γϱαμμῶν κλίσις."]
+}
+]
