@@ -1,0 +1,69 @@
+/*
+ * Satlin Official Minimum Styles.
+ *
+ */
+
+.copyleft {
+	float : right;
+	font : italic 10px "Times New Roman", sans-serif;
+	color : rgba(250,240,250, 0.1);
+	text-align : center;
+	margin-top : 30px;
+	width : 100%;
+	opacity : 50%;
+}
+.copyleft {
+	color : rgba(250,240,250, 0.5);
+}
+a:link {
+	color : rgb(150,210,250);
+	text-decoration : dotted;
+}
+a:visited {
+	color : rgb(100,160,200);
+	text-decoration : none;
+}
+a:hover {
+	color : rgb(140,20,20);
+	background-color : rgba(255,255,255,0.5);
+	border-radius : 50px;
+}
+.motto-refmark {
+	font : bold 50% "Times New Roman";
+	display : inline;
+	vertical-align : top;
+}
+.motto-notemark {
+	font : bold 105% "Times New Roman";
+	display : inline;
+}
+.motto-title {
+	font : bold 20px "Times New Roman";
+	color : rgb(254,254,254);
+	position : center;
+}
+.motto-text {
+	font : italic 16px "Times New Roman";
+	color : rgb(254,254,254);
+	position : center;
+}
+.motto-author {
+	font : italic 18px "Times New Roman";
+	color : rgb(254,254,254);
+	position : right;
+}
+hr.motto-hr {
+	color : rgb(254,254,254);
+	border-style : solid;
+	border-width : 0.5px;
+	margin-top : 1em;
+	margin-bottom : 1em;
+	width : 50%;
+}
+.motto-note {
+	font : italic 13px "Times New Roman";
+	color : rgb(254,254,254);
+	position : left;
+	margin-left : 1px;
+}
+

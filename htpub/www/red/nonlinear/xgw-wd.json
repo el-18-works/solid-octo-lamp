@@ -1,0 +1,62 @@
+{"公开" :
+	[
+	    {
+		"title": "香港本願寺佛学会資料",
+		"size": 390986,
+		"description": "中文原文",
+		"href": "xg/XiangGang-FoXueHue-ZiLiao.pdf",
+		"type": "pdf"
+	    },
+	    {
+		"title": "香港文",
+		"size": 671263,
+		"description": "日语翻译草稿",
+		"href": "xg/\u9999\u6e2f\u6587wd.pdf",
+		"type": "pdf"
+	    },
+	    {
+		"title": "香港文",
+		"size": 4900595,
+		"description": "日语翻译草稿",
+		"href": "xg/\u9999\u6e2f\u6587wd.ps",
+		"type": "ps"
+	    }
+	],
+"非公开" : [
+	    {
+		"title": "香港文Working Draft ver1.0",
+		"size": 57459,
+		"description": "日译糟糕",
+		"href": "xg/\u9999\u6e2f\u6587wd-1.0.odt",
+		"type": "odt"
+	    },
+	    {
+		"title": "香港文Working Draft ver1.1",
+		"size": 49790,
+		"description": "日语翻译草稿",
+		"href": "xg/\u9999\u6e2f\u6587wd-1.1.odt",
+		"type": "odt"
+	    },
+	    {
+		"title": "香港文Working Draft ver1.2",
+		"size": 49484,
+		"description": "日语翻译草稿",
+		"href": "xg/\u9999\u6e2f\u6587wd-1.2.odt",
+		"type": "odt"
+	    },
+	    {
+		"title": "香港本願寺佛学会資料",
+		"size": 59907,
+		"description": "中文原文",
+		"href": "xg/XiangGang-FoXueHue-ZiLiao.odt",
+		"type": "odt"
+	    },
+	    {
+		"title": "香港文",
+		"size": 48787,
+		"description": "日语翻译草稿",
+		"href": "xg/\u9999\u6e2f\u6587wd.odt",
+		"type": "odt"
+	    }
+	]
+}

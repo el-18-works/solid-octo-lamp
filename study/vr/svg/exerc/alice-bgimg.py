@@ -116,7 +116,7 @@ if __name__ == "__main__" :
 
   path =alicepath()
   svg =svg(w+m, h+m)
-  svg[1].append(('g', calc(imfnom, m=m, l=l, opacity=0.2)))
+  #svg[1].append(('g', calc(imfnom, m=m, l=l, opacity=0.2)))
   e['d'] =path.d(350+m, 350+m, l)
   svg[1].append(('path', e))
   echosvg(svg, ofnom)

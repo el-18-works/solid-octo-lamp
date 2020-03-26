@@ -1,0 +1,181 @@
+<?php
+?>
+<html>
+<head>
+<style>
+body {
+	margin:0px;
+	background-color:black;
+}
+#navi {
+	margin:0px;
+	width:100%;
+	height:40px;
+	background-color:green;
+}
+#centro {
+	opacity:0.5;
+	border:0px;
+	position:absolute;
+	top:40px;
+	left:50%;
+	z-index:2;
+	margin:0px;
+	width:10px;
+	height:100%;
+	background-color:black;
+	cursor:col-resize;
+}
+#cont {
+	opacity:0.5;
+	margin:0px;
+	border:0px;
+	padding:0px;
+	width:100%;
+	height:100%;
+	background-color:blue;
+	left:0px;
+	right:0px;
+	top:0px;
+	bottom:0px;
+/*
+	position:relative;
+	top:30px;
+	bottom:0px;
+*/
+}
+.externo {
+	position:relative;
+	margin:0px;
+	width:50%;
+	height:100%;
+	top:0px;
+	bottom:0px;
+}
+.interno {
+	margin:0px;
+/*
+	width:100%;
+	height:100%;
+	border-color:white;
+	border-width:1px;
+	border-style:solid;
+	left:3px;
+	right:3px;
+*/
+}
+.izquierda {
+	opacity:0.8;
+	background-color:red;
+	float:left;
+	left:0px;
+}
+.derecha {
+	opacity:0.8;
+	background-color:white;
+	float:right;
+	right:0px;
+}
+</style>
+<script src="https://ens.l18.work/link/acemodule/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+function preparaciónEstilo() {
+	const naviH =40;
+	const centroW =9;
+	var winH =window.innerHeight;
+	var navi =document.getElementById("navi").style;
+	var cont =document.getElementById("cont").style;
+	var codigo =document.getElementById("código").style;
+	var vista =document.getElementById("vista").style;
+	//var editor =document.getElementById("editor").style;
+	//var pagina =document.getElementById("página").style;
+	var eCentro =document.getElementById("centro")
+	var centro =eCentro.style;
+	//var winW =document.body.width;
+	var winW =window.innerWidth;
+	console.log("winW="+winW);
+	var ints =document.getElementsByClassName("interno");
+	for (i in ints) {
+	}
+	navi.height =naviH;
+	cont.height =winH-naviH;
+	centro.height =winH-naviH;
+	centro.left =(winW-centroW)/2;
+	var exts =document.getElementsByClassName("externo");
+	console.log(exts);
+	for (i=0; i<exts.length; ++i) {
+		//ints[i] =winH-40;
+		//console.log("i="+i+":inti="+exts[i]);
+		exts[i].style.width =(winW-centroW)/2-4;
+	}
+	eCentro.ondrag = (e) => {
+		if (e.x>centroW && e.x<winW-centroW) {
+			var left =e.x-centroW/2;
+			centro.left =left;
+			codigo.width =left-4;
+			vista.width =winW-(centroW+left)-4;
+			console.log("codigo="+codigo.width);
+			console.log("vista="+vista.width);
+		}
+	}
+	window.onresize =preparaciónEstilo;
+	return;
+
+	navi.style.margin="0px";
+	//navi.style.width=winW-20;
+	//navi.style.boxShadow ="-2px 2px 5px grey";
+	navi.style.height="30px";
+	navi.innerHTML ="navi";
+	navi.style.border ="1px solid red";
+	//navi.style.backgroundColor ="black";
+	//cont.innerHTML ="cont";
+
+	editor.innerHTML ="editor";
+
+
+	editor.style.position="relative";
+	editor.style.width=winW/2;
+
+	vista.style.position="absolute";
+	codigo.style.position="absolute";
+	codigo.style.width =vista.style.width ="50%";
+	//codigo.style.width =vista.style.width =winW/2;
+	codigo.style.left ="0px";
+	codigo.style.top ="30px";
+	vista.style.right ="0px";
+	vista.style.top ="30px";
+	//codigo.style.width =vista.style.width ="50%";
+	//codigo.height="100%";
+	//vista.height="100%";
+	codigo.style.margin="0px";
+	//codigo.style.border="1px solid blue";
+	//codigo.style.backgroundColor="blue";
+	vista.style.backgroundColor="yellow";
+	//vista.style.border="1px solid blue";
+	vista.style.margin="0px";
+	//codigo.style.boxShadow="2px 2px 3px #344";
+	//vista.style.boxShadow="2px 2px 3px #344";
+	codigo.innerHTML ="código";
+	vista.innerHTML ="vista";
+}
+
+</script>
+
+</head>
+<body onload="preparaciónEstilo()">
+<div id=navi width="100%"></div>
+<div id=cont>
+<?php /*
+		<div class ="interno izquierda" id=editor></div>
+		<iframe class ="interno derecha" id=página></iframe>
+*/ ?>
+<div id=centro>
+</div>
+<center>
+	<div class ="externo izquierda" id=código>
+	</div>
+	<div class ="externo derecha" id=vista>
+	</div> 
+</div>
+</body>
+</html>

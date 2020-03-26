@@ -69,7 +69,7 @@ def calc(fnom, m=10, b=2, l=5, opacity=0.6) :
 
   g =[]
 
-  with open(fnom, 'br') as fp :
+  with open(fnom, 'rb') as fp :
     from base64 import b64encode
     bdata =b64encode(fp.read()).decode()
     url ='data:image/png;base64,' + bdata
